@@ -1,6 +1,6 @@
-import Footer from "../../Components/Footer";
-import Header from "../../Components/Header";
-import Sidebar from "../../Components/Sidebar";
+import Footer from "../../_Shared/Footer";
+import Header from "../../_Shared/Header";
+import Sidebar from "../../_Shared/Sidebar";
 
 function PrimaryLayout() {
   return (
