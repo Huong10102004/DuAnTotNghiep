@@ -13,7 +13,7 @@ function Header() {
 
   return <div className="">
       <div className="row">
-        <div className="col-sm-2">
+        <div className="col-sm-2 bg-color-white-smoke pb-2">
             <img src={Logo} /> 
         </div>
         <div className="col-sm-10 d-flex justify-content-between align-items-center">

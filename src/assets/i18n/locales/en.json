@@ -2,5 +2,16 @@
     "overView": "Overview",
     "teacher": "Teacher",
     "student": "Student",
-    "parent": "Parent"
+    "parent": "Parent",
+    "timetable": "Timetable",
+    "attendance": "Attendance",
+    "report": "Report",
+    "system": "System",
+    "permission": "Permission",
+    "mark": "Mark",
+    "home": "Home",
+    "en": "English",
+    "vi": "Vietnamese",
+    "darkMode": "Dark mode",
+    "logout": "Logout"
 }

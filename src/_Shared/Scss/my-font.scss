@@ -1,0 +1,84 @@
+// // css font-size
+@for $i from 10 through 30 {
+    .fs-#{$i} {
+        font-size: $i*0.1rem !important;
+    }
+}
+
+
+// // css width%
+@for $i from 1 through 100 {
+    // .w-#{$i} {
+    //     width: $i * 1% !important;
+    // }
+
+    // .h-#{$i} {
+    //     height: $i * 1% !important;
+    // }
+
+    .border-radius-#{$i}px {
+        border-radius: $i*1px !important;
+    }
+
+    // .top-#{$i} {
+    //     top: $i * 1px !important;
+    // }
+
+    // .bottom-#{$i} {
+    //     bottom: $i * 1px !important;
+    // }
+
+    // .left-#{$i} {
+    //     left: $i * 1px !important;
+    // }
+
+    // .right-#{$i} {
+    //     right: $i * 1px !important;
+    // }
+}
+
+@for $i from 1 through 300 {
+    .w-#{$i}px {
+        width: $i * 1px !important;
+    }
+
+    .h-#{$i}px {
+        height: $i * 1px !important;
+    }
+
+    .min-h-#{$i}px {
+        min-height: $i * 1px !important;
+    }
+
+    .min-w-#{$i}px {
+        min-width: $i * 1px !important;
+    }
+}
+
+
+// // responsive font-size
+@media (max-width: 1280px) {
+    @for $i from 10 through 30 {
+        .fs-#{$i} {
+            font-size: $i*0.1rem !important;
+        }
+    }
+}
+
+// // responsive font-size
+
+// // css font weight
+@for $i from 1 through 8 {
+    .fw-#{$i*100} {
+        font-weight: $i*100 !important;
+    }
+
+    .border-bottom-width-#{$i}px {
+        border-bottom-width: $i*1px !important;
+    }
+
+
+    .border-width-#{$i}px {
+        border-width: $i*1px !important;
+    }
+}

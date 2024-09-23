@@ -3,6 +3,7 @@ import './App.css'
 import Sidebar from "./layouts/layout_staff/Sidebar/Sidebar";
 import { useTranslation } from 'react-i18next';
 import './assets/i18n/i18n'; // Import cấu hình i18n
+import Attendance from "./_MODULES/Staff/Attendance/Components/attendance";
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -18,7 +19,7 @@ export default function App() {
           </div>
 
           <div className="col-10">
-
+            <Attendance></Attendance>
           </div>
       </div>
     </div>

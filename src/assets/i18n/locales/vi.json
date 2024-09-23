@@ -2,5 +2,16 @@
     "overView": "Tổng quan",
     "teacher": "Giáo viên",
     "student": "Học sinh",
-    "parent": "Phụ huynh"
+    "parent": "Phụ huynh",
+    "timetable": "Thời khóa biểu",
+    "attendance": "Điểm danh",
+    "report": "Báo cáo",
+    "system": "Hệ thống",
+    "permission": "Phân quyền",
+    "mark": "Điểm số",
+    "home": "Trang chủ",
+    "en": "Tiếng anh",
+    "vi": "Tiếng việt",
+    "darkMode": "Chế độ tối",
+    "logout": "Đăng xuất"
 }

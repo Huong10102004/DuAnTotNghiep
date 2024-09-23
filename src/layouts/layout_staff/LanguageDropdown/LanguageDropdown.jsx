@@ -6,13 +6,15 @@ import arrow_down from '../../../assets/images/svg/arrow_down.svg'
 function LanguageDropdown() {
   const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
-
+  const [selectedLanguage, setSelectedLanguage] = useState(i18n.language); // Lưu ngôn ngữ hiện tại
+  
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
+    setSelectedLanguage(lng); // Cập nhật ngôn ngữ được chọn
     setIsOpen(false); // Đóng dropdown sau khi chọn
   };
 
@@ -28,15 +30,15 @@ function LanguageDropdown() {
             <div className="py-1" role="none">
               <button
                 onClick={() => changeLanguage('en')}
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left ${selectedLanguage === 'en' ? 'active' : ''}`}
               >
-                English
+                {t('en')}
               </button>
               <button
                 onClick={() => changeLanguage('vi')}
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left active"
+                className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left ${selectedLanguage === 'vi' ? 'active' : ''}`}
               >
-                Tiếng Việt
+                {t('vi')}
               </button>
             </div>
           </div>
