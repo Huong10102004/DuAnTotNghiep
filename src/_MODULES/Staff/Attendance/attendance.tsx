@@ -12,9 +12,8 @@ const Attendance = () => {
     <div>
       <header className="h-[100px] w-full"></header>
       <div className="flex flex-row">
-        <div className="w-[15%]">h</div>
-        <div className="w-[85%]">
-          <div className="mb-[40px] h-[110px] w-full bg-[#0078FF]">
+        <div className="w-[100%]">
+          {/* <div className="mb-[40px] h-[110px] w-full bg-[#0078FF]">
             <ul className="flex h-full w-full items-center justify-around">
               {navs.map((nav, index) => (
                 <li
@@ -39,7 +38,7 @@ const Attendance = () => {
                 </li>
               ))}
             </ul>
-          </div>
+          </div> */}
           <div className="ml-4">
             <h1 className="text-3xl font-bold text-[#4154F1]">Điểm danh</h1>
             <div>
@@ -61,7 +60,7 @@ const Attendance = () => {
               <div className="flex space-x-4">
                 <select
                   name="day"
-                  className="rounded-lg border border-gray-300 p-2"
+                  class="rounded-lg border border-gray-300 p-2"
                 >
                   <option
                     value=""
