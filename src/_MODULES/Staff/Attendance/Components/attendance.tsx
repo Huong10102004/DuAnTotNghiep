@@ -1,4 +1,6 @@
+import { Pagination } from "antd";
 import React from "react";
+import PaginationAntd from "../../../../_Shared/Components/Pagination/Pagination";
 
 const Attendance = () => {
   const navs: string[] = [
@@ -10,11 +12,10 @@ const Attendance = () => {
   ];
   return (
     <div>
-      <header className="h-[100px] w-full"></header>
-      <div className="flex flex-row">
-        <div className="w-[15%]">h</div>
-        <div className="w-[85%]">
-          <div className="mb-[40px] h-[110px] w-full bg-[#0078FF]">
+      {/* <header className="h-[100px] w-full"></header> */}
+      <div className="flex flex-row pt-6rem bg-white h-100vh">
+        <div className="w-[100%]">
+          {/* <div className="mb-[40px] h-[110px] w-full bg-[#0078FF]">
             <ul className="flex h-full w-full items-center justify-around">
               {navs.map((nav, index) => (
                 <li
@@ -39,8 +40,8 @@ const Attendance = () => {
                 </li>
               ))}
             </ul>
-          </div>
-          <div className="ml-4">
+          </div> */}
+          <div className="mx-4">
             <h1 className="text-3xl font-bold text-[#4154F1]">Điểm danh</h1>
             <div>
               <span className="text-[#989797]">Track / </span>
@@ -311,8 +312,11 @@ const Attendance = () => {
               </table>
 
               {/* Pagination */}
+              <div className="d-flex justify-content-end mt-4">
+                <PaginationAntd></PaginationAntd>
+              </div>
               <div className="mt-4 flex justify-end">
-                <div className="flex items-center space-x-1">
+                {/* <div className="flex items-center space-x-1">
                   <button className="rounded bg-gray-300 p-2 hover:bg-gray-400">
                     «
                   </button>
@@ -334,7 +338,7 @@ const Attendance = () => {
                   <button className="rounded bg-gray-300 p-2 hover:bg-gray-400">
                     »
                   </button>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
