@@ -94,17 +94,17 @@ const Attendancebyclass = () => {
                       className="border border-black text-[#989797]"
                     />
                   </td>
-                  <td className="border border-gray-300 p-2">
+                  <td className="border p-2">
                     <span className="inline-block h-4 w-4 rounded-full bg-blue-500"></span>
                   </td>
-                  <td className="border border-gray-300 p-2">
-                    <span className="!important inline-block h-4 w-4 rounded-full border border-green-500"></span>
+                  <td className="border p-2">
+                    <span className="!important inline-block h-4 w-4 rounded-full border !border-green-500"></span>
                   </td>
-                  <td className="border border-gray-300 p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border border-[#FF0000]"></span>
+                  <td className="border p-2">
+                    <span className="inline-block h-4 w-4 rounded-full border !border-red-600"></span>
                   </td>
-                  <td className="border border-gray-300 p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border border-yellow-500"></span>
+                  <td className="border p-2">
+                    <span className="inline-block h-4 w-4 rounded-full border !border-yellow-500"></span>
                   </td>
                 </tr>
 
@@ -122,17 +122,17 @@ const Attendancebyclass = () => {
                       className="border border-black text-[#989797]"
                     />
                   </td>
-                  <td className="border border-gray-300 p-2">
+                  <td className="border p-2">
                     <span className="inline-block h-4 w-4 rounded-full bg-blue-500"></span>
                   </td>
-                  <td className="border border-gray-300 p-2">
-                    <span className="!important inline-block h-4 w-4 rounded-full border border-green-500"></span>
+                  <td className="border p-2">
+                    <span className="!important inline-block h-4 w-4 rounded-full border !border-green-500"></span>
                   </td>
-                  <td className="border border-gray-300 p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border border-[#FF0000]"></span>
+                  <td className="border p-2">
+                    <span className="inline-block h-4 w-4 rounded-full border !border-red-600"></span>
                   </td>
-                  <td className="border border-gray-300 p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border border-yellow-500"></span>
+                  <td className="border p-2">
+                    <span className="inline-block h-4 w-4 rounded-full border !border-yellow-500"></span>
                   </td>
                 </tr>
 
@@ -150,17 +150,17 @@ const Attendancebyclass = () => {
                       className="border border-black text-[#989797]"
                     />
                   </td>
-                  <td className="border border-gray-300 p-2">
+                  <td className="border p-2">
                     <span className="inline-block h-4 w-4 rounded-full bg-blue-500"></span>
                   </td>
-                  <td className="border border-gray-300 p-2">
-                    <span className="!important inline-block h-4 w-4 rounded-full border border-green-500"></span>
+                  <td className="border p-2">
+                    <span className="!important inline-block h-4 w-4 rounded-full border !border-green-500"></span>
                   </td>
-                  <td className="border border-gray-300 p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border border-[#FF0000]"></span>
+                  <td className="border p-2">
+                    <span className="inline-block h-4 w-4 rounded-full border !border-red-600"></span>
                   </td>
-                  <td className="border border-gray-300 p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border border-yellow-500"></span>
+                  <td className="border p-2">
+                    <span className="inline-block h-4 w-4 rounded-full border !border-yellow-500"></span>
                   </td>
                 </tr>
 
@@ -178,17 +178,17 @@ const Attendancebyclass = () => {
                       className="border border-black text-[#989797]"
                     />
                   </td>
-                  <td className="border border-gray-300 p-2">
+                  <td className="border p-2">
                     <span className="inline-block h-4 w-4 rounded-full bg-blue-500"></span>
                   </td>
-                  <td className="border border-gray-300 p-2">
-                    <span className="!important inline-block h-4 w-4 rounded-full border border-green-500"></span>
+                  <td className="border p-2">
+                    <span className="!important inline-block h-4 w-4 rounded-full border !border-green-500"></span>
                   </td>
-                  <td className="border border-gray-300 p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border border-[#FF0000]"></span>
+                  <td className="border p-2">
+                    <span className="inline-block h-4 w-4 rounded-full border !border-red-600"></span>
                   </td>
-                  <td className="border border-gray-300 p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border border-yellow-500"></span>
+                  <td className="border p-2">
+                    <span className="inline-block h-4 w-4 rounded-full border !border-yellow-500"></span>
                   </td>
                 </tr>
 
@@ -206,17 +206,17 @@ const Attendancebyclass = () => {
                       className="border border-black text-[#989797]"
                     />
                   </td>
-                  <td className="border border-gray-300 p-2">
+                  <td className="border p-2">
                     <span className="inline-block h-4 w-4 rounded-full bg-blue-500"></span>
                   </td>
-                  <td className="border border-gray-300 p-2">
-                    <span className="!important inline-block h-4 w-4 rounded-full border border-green-500"></span>
+                  <td className="border p-2">
+                    <span className="!important inline-block h-4 w-4 rounded-full border !border-green-500"></span>
                   </td>
-                  <td className="border border-gray-300 p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border border-[#FF0000]"></span>
+                  <td className="border p-2">
+                    <span className="inline-block h-4 w-4 rounded-full border !border-red-600"></span>
                   </td>
-                  <td className="border border-gray-300 p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border border-yellow-500"></span>
+                  <td className="border p-2">
+                    <span className="inline-block h-4 w-4 rounded-full border !border-yellow-500"></span>
                   </td>
                 </tr>
 
@@ -234,17 +234,17 @@ const Attendancebyclass = () => {
                       className="border border-black text-[#989797]"
                     />
                   </td>
-                  <td className="border border-gray-300 p-2">
+                  <td className="border p-2">
                     <span className="inline-block h-4 w-4 rounded-full bg-blue-500"></span>
                   </td>
-                  <td className="border border-gray-300 p-2">
-                    <span className="!important inline-block h-4 w-4 rounded-full border border-green-500"></span>
+                  <td className="border p-2">
+                    <span className="!important inline-block h-4 w-4 rounded-full border !border-green-500"></span>
                   </td>
-                  <td className="border border-gray-300 p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border border-[#FF0000]"></span>
+                  <td className="border p-2">
+                    <span className="inline-block h-4 w-4 rounded-full border !border-red-600"></span>
                   </td>
-                  <td className="border border-gray-300 p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border border-yellow-500"></span>
+                  <td className="border p-2">
+                    <span className="inline-block h-4 w-4 rounded-full border !border-yellow-500"></span>
                   </td>
                 </tr>
               </tbody>
