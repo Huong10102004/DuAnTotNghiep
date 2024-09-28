@@ -1,30 +1,31 @@
 import React, { useEffect, useState } from "react";
 import PaginationAntd from "../../../../_Shared/Components/Pagination/Pagination";
 import { getListClassToAttendance } from "../../../../Services/Attendance/attendance";
+import { Link } from "react-router-dom";
 
 const HistoryAttendance = () => {
-    const [items, setItems] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    // const [items, setItems] = useState([]);
+    // const [loading, setLoading] = useState(true);
+    // const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const getItems = async () => {
-        try {
-            const data = await getListClassToAttendance(); 
-            console.log(data);
-            setItems(data);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-        };
+    // useEffect(() => {
+    //     const getItems = async () => {
+    //     try {
+    //         const data = await getListClassToAttendance(); 
+    //         console.log(data);
+    //         setItems(data);
+    //     } catch (err) {
+    //         setError(err.message);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    //     };
 
-        getItems();
-    }, []);
+    //     getItems();
+    // }, []);
 
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>{error}</div>;
+    // if (loading) return <div>Loading...</div>;
+    // if (error) return <div>{error}</div>;
   return (
     <div>
       {/* <header className="h-[100px] w-full"></header> */}
@@ -62,7 +63,7 @@ const HistoryAttendance = () => {
                                 <span className="fw-700">(kiennd@gmail.com)</span>
                             </td>
                             <td className="fw-700 text-center">45</td>
-                            <td><button className="btn btn-success w-100">Chọn</button></td>
+                            <td><Link to={'/staff/history_attendance/detail/'+123123}><button className="btn btn-success w-100">Chọn</button></Link></td>
                         </tr>
                         <tr className="align-middle">
                             <td className="text-center">1</td>
