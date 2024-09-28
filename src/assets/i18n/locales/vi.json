@@ -15,5 +15,16 @@
     "darkMode": "Chế độ tối",
     "logout": "Đăng xuất",
     "historyAttendance": "Lịch sử điểm danh",
-    "schoolYear": "Niên khóa"
+    "schoolYear": "Niên khóa",
+    "countSchoolYear": "Số niên khóa",
+    "search": "Tìm kiếm",
+    "exportFileExcel": "Xuất file excel",
+    "create":"Thêm mới",
+    "STT": "STT",
+    "schoolYearInformation": "Thông tin niên khóa",
+    "status": "Trạng thái",
+    "startDate": "Thời gian bắt đầu",
+    "endDate": "Thời gian kết thúc",
+    "gradePresent": "Khối học hiện tại",
+    "action": "Thao tác"
 }
