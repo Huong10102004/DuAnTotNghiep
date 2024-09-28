@@ -26,5 +26,6 @@
     "startDate": "Start date",
     "endDate": "End date",
     "gradePresent": "Grade present",
-    "action": "Action"
+    "action": "Action",
+    "class": "Class"
 }
