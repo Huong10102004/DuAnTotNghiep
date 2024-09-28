@@ -26,5 +26,6 @@
     "startDate": "Thời gian bắt đầu",
     "endDate": "Thời gian kết thúc",
     "gradePresent": "Khối học hiện tại",
-    "action": "Thao tác"
+    "action": "Thao tác",
+    "class": "Lớp học"
 }
