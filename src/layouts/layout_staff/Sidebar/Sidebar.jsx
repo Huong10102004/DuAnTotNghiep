@@ -42,7 +42,7 @@ function Sidebar() {
           <li className={`d-flex align-items-center ps-3 py-2 cursor-pointer ${isActive('/staff/system') ? 'active' : ''}`}><img src={icon_system}/> <span className="ps-2">{t('system')}</span></li>
           <li className={`d-flex align-items-center ps-3 py-2 cursor-pointer ${isActive('/staff/permission') ? 'active' : ''}`}><img src={icon_permission}/> <span className="ps-2">{t('permission')}</span></li>
           <li className={`d-flex align-items-center ps-3 py-2 cursor-pointer ${isActive('/staff/mark') ? 'active' : ''}`}><img src={icon_mark}/> <span className="ps-2">{t('mark')}</span></li>
-          <li className={`d-flex align-items-center ps-3 py-2 cursor-pointer ${isActive('/staff/home') ? 'active' : ''}`}><img src={home}/> <span className="ps-2">{t('home')}</span></li>
+          <Link to="/staff/school-year"><li className={`d-flex align-items-center ps-3 py-2 cursor-pointer ${isActive('/staff/school-year') ? 'active' : ''}`}><img src={home}/> <span className="ps-2">{t('schoolYear')}</span></li></Link>
           <Link to="/staff/history_attendance"><li className={`d-flex align-items-center ps-3 py-2 cursor-pointer ${isActive('/staff/history_attendance') ? 'active' : ''}`}><img src={icon_attendance}/> <span className="ps-2">{t('historyAttendance')}</span></li></Link>
         </ul>
       </div>
