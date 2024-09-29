@@ -14,5 +14,18 @@
     "vi": "Vietnamese",
     "darkMode": "Dark mode",
     "logout": "Logout",
-    "historyAttendance": "History attendance"
+    "historyAttendance": "History attendance",
+    "schoolYear": "School year",
+    "countSchoolYear": "Count of school year",
+    "search": "Search",
+    "exportFileExcel": "Export file excel",
+    "create":"Create",
+    "STT": "STT",
+    "schoolYearInformation": "School year information",
+    "status": "Status",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "gradePresent": "Grade present",
+    "action": "Action",
+    "class": "Class"
 }

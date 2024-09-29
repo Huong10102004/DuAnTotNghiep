@@ -7,10 +7,13 @@ import "./assets/i18n/i18n"; // Import cấu hình i18n
 import Attendance from "./_MODULES/Staff/Attendance/Components/attendance";
 // import { Routes } from "react-router-dom";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import HistoryAttendance from "./_MODULES/Staff/History_attendance/Components/History_attendance";
-import ListSubject from "./_MODULES/Staff/ListSubject/Components/list_subject";
-import ListTeacher from "./_MODULES/Staff/ListSubject/Components/list_teachers";
-import Attendancebyclass from "./_MODULES/Staff/Attendance/Components/attendancebyclass";
+import HistoryAttendance from "/src/_MODULES/Staff/History_attendance/Components/history_attendance";
+import HistoryDetailClassAttendance from "./_MODULES/Staff/History_attendance/Components/history-detail-class-attendance";
+import HistoryDetailAttendanceOneClass from "./_MODULES/Staff/History_attendance/Components/history-detail-attendance-one-class";
+import SchoolYear from "./_MODULES/Staff/Schol-year/Components/school-year";
+import ClassStaff from "./_MODULES/Staff/Class-staff/components/Class-staff";
+import ClassAssignStudent from "./_MODULES/Staff/Class-staff/Components/Class-assign-student";
+
 export default function App() {
   const { t, i18n } = useTranslation();
 
@@ -28,6 +31,7 @@ export default function App() {
 
             <div className="col-10 h-100vh pe-0">
               <Routes>
+                {/* attendance */}
                 <Route path="/staff/attendance" element={<Attendance />} />
                 <Route
                   path="/staff/history_attendance"
@@ -35,13 +39,21 @@ export default function App() {
                 />
                 <Route
                   path="/staff/history_attendance/detail/:id"
-                  element={<HistoryAttendance />}
+                  element={<HistoryDetailClassAttendance />}
                 />
-                <Route path="/staff/list_subject" element={<ListSubject />} />
-                <Route path="/staff/list_teachers" element={<ListTeacher />} />
                 <Route
-                  path="/staff/attendancebyclass"
-                  element={<Attendancebyclass />}
+                  path="/staff/history_attendance/detail/attendance/:id"
+                  element={<HistoryDetailAttendanceOneClass />}
+                />
+
+                {/* school year */}
+                <Route path="/staff/school-year" element={<SchoolYear />} />
+
+                {/* class */}
+                <Route path="/staff/class" element={<ClassStaff />} />
+                <Route
+                  path="/staff/class/assign_student/:id"
+                  element={<ClassAssignStudent />}
                 />
               </Routes>
             </div>

@@ -37,7 +37,7 @@
     // }
 }
 
-@for $i from 1 through 300 {
+@for $i from 1 through 400 {
     .w-#{$i}px {
         width: $i * 1px !important;
     }

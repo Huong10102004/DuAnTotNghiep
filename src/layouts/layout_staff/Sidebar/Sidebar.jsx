@@ -31,21 +31,22 @@ function Sidebar() {
     <div className="">
       <div className="h-100vh pt-6rem d-flex flex-column justify-content-between bg-white">
         <div className="w-100">
+          <div className="d-flex align-items-center">
+            <img src={sidebar_home} />{" "}
+            <span className="fs-18px fw-700 ps-3">{t("home")}</span>
+          </div>
           <ul className="mt-4">
             <li
               className={`d-flex align-items-center cursor-pointer py-2 ps-3 ${isActive("/") ? "active" : ""}`}
             >
               <img src={home} /> <span className="ps-2">{t("overView")}</span>
             </li>
-            <Link to="/staff/list_teachers">
-              <li
-                className={`d-flex align-items-center cursor-pointer py-2 ps-3 ${isActive("/staff/ListSubject/list_teachers") ? "active" : ""}`}
-              >
-                <img src={icon_teacher} />{" "}
-                <span className="ps-2">{t("teacher")}</span>
-              </li>
-            </Link>
-
+            <li
+              className={`d-flex align-items-center cursor-pointer py-2 ps-3 ${isActive("/staff/teacher") ? "active" : ""}`}
+            >
+              <img src={icon_teacher} />{" "}
+              <span className="ps-2">{t("teacher")}</span>
+            </li>
             <li
               className={`d-flex align-items-center cursor-pointer py-2 ps-3 ${isActive("/staff/student") ? "active" : ""}`}
             >
@@ -66,18 +67,10 @@ function Sidebar() {
             </li>
             <Link to="/staff/attendance">
               <li
-                className={`d-flex align-items-center cursor-pointer py-2 ps-3 ${isActive("/staff/Attendance/attendance") ? "active" : ""}`}
+                className={`d-flex align-items-center cursor-pointer py-2 ps-3 ${isActive("/staff/attendance") ? "active" : ""}`}
               >
                 <img src={icon_attendance} />{" "}
                 <span className="ps-2">{t("attendance")}</span>
-              </li>
-            </Link>
-            <Link to="/staff/attendancebyclass">
-              <li
-                className={`d-flex align-items-center cursor-pointer py-2 ps-3 ${isActive("/staff/Attendance/attendancebyclass") ? "active" : ""}`}
-              >
-                <img src={icon_attendance} />{" "}
-                <span className="ps-2">{t("Attendancebyclass")}</span>
               </li>
             </Link>
             <li
@@ -103,11 +96,14 @@ function Sidebar() {
             >
               <img src={icon_mark} /> <span className="ps-2">{t("mark")}</span>
             </li>
-            <li
-              className={`d-flex align-items-center cursor-pointer py-2 ps-3 ${isActive("/staff/home") ? "active" : ""}`}
-            >
-              <img src={home} /> <span className="ps-2">{t("home")}</span>
-            </li>
+            <Link to="/staff/school-year">
+              <li
+                className={`d-flex align-items-center cursor-pointer py-2 ps-3 ${isActive("/staff/school-year") ? "active" : ""}`}
+              >
+                <img src={home} />{" "}
+                <span className="ps-2">{t("schoolYear")}</span>
+              </li>
+            </Link>
             <Link to="/staff/history_attendance">
               <li
                 className={`d-flex align-items-center cursor-pointer py-2 ps-3 ${isActive("/staff/history_attendance") ? "active" : ""}`}
@@ -116,12 +112,12 @@ function Sidebar() {
                 <span className="ps-2">{t("historyAttendance")}</span>
               </li>
             </Link>
-            <Link to="/staff/list_subject">
+            <Link to="/staff/class">
               <li
-                className={`d-flex align-items-center cursor-pointer py-2 ps-3 ${isActive("/staff/ListSubject/list_subject") ? "active" : ""}`}
+                className={`d-flex align-items-center cursor-pointer py-2 ps-3 ${isActive("/staff/class") ? "active" : ""}`}
               >
                 <img src={icon_attendance} />{" "}
-                <span className="ps-2">{t("Subject")}</span>
+                <span className="ps-2">{t("class")}</span>
               </li>
             </Link>
           </ul>
