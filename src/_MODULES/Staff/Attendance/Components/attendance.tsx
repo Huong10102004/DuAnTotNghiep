@@ -5,6 +5,13 @@ import "react-datepicker/dist/react-datepicker.css"; // CSS của react-datepick
 const Attendance: React.FC = () => {
   const [selectedDays, setSelectedDays] = useState<Date | null>(null); // Chọn ngày
   const [selectedGrades, setSelectedGrades] = useState<string[]>([]);
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const onChange = (dates) => {
+    const [start, end] = dates;
+    setStartDate(start);
+    setEndDate(end);
+  };
   const [attendanceData, setAttendanceData] = useState<{
     [key: string]: boolean;
   }>({
@@ -52,101 +59,111 @@ const Attendance: React.FC = () => {
     <div>
       <div className="pt-6rem h-100vh flex flex-row bg-white">
         <div className="w-[100%]">
-          <div className="mx-4">
-            <h1 className="text-3xl font-bold text-[#4154F1]">Điểm danh</h1>
-            <div className="flex space-x-96">
-              <div className="mt-2 flex space-x-3">
-                <p>
-                  Số lớp đã điểm danh:{" "}
-                  <span className="text-[#00CB58]"> 08 lớp</span>
-                </p>
-                <p>
-                  Số lớp chưa điểm danh:
-                  <span className="text-[#EE1C1C]"> 01 lớp</span>
-                </p>
+          <h1 className="mb-3 text-3xl font-bold text-[#4154F1]">Điểm danh</h1>
+          <div className="grid grid-cols-2">
+            <div>
+              <div className="flex space-x-96">
+                <div className="mt-2 flex space-x-3">
+                  <p>
+                    Số lớp đã điểm danh:{" "}
+                    <span className="text-[#00CB58]"> 08 lớp</span>
+                  </p>
+                  <p>
+                    Số lớp chưa điểm danh:
+                    <span className="text-[#EE1C1C]"> 01 lớp</span>
+                  </p>
+                </div>
               </div>
             </div>
-
             {/* Bộ lọc */}
-            <div className="relative mt-5 flex justify-end">
+            <div className="relative grid grid-cols-5">
               {/* Lọc theo ngày */}
               <div className="group relative">
-                <button className="mb-3 mt-5 h-10 rounded-lg bg-[#F3F6F9] px-10 text-left text-[#A0AEC0]">
-                  Lọc theo ngày
+                <button className="rounded-lg bg-[#F3F6F9] px-1 py-2 text-left text-[#A0AEC0]">
+                  Chọn ngày
                 </button>
-                <div className="absolute left-0 top-full z-10 mt-1 hidden w-80 rounded border border-gray-300 bg-white p-4 shadow-lg group-hover:block">
-                  <h2 className="mb-2 text-xl font-bold">Lọc theo ngày</h2>
-                  <div className="mb-4">
-                    <DatePicker
-                      selected={selectedDays}
-                      onChange={(date) => setSelectedDays(date)}
-                      dateFormat="dd/MM/yyyy"
-                      className="w-full rounded-lg border px-3 py-2"
-                      placeholderText="Chọn ngày"
-                    />
-                  </div>
+                <div className="absolute left-0 top-full z-10 hidden w-fit rounded border border-gray-300 bg-white group-hover:block">
+                  <DatePicker
+                    selected={startDate}
+                    onChange={onChange}
+                    startDate={startDate}
+                    endDate={endDate}
+                    selectsRange
+                    inline
+                  />
                 </div>
               </div>
 
               {/* Lọc theo khối lớp */}
               <div className="group relative">
-                <button className="mb-3 mt-5 h-10 rounded-lg bg-[#F3F6F9] px-10 text-left text-[#A0AEC0]">
-                  Lọc theo khối lớp
+                <button className="w-full max-w-10 rounded-lg bg-[#F3F6F9] px-1 py-2 text-center text-[#A0AEC0]">
+                  Lọc
                 </button>
                 <div className="absolute left-0 top-full z-10 mt-1 hidden w-96 rounded border border-gray-300 bg-white shadow-lg group-hover:block">
                   <h2 className="p-2 text-xl font-bold">Lọc theo khối lớp</h2>
-                  <table className="min-w-full border-collapse border border-gray-300">
-                    <thead>
-                      <tr>
-                        <th className="border border-gray-300 p-2">Khối</th>
-                        {grades[0].classes.map((className) => (
-                          <th
-                            key={className}
-                            className="border border-gray-300 p-2"
-                          >
-                            {className}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {grades.map((grade) => (
-                        <tr key={grade.grade}>
-                          <td className="border border-gray-300 p-2 text-right">
-                            <input
-                              type="checkbox"
-                              checked={selectedGrades.includes(grade.grade)}
-                              onChange={() => handleGradeChange(grade.grade)}
-                            />{" "}
-                            {grade.grade}
-                          </td>
+                  <div className="text-sm">
+                    {grades.map((grade) => (
+                      <div
+                        key={grade.grade}
+                        className="border border-gray-300 p-1"
+                      >
+                        <h2 className="mb-1 text-base font-semibold">
+                          {grade.grade}
+                        </h2>
+                        <div className="grid grid-cols-1 gap-[2px] sm:grid-cols-2 md:grid-cols-3">
                           {grade.classes.map((className) => (
-                            <td
+                            <div
                               key={`${grade.grade}-${className}`}
-                              className="border border-gray-300 p-2 text-right"
+                              className="text-center"
                             >
-                              <input
-                                type="checkbox"
-                                checked={attendanceData[className] || false}
-                                onChange={() =>
-                                  handleAttendanceChange(className)
-                                }
-                              />
-                            </td>
+                              <label>
+                                <input
+                                  type="checkbox"
+                                  checked={attendanceData[className] || false}
+                                  onChange={() =>
+                                    handleAttendanceChange(className)
+                                  }
+                                />
+                                <span className="ml-1">{className}</span>
+                              </label>
+                            </div>
                           ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              <button
-                className="mt-5 h-10 rounded-lg bg-[#F3F6F9] px-10 text-left text-[#A0AEC0]"
-                onClick={handleSearch}
-              >
-                Tìm Kiếm
-              </button>
+              <div className="relative col-span-3">
+                <input
+                  type="search"
+                  id="search-dropdown"
+                  className="rounded-s-gray-100 rounded-s-2 z-20 block w-full rounded-e-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500"
+                  placeholder="Search"
+                  required
+                />
+                <button
+                  type="submit"
+                  className="absolute end-0 top-0 h-full rounded-e-lg border border-blue-700 bg-blue-700 p-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                  <svg
+                    className="h-4 w-4"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             {/* Bảng điểm danh */}

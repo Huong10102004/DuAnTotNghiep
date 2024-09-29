@@ -31,10 +31,6 @@ function Sidebar() {
     <div className="">
       <div className="h-100vh pt-6rem d-flex flex-column justify-content-between bg-white">
         <div className="w-100">
-          <div className="d-flex align-items-center">
-            <img src={sidebar_home} />{" "}
-            <span className="fs-18px fw-700 ps-3">{t("home")}</span>
-          </div>
           <ul className="mt-4">
             <li
               className={`d-flex align-items-center cursor-pointer py-2 ps-3 ${isActive("/") ? "active" : ""}`}
@@ -81,7 +77,7 @@ function Sidebar() {
                 className={`d-flex align-items-center cursor-pointer py-2 ps-3 ${isActive("/staff/Attendance/attendancebyclass") ? "active" : ""}`}
               >
                 <img src={icon_attendance} />{" "}
-                <span className="ps-2">{t("attendancebyclass")}</span>
+                <span className="ps-2">{t("Attendancebyclass")}</span>
               </li>
             </Link>
             <li
