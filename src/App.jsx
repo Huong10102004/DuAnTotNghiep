@@ -12,6 +12,7 @@ import HistoryDetailAttendanceOneClass from "./_MODULES/Staff/History_attendance
 import SchoolYear from "./_MODULES/Staff/Schol-year/Components/school-year";
 import ClassStaff from "./_MODULES/Staff/Class-staff/components/Class-staff";
 import ClassAssignStudent from "./_MODULES/Staff/Class-staff/Components/Class-assign-student";
+import Student from "./_MODULES/Staff/Student/Components/Student";
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -41,6 +42,9 @@ export default function App() {
                 {/* class */}
                 <Route path="/staff/class" element={<ClassStaff />} />
                 <Route path="/staff/class/assign_student/:id" element={<ClassAssignStudent />} />
+
+                {/* students */}
+                <Route path="/staff/student" element={<Student />} />
               </Routes>
             </div>
         </div>
