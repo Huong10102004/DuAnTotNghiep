@@ -50,7 +50,15 @@
     padding-top: 6rem;
 }
 
+.pt-5rem{
+    padding-top: 5rem;
+}
+
 .active{
     color: #0C7FDA;
     background-color: #E9F5FE;
+}
+
+.h-70vh{
+    height: 70vh;
 }
