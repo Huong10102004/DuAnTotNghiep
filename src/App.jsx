@@ -13,6 +13,7 @@ import SchoolYear from "./_MODULES/Staff/Schol-year/Components/school-year";
 import ClassStaff from "./_MODULES/Staff/Class-staff/components/Class-staff";
 import ClassAssignStudent from "./_MODULES/Staff/Class-staff/Components/Class-assign-student";
 import Student from "./_MODULES/Staff/Student/Components/Student";
+import StudentDetail from "./_MODULES/Staff/Student/Components/Student-detail";
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -45,6 +46,7 @@ export default function App() {
 
                 {/* students */}
                 <Route path="/staff/student" element={<Student />} />
+                <Route path="/staff/student/detail/:id" element={<StudentDetail />} />
               </Routes>
             </div>
         </div>

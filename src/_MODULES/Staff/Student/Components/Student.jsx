@@ -9,14 +9,17 @@ import icon_assign_student from "../../../../assets/images/svg/icon_assign_teach
 import ModalReuse from "../../../../_Shared/Components/Modal-reuse/Modal-reuse";
 import { useForm } from 'react-hook-form';
 import ActionMenu from "../../../../_Shared/Components/Action-menu/Action-menu";
-import { Modal } from "antd";
+import { Button, Modal, Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 const Student = () => {
   // dịch đa ngôn ngữ
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate(); // Hook để điều hướng
   //modal 
   const [modalIsOpen, setModalIsOpen] = useState(false); // mở dal
+  const [modalIsOpenAssignParent, setModalIsOpenAssignParent] = useState(false); // mở dal
   const [isEditMode, setIsEditMode] = useState(false); // mở modal edit
   const [currentData, setCurrentData] = useState(null); // dữ liệu truyền vào edit
   const [isModalVisible, setIsModalVisible] = useState(false); // mở modal confirm xóa
@@ -30,14 +33,24 @@ const Student = () => {
     if (editMode && data) {
       setCurrentData(data);
       reset({
-        schoolYear: data.schoolYear, // example data fields
+        studentName: data.studentName,
+        studentCode: data.studentCode,
+        studentClass: data.studentClass,
+        email: data.email,
+        phone: data.phone,
+        gender: data.gender,
+        schoolYear: data.schoolYear,
         status: data.status,
-        startDate: data.startDate,
-        endDate: data.endDate
+        parent: data.parent,
+        address: data.address
       });
     }else{
       reset();
     }
+  };
+
+  const openModalAssignParent = (data = null) => {
+    setModalIsOpenAssignParent(true); 
   };
     
   const closeModal = () => {
@@ -45,6 +58,10 @@ const Student = () => {
     setCurrentData(null);
     reset();
   };
+
+  const closeModalAssignparent = () => {
+    setModalIsOpenAssignParent(false);
+  }
   
   const onSubmit = (data) => {
     if (isEditMode) {
@@ -63,6 +80,10 @@ const Student = () => {
       openModal(true, data); // Pass the data for editing
     } else if (key === "delete") {
       console.log("Deleting: ", data);
+    } else if (key === "detail") {
+      navigate('/staff/student/detail/'+data.id)
+    }else if (key === "assign_to_parent"){
+      openModalAssignParent();
     }
   };
 
@@ -84,7 +105,8 @@ const Student = () => {
         gender: 1,
         schoolYear: "2024-2028",
         status: 1,
-        parent: "Duy Khánh"
+        parent: "Duy Khánh",
+        address: "Hà Nội"
     },
     // Thêm nhiều dữ liệu hơn ở đây
   ];
@@ -103,6 +125,21 @@ const Student = () => {
   const handleCancel = () => {
     setIsModalVisible(false);
   };
+
+  const footerModal = () => {
+    return <div className="text-center mt-3">
+            <button onClick={closeModalAssignparent} className="btn bg-color-white-smoke me-3 w-100px">Đóng</button>
+            <button type="submit" className="btn btn-primary w-100px">Lưu</button>
+          </div>
+  }
+
+  const title = () => {
+    return <div>
+        <p>Họ tên: Nguyễn Duy kiên</p>
+        <p>Sinh năm: 2004</p>
+        <p>Lớp: 6a1 - K18.3</p>
+    </div>
+  }
   return (
     <div>
       {/* <header className="h-[100px] w-full"></header> */}
@@ -168,43 +205,58 @@ const Student = () => {
       </div>
 
       {/* modal  */}
-      <ModalReuse isOpen={modalIsOpen} onClose={closeModal} title={isEditMode ? "Chỉnh sửa niên khóa" : "Thêm niên khóa"} width="80%">
+      <ModalReuse isOpen={modalIsOpen} onClose={closeModal} title={isEditMode ? "Chỉnh sửa thông tin học sinh" : "Thêm học sinh mới"} width="80%">
       <form onSubmit={handleSubmit(onSubmit)}>
           <div className="row">
-            {/* Tên niên khóa */}
+            {/* Tên học sinh */}
             <div className="col-12 col-md-6 mb-3">
-              <label>Tên niên khóa:</label>
-              <input type="text" className={`form-control ${errors.schoolYear ? 'is-invalid' : ''}`} {...register("schoolYear", { required: "Tên niên khóa là bắt buộc" })} placeholder="Tên niên khóa..."/>
-              {errors.schoolYear && <div className="invalid-feedback">{errors.schoolYear.message}</div>}
+              <label>Tên học sinh:</label>
+              <input type="text" className={`form-control ${errors.studentName ? 'is-invalid' : ''}`} {...register("studentName", { required: "Tên học sinh là bắt buộc" })} placeholder="Tên học sinh..." />
+              {errors.studentName && <div className="invalid-feedback">{errors.studentName.message}</div>}
+            </div>
+
+            {/* Số điện thoại */}
+            <div className="col-12 col-md-6 mb-3">
+              <label>Số điện thoại:</label>
+              <input type="text" className={`form-control ${errors.phone ? 'is-invalid' : ''}`} {...register("phone")} placeholder="Số điện thoại..." />
+              {errors.phone && <div className="invalid-feedback">{errors.phone.message}</div>}
             </div>
 
             {/* Trạng thái */}
             <div className="col-12 col-md-6 mb-3">
               <label>Trạng thái:</label>
-              <select className={`form-control ${errors.status ? 'is-invalid' : ''}`} {...register("status", { required: "Trạng thái là bắt buộc" })} >
-                <option value="1">Chưa diễn ra</option>
-                <option value="2">Đã diễn ra</option>
-                <option value="3">Đã kết thúc</option>
+              <select className={`form-control ${errors.status ? 'is-invalid' : ''}`} {...register("status", { required: "Trạng thái là bắt buộc" })}>
+                <option value="">Chọn trạng thái</option>
+                <option value="1">Đang học</option>
+                <option value="2">Nghỉ học</option>
               </select>
               {errors.status && <div className="invalid-feedback">{errors.status.message}</div>}
             </div>
 
-            {/* Ngày bắt đầu */}
+            {/* Lớp học */}
             <div className="col-12 col-md-6 mb-3">
-              <label>Ngày bắt đầu:</label>
-              <input type="date" className={`form-control ${errors.startDate ? 'is-invalid' : ''}`} {...register("startDate", { required: "Ngày bắt đầu là bắt buộc" })} />
-              {errors.startDate && <div className="invalid-feedback">{errors.startDate.message}</div>}
+              <label>Lớp học:</label>
+              <select className={`form-control ${errors.class ? 'is-invalid' : ''}`} {...register("class")}>
+                <option value="">Chọn lớp</option>
+                <option value="10A1">10A1</option>
+                <option value="10A2">10A2</option>
+                <option value="10A3">10A3</option>
+              </select>
             </div>
 
-            {/* Ngày kết thúc */}
+            {/* Ngày sinh */}
             <div className="col-12 col-md-6 mb-3">
-              <label>Ngày kết thúc:</label>
-              <input type="date" className={`form-control ${errors.endDate ? 'is-invalid' : ''}`} {...register("endDate", { required: "Ngày kết thúc là bắt buộc" })}/>
-              {errors.endDate && <div className="invalid-feedback">{errors.endDate.message}</div>}
+              <label>Ngày sinh:</label>
+              <input type="date" className={`form-control ${errors.dob ? 'is-invalid' : ''}`} {...register("dob")}/>
+            </div>
+
+            {/* Địa chỉ */}
+            <div className="col-12 col-md-6 mb-3">
+              <label>Địa chỉ:</label>
+              <input className={`form-control ${errors.address ? 'is-invalid' : ''}`} {...register("address")} placeholder="Địa chỉ học sinh..." />
             </div>
           </div>
 
-          <hr className="mt-20"/>
           <div className="text-center mt-3">
             <button onClick={closeModal} className="btn bg-color-white-smoke me-3 w-100px">Đóng</button>
             <button type="submit" className="btn btn-primary w-100px">Lưu</button>
@@ -224,6 +276,148 @@ const Student = () => {
         <hr className="mt-2 mb-3" />
         <p>Bạn có chắc chắn muốn xóa niên khóa <span className="fw-700">K10.3</span> không?</p>
       </Modal>
+
+      <ModalReuse isOpen={modalIsOpenAssignParent} onClose={closeModalAssignparent} title={"Gán phụ huynh cho học sinh Duy Kiên"} width="80%" footerModal={footerModal()}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <h1 className="fs-16">Danh sách phụ huynh</h1>
+
+          <div className="d-flex justify-content-between align-items-end mt-2">
+            <p>Số lượng: <span className="fw-700">32 phụ huynh</span></p>
+            <input placeholder={t('search')} className={`bg-color-white-smoke px-3 py-2 border-radius-10px w-400px`}/>
+          </div>
+          <table className="w-100 mt-5">
+            <thead>
+              <tr className="border-bottom">
+                <th className="pb-3">#</th>
+                <th className="pb-3">STT</th>
+                <th className="pb-3">Họ tên phụ huynh</th>
+                <th className="pb-3">Email</th>
+                <th className="pb-3">Giới tính</th>
+                <th className="pb-3">Ngày sinh</th>
+                <th className="pb-3">SĐT</th>
+                <th className="pb-3">Tên đăng nhập</th>
+                <th className="pb-3 text-center">Con</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-bottom align-middle">
+                  <td className="py-3">
+                    <input type="radio" />
+                  </td>
+                  <td className="py-3">01</td>
+                  <td className="py-3">
+                    <span>Nguyễn Duy Kiên</span> <br />
+                    <span>ID: 0001</span>
+                  </td>
+                  <td className="py-3">
+                    kiennd@gmail.com
+                  </td>
+                  <td className="py-3">Nam</td>
+                  <td className="py-3">1/1/2024</td>
+                  <td className="py-3">0365215485</td>
+                  <td className="py-3">duykien</td>
+                  <td className="py-3 text-center">
+                    <Tooltip title={title} color={'text-color-blue'} key={'blue'} placement='bottomRight'>
+                        <Button>1 con</Button>
+                    </Tooltip>
+                  </td>
+                </tr>
+                <tr className="border-bottom align-middle">
+                  <td className="py-3">
+                    <input type="radio" />
+                  </td>
+                  <td className="py-3">01</td>
+                  <td className="py-3">
+                    <span>Nguyễn Duy Kiên</span> <br />
+                    <span>ID: 0001</span>
+                  </td>
+                  <td className="py-3">
+                    kiennd@gmail.com
+                  </td>
+                  <td className="py-3">Nam</td>
+                  <td className="py-3">1/1/2024</td>
+                  <td className="py-3">0365215485</td>
+                  <td className="py-3">duykien</td>
+                  <td className="py-3 text-center">
+                    <Tooltip title={title} color={'text-color-blue'} key={'blue'} placement='bottomRight'>
+                        <Button>1 con</Button>
+                    </Tooltip>
+                  </td>
+                </tr>
+                <tr className="border-bottom align-middle">
+                  <td className="py-3">
+                    <input type="radio" />
+                  </td>
+                  <td className="py-3">01</td>
+                  <td className="py-3">
+                    <span>Nguyễn Duy Kiên</span> <br />
+                    <span>ID: 0001</span>
+                  </td>
+                  <td className="py-3">
+                    kiennd@gmail.com
+                  </td>
+                  <td className="py-3">Nam</td>
+                  <td className="py-3">1/1/2024</td>
+                  <td className="py-3">0365215485</td>
+                  <td className="py-3">duykien</td>
+                  <td className="py-3 text-center">
+                    <Tooltip title={title} color={'text-color-blue'} key={'blue'} placement='bottomRight'>
+                        <Button>1 con</Button>
+                    </Tooltip>
+                  </td>
+                </tr>
+                <tr className="border-bottom align-middle">
+                  <td className="py-3">
+                    <input type="radio" />
+                  </td>
+                  <td className="py-3">01</td>
+                  <td className="py-3">
+                    <span>Nguyễn Duy Kiên</span> <br />
+                    <span>ID: 0001</span>
+                  </td>
+                  <td className="py-3">
+                    kiennd@gmail.com
+                  </td>
+                  <td className="py-3">Nam</td>
+                  <td className="py-3">1/1/2024</td>
+                  <td className="py-3">0365215485</td>
+                  <td className="py-3">duykien</td>
+                  <td className="py-3 text-center">
+                    <Tooltip title={title} color={'text-color-blue'} key={'blue'} placement='bottomRight'>
+                        <Button>1 con</Button>
+                    </Tooltip>
+                  </td>
+                </tr>
+                <tr className="border-bottom align-middle">
+                  <td className="py-3">
+                    <input type="radio" />
+                  </td>
+                  <td className="py-3">01</td>
+                  <td className="py-3">
+                    <span>Nguyễn Duy Kiên</span> <br />
+                    <span>ID: 0001</span>
+                  </td>
+                  <td className="py-3">
+                    kiennd@gmail.com
+                  </td>
+                  <td className="py-3">Nam</td>
+                  <td className="py-3">1/1/2024</td>
+                  <td className="py-3">0365215485</td>
+                  <td className="py-3">duykien</td>
+                  <td className="py-3 text-center">
+                    <Tooltip title={title} color={'text-color-blue'} key={'blue'} placement='bottomRight'>
+                        <Button>1 con</Button>
+                    </Tooltip>
+                  </td>
+                </tr>
+            </tbody>
+          </table>
+          <div className="mt-4 d-flex justify-content-end mb-20">
+            <PaginationAntd></PaginationAntd>
+          </div>
+          
+        </form>
+      </ModalReuse>
     </div>
   );
 };
