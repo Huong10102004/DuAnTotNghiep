@@ -27,5 +27,6 @@
   "endDate": "Thời gian kết thúc",
   "gradePresent": "Khối học hiện tại",
   "action": "Thao tác",
-  "class": "Lớp học"
+  "class": "Lớp học",
+  "subject": "Môn học"
 }

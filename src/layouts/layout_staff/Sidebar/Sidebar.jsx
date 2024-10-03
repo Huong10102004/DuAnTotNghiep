@@ -12,7 +12,7 @@ import icon_report from "../../../assets/images/svg/icon_report.svg";
 import home from "../../../assets/images/svg/home.svg";
 import { useTranslation } from "react-i18next";
 import "../../../assets/i18n/i18n"; // Import cấu hình i18n
-import { Link, useLocation } from "react-router-dom";
+import { NavLink, Link, useLocation } from "react-router-dom";
 
 function Sidebar() {
   const { t, i18n } = useTranslation();
@@ -41,12 +41,14 @@ function Sidebar() {
             >
               <img src={home} /> <span className="ps-2">{t("overView")}</span>
             </li>
-            <li
-              className={`d-flex align-items-center cursor-pointer py-2 ps-3 ${isActive("/staff/teacher") ? "active" : ""}`}
-            >
-              <img src={icon_teacher} />{" "}
-              <span className="ps-2">{t("teacher")}</span>
-            </li>
+            <NavLink to={"/staff/list_teacher"}>
+              <li
+                className={`d-flex align-items-center cursor-pointer py-2 ps-3 ${isActive("/staff/teacher") ? "active" : ""}`}
+              >
+                <img src={icon_teacher} />{" "}
+                <span className="ps-2">{t("teacher")}</span>
+              </li>
+            </NavLink>
             <li
               className={`d-flex align-items-center cursor-pointer py-2 ps-3 ${isActive("/staff/student") ? "active" : ""}`}
             >

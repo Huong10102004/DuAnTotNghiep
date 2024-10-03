@@ -7,6 +7,7 @@ function PrimaryLayout() {
     <>
       <Header />
       <Sidebar />
+      
       <Footer />
     </>
   );

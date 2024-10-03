@@ -7,8 +7,8 @@ import icon_delete from "../../../../assets/images/svg/icon_delete.svg";
 import icon_assign_teacher from "../../../../assets/images/svg/icon_assign_teacher.svg";
 import ActionMenu from "../../../../_Shared/Components/Action-menu/Action-menu";
 
-import Addteacher from "./add_teachers";
-const ListTeacher = () => {
+import Addyear from "./addyear";
+const Listyear = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,16 +17,6 @@ const ListTeacher = () => {
   const menuItems = [
     { key: "edit", label: "Chỉnh sửa", icon: icon_edit },
     { key: "delete", label: "Xóa", icon: icon_delete },
-    {
-      key: "assign_teacher",
-      label: "Gán giáo viên",
-      icon: icon_assign_teacher,
-    },
-    {
-      key: "assign_student",
-      label: "Gán học sinh vào lớp",
-      icon: icon_assign_teacher,
-    },
   ];
 
   const handleMenuClick = (key, data) => {
@@ -81,11 +71,13 @@ const ListTeacher = () => {
     <div>
       {/* <header className="h-[100px] w-full"></header> */}
       <div className="pt-6rem h-100vh bg-white px-4">
-        <h1 className="fs-16">Nhân viên</h1>
+        <h1 className="fs-16">Năm học</h1>
         <p className="mt-2">Task/Attendance/Attendance sheet</p>
 
         <div className="d-flex align-items-end mt-2 justify-around">
-          <p>Số lượng: 23 lớp</p>
+          <p className="">
+            Số niên khóa: <span className="text-red-600">10 năm học</span>
+          </p>
 
           <div className="flex w-3/4 justify-end gap-1">
             <input
@@ -111,14 +103,13 @@ const ListTeacher = () => {
               <tr>
                 <th className="w-5 text-center">STT</th>
                 <th>
-                  <span className="ps-10">Thông tin giáo viên</span>
+                  <span className="ps-10">Thông tin năm học</span>
                 </th>
-                <th className="text-center">Liên hệ</th>
-                <th className="text-center">Lớp chủ nhiệm</th>
-                <th className="text-center">Môn giảng dạy</th>
-                <th className="text-center">Chức vụ</th>
                 <th className="text-center">Trạng thái</th>
-                <th className="text-center">Ngày sinh</th>
+                <th className="text-center">Thời gian bắt đầu</th>
+                <th className="text-center">thời gian kết thúc</th>
+                <th className="text-center">Khối hiện tại</th>
+
                 <th className="text-center">Thao tác</th>
               </tr>
             </thead>
@@ -128,31 +119,30 @@ const ListTeacher = () => {
                 <td>
                   <div className="ps-10">
                     <span>
-                      <b>Nguyễn Duy kiên LOL</b>
+                      <b>K11.3</b>
                     </span>
                     <br />
                     <span>
-                      <b>Mã:</b> <b>GV01</b>
+                      <b>Mã NKTH303</b>
                     </span>
                   </div>
                 </td>
                 <td>
                   <div className="ps-10">
                     <span>
-                      <b>(kiennd@gmail.com)</b>
+                      <b>Đang diễn ra</b>
                     </span>
                     <br />
                     <span>
-                      <b>Phone:</b>
-                      <b>123456789</b>
+                      <b></b>
+                      <b></b>
                     </span>
                   </div>
                 </td>
-                <td className="text-center">6A1</td>
-                <td className="fw-700 text-center">Toán</td>
-                <td className="fw-700 text-center">Giáo viên</td>
-                <td className="fw-700 text-center">Chính thức</td>
-                <td className="text-center">13/09/2004</td>
+                <td className="fw-700 text-center">05/09/2024</td>
+                <td className="fw-700 text-center">20/05/2028</td>
+                <td className="fw-700 text-center">Khối 6</td>
+
                 <td className="text-center">
                   <ActionMenu
                     items={menuItems}
@@ -168,9 +158,9 @@ const ListTeacher = () => {
           <PaginationAntd></PaginationAntd>
         </div>
       </div>
-      {isModalOpen && <Addteacher isOpen={isModalOpen} onClose={closeModal} />}
+      {isModalOpen && <Addyear isOpen={isModalOpen} onClose={closeModal} />}
     </div>
   );
 };
 
-export default ListTeacher;
+export default Listyear;

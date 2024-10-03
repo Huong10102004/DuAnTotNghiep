@@ -13,6 +13,13 @@ import HistoryDetailAttendanceOneClass from "./_MODULES/Staff/History_attendance
 import SchoolYear from "./_MODULES/Staff/Schol-year/Components/school-year";
 import ClassStaff from "./_MODULES/Staff/Class-staff/components/Class-staff";
 import ClassAssignStudent from "./_MODULES/Staff/Class-staff/Components/Class-assign-student";
+// import ListTeacher from "./_MODULES/Staff/ListSubject/Components/list_teachers";
+import AddEmployeePopup from "./_MODULES/Staff/ListSubject/Components/add_teachers";
+import ListSubject from "./_MODULES/Staff/ListSubject/Components/list_subject";
+import List_teachers from "./_MODULES/Staff/ListSubject/Components/list_teachers";
+import Addteacher from "./_MODULES/Staff/ListSubject/Components/add_teachers";
+import Update_teacher from "./_MODULES/Staff/ListSubject/Components/update_teacher";
+import Listyear from "./_MODULES/Staff/ListSubject/Components/listyear";
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -41,6 +48,15 @@ export default function App() {
                   path="/staff/history_attendance/detail/:id"
                   element={<HistoryDetailClassAttendance />}
                 />
+                <Route path="/staff/add_teacher" element={<Addteacher />} />
+                <Route path="/staff/list_teacher" element={<List_teachers />} />
+                <Route path="/staff/listyear" element={<Listyear />} />
+                <Route path="/staff/list_subject" element={<ListSubject />} />
+                <Route
+                  path="/staff/update_teacher"
+                  element={<Update_teacher />}
+                />
+
                 <Route
                   path="/staff/history_attendance/detail/attendance/:id"
                   element={<HistoryDetailAttendanceOneClass />}
