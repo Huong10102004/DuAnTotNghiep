@@ -1,8 +1,9 @@
 import Header from "./layouts/layout_staff/Header/Header";
-import './App.css'
+import "./App.css";
 import Sidebar from "./layouts/layout_staff/Sidebar/Sidebar";
-import { useTranslation } from 'react-i18next';
-import './assets/i18n/i18n'; // Import cấu hình i18n
+import { useTranslation } from "react-i18next";
+import "./assets/i18n/i18n"; // Import cấu hình i18n
+// import Attendance from "./_MODULES/Staff/Attendance/Components/attendance";
 import Attendance from "./_MODULES/Staff/Attendance/Components/attendance";
 // import { Routes } from "react-router-dom";
 import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';

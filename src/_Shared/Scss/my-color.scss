@@ -1,64 +1,63 @@
 :root {
-    --bs-green-bold: #15B500;
-    --bs-red-light: #FB1B3E;
-    --bs-red-bold: #F42355;
-    --bs-yellow: #EBC11B;
-    --bs-blue: #0078FF;
-    --bs-white: #FFFFFF;
-    --bs-gray: #8D8D8D;
-    --bs-royal-gray: #E9F5FE;
-    --bs-green-light: #00CB58;
-    --bs-blue-bold: #235DF4;
-    --bs-red-pink: #F42355;
-    --bs-orange: #FF9800;
-    --bs-white-smoke: #f8f9fa ;
+  --bs-green-bold: #15b300;
+  --bs-red-light: #fb1b3e;
+  --bs-red-bold: #f42355;
+  --bs-yellow: #ebc11b;
+  --bs-blue: #0078ff;
+  --bs-white: #ffffff;
+  --bs-gray: #8d8d8d;
+  --bs-royal-gray: #e9f5fe;
+  --bs-green-light: #00cb58;
+  --bs-blue-bold: #235df4;
+  --bs-red-pink: #f42355;
+  --bs-orange: #ff9800;
+  --bs-white-smoke: #f8f9fa;
 }
 
 $my-map: (
-    "green-bold",
-    "red-light",
-    "red-bold",
-    "yellow",
-    "blue",
-    "white",
-    "gray",
-    "royal-gray",
-    "green-light",
-    "blue-bold",
-    "red-pink",
-    "orange",
-    "white-smoke"
+  "green-bold",
+  "red-light",
+  "red-bold",
+  "yellow",
+  "blue",
+  "white",
+  "gray",
+  "royal-gray",
+  "green-light",
+  "blue-bold",
+  "red-pink",
+  "orange",
+  "white-smoke"
 );
 
 @each $key in $my-map {
+  // css class text color
+  .text-color-#{$key} {
+    color: var(--bs-#{$key}) !important;
+  }
 
-    // css class text color
-    .text-color-#{$key} {
-        color: var(--bs-#{$key}) !important;
-    }
+  // css class bg color
+  .bg-color-#{$key} {
+    background-color: var(--bs-#{$key}) !important;
+  }
 
-    // css class bg color
-    .bg-color-#{$key} {
-        background-color: var(--bs-#{$key}) !important;
-    }
+  // css border color
+  .border-color-#{$key} {
+    border-color: var(--bs-#{$key}) !important;
+  }
 
-    // css border color
-    .border-color-#{$key} {
-        border-color: var(--bs-#{$key}) !important;
+  // css text hover
+  .text-hover-#{$key} {
+    &:hover {
+      color: var(--bs-#{$key}) !important;
     }
+  }
 
-    // css text hover
-    .text-hover-#{$key} {
-        &:hover {
-            color: var(--bs-#{$key}) !important;
-        }
+  // css text hover underline
+  .text-hover-underline-#{$key} {
+    &:hover {
+      color: var(--bs-#{$key}) !important;
+      text-decoration-line: underline;
     }
-
-    // css text hover underline
-    .text-hover-underline-#{$key} {
-        &:hover {
-            color: var(--bs-#{$key}) !important;
-            text-decoration-line: underline;
-        }
-    }
+  }
 }
