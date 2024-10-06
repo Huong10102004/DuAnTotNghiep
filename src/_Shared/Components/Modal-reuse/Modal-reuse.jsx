@@ -6,7 +6,7 @@ import { AiOutlineClose } from 'react-icons/ai';
 // Đặt cấu hình mặc định cho modal (tuỳ chọn)
 Modal.setAppElement('#root');
 
-const ModalReuse = ({ isOpen, onClose, title, children, width,footerModal }) => {
+const ModalReuse = ({ isOpen, onClose, title, children, width,footerModal, titleCssCustom }) => {
   return (
     <Modal
       isOpen={isOpen}
@@ -62,7 +62,7 @@ const ModalReuse = ({ isOpen, onClose, title, children, width,footerModal }) => 
               >
               <AiOutlineClose size={24} color="red" /> {/* Thay đổi kích thước và màu sắc của icon */}
             </button>
-            <h2 className='text-center fs-20'>{title}</h2>
+            <h2 className={'text-center fs-20 ' + titleCssCustom}>{title}</h2>
           </div>
           <hr className='my-3'/>
          
