@@ -11,8 +11,30 @@ import { Modal } from "antd";
 import { useTranslation } from "react-i18next";
 import PaginationAntd from "../../../../_Shared/Components/Pagination/Pagination";
 import { useNavigate } from 'react-router-dom';
+import  { ApiService } from '../../../../Services/ApiService'
 
 const ClassStaff = () => {
+  //Lấy dữ liệu call api
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    // Gọi API khi component mount
+    const fetchData = async () => {
+      try {
+        const responseData = await ApiService('manager/class', 'GET');
+        setData(responseData);
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (!data) {
+    return <div>Loading...</div>;
+  }
+
   const { t, i18n } = useTranslation(); // dịch đa ngôn ngữ
   const navigate = useNavigate(); // Hook để điều hướng
   //modal 

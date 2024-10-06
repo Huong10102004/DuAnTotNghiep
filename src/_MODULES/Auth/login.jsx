@@ -28,7 +28,7 @@ const Login = () => {
       localStorage.setItem('token', response.data.token);
 
       // Điều hướng người dùng đến trang khác sau khi đăng nhập thành công
-      window.location.href = '/staff'; // chuyển hướng đến trang chủ hoặc bất kỳ trang nào
+      window.location.href = '/staff/class'; // chuyển hướng đến trang chủ hoặc bất kỳ trang nào
     } catch (err) {
       setError(err.response ? err.response.data.message : 'Đăng nhập thất bại');
     }
