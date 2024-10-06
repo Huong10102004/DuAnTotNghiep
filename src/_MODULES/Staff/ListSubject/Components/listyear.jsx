@@ -8,11 +8,14 @@ import icon_assign_teacher from "../../../../assets/images/svg/icon_assign_teach
 import ActionMenu from "../../../../_Shared/Components/Action-menu/Action-menu";
 
 import Addyear from "./addyear";
+import Updateyear from "./updateyear";
 const Listyear = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddYearModalOpen, setIsAddYearModalOpen] = useState(false);
+  const [isUpdateYearModalOpen, setIsUpdateYearModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const menuItems = [
     { key: "edit", label: "Chỉnh sửa", icon: icon_edit },
@@ -21,13 +24,10 @@ const Listyear = () => {
 
   const handleMenuClick = (key, data) => {
     if (key === "edit") {
-      openModal(true, data); // Pass the data for editing
+      setSelectedItem(data);
+      setIsUpdateYearModalOpen(true);
     } else if (key === "delete") {
       console.log("Deleting: ", data);
-    } else if (key === "assign_teacher") {
-      openModalAssignTeacher(true, data);
-    } else if (key === "assign_student") {
-      navigate("/staff/class/assign_student/123456");
     }
   };
 
@@ -36,7 +36,6 @@ const Listyear = () => {
   };
 
   const handleDelete = () => {
-    // Xử lý xóa bản ghi ở đây
     console.log("Đã xóa bản ghi");
     setIsModalVisible(false);
   };
@@ -61,21 +60,23 @@ const Listyear = () => {
     getItems();
   }, []);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const openAddYearModal = () => setIsAddYearModalOpen(true);
+  const closeAddYearModal = () => setIsAddYearModalOpen(false);
+
+  const openUpdateyearModal = () => setIsUpdateYearModalOpen(true);
+  const closeUpdateyearModal = () => setIsUpdateYearModalOpen(false);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
   return (
     <div>
-      {/* <header className="h-[100px] w-full"></header> */}
       <div className="pt-6rem h-100vh bg-white px-4">
         <h1 className="fs-16">Năm học</h1>
         <p className="mt-2">Task/Attendance/Attendance sheet</p>
 
         <div className="d-flex align-items-end mt-2 justify-around">
-          <p className="">
+          <p>
             Số niên khóa: <span className="text-red-600">10 năm học</span>
           </p>
 
@@ -90,7 +91,7 @@ const Listyear = () => {
 
             <button
               className="h-10 w-24 rounded bg-green-500 text-sm text-white"
-              onClick={openModal}
+              onClick={openAddYearModal} // Open Addyear modal
             >
               Thêm mới
             </button>
@@ -109,48 +110,41 @@ const Listyear = () => {
                 <th className="text-center">Thời gian bắt đầu</th>
                 <th className="text-center">thời gian kết thúc</th>
                 <th className="text-center">Khối hiện tại</th>
-
                 <th className="text-center">Thao tác</th>
               </tr>
             </thead>
             <tbody>
-              <tr className="align-middle">
-                <td className="text-center">1</td>
-                <td>
-                  <div className="ps-10">
-                    <span>
-                      <b>K11.3</b>
-                    </span>
-                    <br />
-                    <span>
-                      <b>Mã NKTH303</b>
-                    </span>
-                  </div>
-                </td>
-                <td>
-                  <div className="ps-10">
-                    <span>
-                      <b>Đang diễn ra</b>
-                    </span>
-                    <br />
-                    <span>
-                      <b></b>
-                      <b></b>
-                    </span>
-                  </div>
-                </td>
-                <td className="fw-700 text-center">05/09/2024</td>
-                <td className="fw-700 text-center">20/05/2028</td>
-                <td className="fw-700 text-center">Khối 6</td>
+              {items.map((item, index) => (
+                <tr className="align-middle" key={item.id}>
+                  <td className="text-center">{index + 1}</td>
+                  <td>
+                    <div className="ps-10">
+                      <span>
+                        <b>{item.yearInfo}</b>
+                      </span>
+                      <br />
+                    </div>
+                  </td>
+                  <td>
+                    <div className="ps-10">
+                      <span>
+                        <b>{item.status}</b>
+                      </span>
+                      <br />
+                    </div>
+                  </td>
+                  <td className="fw-700 text-center">{item.startDate}</td>
+                  <td className="fw-700 text-center">{item.endDate}</td>
+                  <td className="fw-700 text-center">{item.currentGrade}</td>
 
-                <td className="text-center">
-                  <ActionMenu
-                    items={menuItems}
-                    onMenuClick={(key) => handleMenuClick(key, item)}
-                    onDelete={showDeleteModal}
-                  />
-                </td>
-              </tr>
+                  <td className="text-center">
+                    <ActionMenu
+                      items={menuItems}
+                      onMenuClick={(key) => handleMenuClick(key, item)}
+                    />
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -158,7 +152,20 @@ const Listyear = () => {
           <PaginationAntd></PaginationAntd>
         </div>
       </div>
-      {isModalOpen && <Addyear isOpen={isModalOpen} onClose={closeModal} />}
+
+      {/* Addyear Modal */}
+      {isAddYearModalOpen && (
+        <Addyear isOpen={isAddYearModalOpen} onClose={closeAddYearModal} />
+      )}
+
+      {/* Updateyear Modal */}
+      {isUpdateYearModalOpen && (
+        <Updateyear
+          isOpen={isUpdateYearModalOpen}
+          onClose={closeUpdateyearModal}
+          teacher={selectedItem}
+        />
+      )}
     </div>
   );
 };

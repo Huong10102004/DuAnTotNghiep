@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 import PaginationAntd from "../../../../_Shared/Components/Pagination/Pagination";
 import { getListClassToAttendance } from "../../../../Services/Attendance/attendance";
 
-const Update_teacher = ({ show, onClose }) => {
+const Update_teacher = ({ isOpen, onClose }) => {
   const {
     register,
     handleSubmit,
@@ -16,7 +16,7 @@ const Update_teacher = ({ show, onClose }) => {
     onClose();
   };
 
-  // if (!show) return null;
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-75">
