@@ -9,6 +9,7 @@ import ActionMenu from "../../../../_Shared/Components/Action-menu/Action-menu";
 
 import Addyear from "./addyear";
 import Updateyear from "./updateyear";
+import { ApiService } from "../../../../Services/ApiService";
 const Listyear = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,7 +48,8 @@ const Listyear = () => {
   useEffect(() => {
     const getItems = async () => {
       try {
-        const data = await getListClassToAttendance();
+        // const data = await getListClassToAttendance();
+        const data = await ApiService('manager/schoolyear');
         console.log(data);
         setItems(data);
       } catch (err) {

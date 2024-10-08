@@ -18,6 +18,7 @@ import StudentDetail from "./_MODULES/Staff/Student/Components/Student-detail";
 import Parent from "./_MODULES/Staff/Parent/Components/Parent";
 import ParentDetail from "./_MODULES/Staff/Parent/Components/Parent-detail";
 import Login from "./_MODULES/Auth/login";
+import Listyear from "./_MODULES/Staff/ListSubject/Components/listyear";
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -68,6 +69,9 @@ export default function App() {
           {/* parents */}
           <Route path="/staff/parent" element={<Parent />} />
           <Route path="/staff/parent/detail/:id" element={<ParentDetail />} />
+
+          {/*  */}
+          <Route path="/staff/year" element={<Listyear />} />
         </Route>
         )}
       </Routes>
