@@ -9,8 +9,10 @@ import { useForm } from 'react-hook-form';
 import ActionMenu from "../../../../_Shared/Components/Action-menu/Action-menu";
 import { Modal } from "antd";
 import { useTranslation } from "react-i18next";
+import { ApiService } from "../../../../Services/ApiService";
 
 const SchoolYear = () => {
+  const [items, setItems] = useState([]);
   // dịch đa ngôn ngữ
   const { t, i18n } = useTranslation();
   //modal 
@@ -81,6 +83,24 @@ const SchoolYear = () => {
     },
     // Thêm nhiều dữ liệu hơn ở đây
   ];
+
+  const getItems = async () => {
+    // setLoading(true);  // Bắt đầu tải dữ liệu
+    // setError(null);    // Reset error
+    try {
+      const data = await ApiService('manager/academicyear');  // Gọi API lấy danh sách
+      console.log("Dữ liệu trả về từ API: ", data);  // Kiểm tra dữ liệu trả về
+      setItems(Array.isArray(data.data) ? data.data : []);  // Cập nhật danh sách
+    } catch (err) {
+      // setError(err.message);
+    } finally {
+      // setLoading(false);  // Dừng trạng thái tải dữ liệu
+    }
+  };
+
+  useEffect(() => {
+    getItems();  // Gọi API lấy dữ liệu khi component được render lần đầu
+  }, []);
 
   //open delete modal
   const showDeleteModal = () => {

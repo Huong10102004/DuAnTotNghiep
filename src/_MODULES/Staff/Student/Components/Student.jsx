@@ -12,6 +12,7 @@ import ActionMenu from "../../../../_Shared/Components/Action-menu/Action-menu";
 import { Button, Modal, Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { ApiService } from "../../../../Services/ApiService";
 
 const Student = () => {
   // dịch đa ngôn ngữ
@@ -28,6 +29,9 @@ const Student = () => {
 
     
   const openModal = (editMode = false, data = null) => {
+    const [items, setItems] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     setIsEditMode(editMode);
     setModalIsOpen(true); 
     if (editMode && data) {
@@ -64,12 +68,29 @@ const Student = () => {
   }
   
   const onSubmit = (data) => {
+    console.log(data)
     if (isEditMode) {
       // Xử lý cập nhật dữ liệu khi đang chỉnh sửa
       console.log("Dữ liệu chỉnh sửa:", data);
     } else {
         // Xử lý thêm mới
         console.log("Dữ liệu thêm mới:", data);
+        try {
+          // Gọi API thêm dữ liệu
+          const response = ApiService('manager/academicyear/add','post', data);
+          console.log("Dữ liệu trả về từ API: ", response);
+    
+          // Nếu thành công
+          if (response.success) {
+            onSuccess(); // Gọi hàm để cập nhật lại danh sách và đóng modal
+          } else {
+            setError("Đã có lỗi xảy ra.");
+          }
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
     }
     closeModal();
   };
@@ -111,6 +132,23 @@ const Student = () => {
     // Thêm nhiều dữ liệu hơn ở đây
   ];
 
+  const getItems = async () => {
+    // setLoading(true);  // Bắt đầu tải dữ liệu
+    // setError(null);    // Reset error
+    try {
+      const data = await ApiService('manager/student');  // Gọi API lấy danh sách
+      console.log("Dữ liệu trả về từ API: ", data);  // Kiểm tra dữ liệu trả về
+      setItems(Array.isArray(data.data) ? data.data : []);  // Cập nhật danh sách
+    } catch (err) {
+      // setError(err.message);
+    } finally {
+      // setLoading(false);  // Dừng trạng thái tải dữ liệu
+    }
+  };
+
+  useEffect(() => {
+    getItems();  // Gọi API lấy dữ liệu khi component được render lần đầu
+  }, []);
   //open delete modal
   const showDeleteModal = () => {
     setIsModalVisible(true);
