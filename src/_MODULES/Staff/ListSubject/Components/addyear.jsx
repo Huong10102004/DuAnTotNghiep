@@ -1,79 +1,104 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import PaginationAntd from "../../../../_Shared/Components/Pagination/Pagination";
-import { getListClassToAttendance } from "../../../../Services/Attendance/attendance";
 import { STATUS_SCHOOL_YEAR } from "../../../../ENUM/StatusSchoolYear";
 import { ApiService } from "../../../../Services/ApiService";
 import DatePickerComponent from "../../../../_Shared/Components/Date-picker/Date-picker";
+import Loading from "../../../../_Shared/Components/Loading/Loading";
 
-const Addyear = ({ isOpen, onClose }) => {
+const Addyear = ({ isOpen, onClose, reloadApi }) => {
   const [loading, setLoading] = useState(null);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState({ start: '', end: '' });
   const [startDate, setStartDate] = useState(null); // start Date
   const [endDate, setEndDate] = useState(null); // start Date
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset
   } = useForm();
+  let isValid = false;
+  useEffect(() => {
+    if(isValid){
+      if (!startDate) {
+        setErrorMessage(prevState => ({ ...prevState, start: 'Start date is required.' }));
+      } else {
+        setErrorMessage(prevState => ({ ...prevState, start: '' }));
+      }
   
-  const onSubmit = (data) => {
-    setLoading(true);
+      if (!endDate) {
+        setErrorMessage(prevState => ({ ...prevState, end: 'End date is required.' }));
+      } else {
+        setErrorMessage(prevState => ({ ...prevState, end: '' }));
+      }
+    }
+  }, [startDate, endDate]);
 
-    let isValid = true;
+  const onSubmit = async (data) => {
+    setLoading(true);  // Bắt đầu tải dữ liệu
+    isValid = true;
 
-    // Kiểm tra nếu startDate và endDate rỗng
+    // Validate ngày bắt đầu và ngày kết thúc
     if (!startDate) {
       setErrorMessage(prevState => ({ ...prevState, start: 'Start date is required.' }));
       isValid = false;
+    } else {
+      setErrorMessage(prevState => ({ ...prevState, start: '' }));
     }
 
     if (!endDate) {
       setErrorMessage(prevState => ({ ...prevState, end: 'End date is required.' }));
       isValid = false;
+    } else {
+      setErrorMessage(prevState => ({ ...prevState, end: '' }));
     }
+    // Nếu tất cả các trường hợp đều hợp lệ
+    if (isValid && !Object.keys(errors).length) {
+      setLoading(true);
 
-    if (isValid) {
-      // Xử lý submit form nếu cả hai trường đều hợp lệ
-      console.log('Form submitted with:', { startDate, endDate });
-      // Sau khi xử lý submit form bạn có thể reset hoặc xử lý logic khác
-    }
-    
-    if(startDate && endDate){
+      const formData = {
+        ...data,
+        schoolYearStartDate: startDate,
+        schoolYearEndDate: endDate,
+        schoolYearStatus: Number(data.schoolYearStatus)
+      };
+
       try {
         // Gọi API thêm dữ liệu
-        const response = ApiService('manager/schoolyear/add','post', data);
+        const response = await ApiService('manager/schoolyear/add', 'post', formData);
         console.log("Dữ liệu trả về từ API: ", response);
-  
+
         // Nếu thành công
-        if (response.success) {
-          onSuccess(); // Gọi hàm để cập nhật lại danh sách và đóng modal
+        if (response) {
+          await reloadApi()
         } else {
-          setError("Đã có lỗi xảy ra.");
+          setErrorMessage('Đã có lỗi xảy ra.');
         }
       } catch (err) {
+        console.error('Error:', err);
+        setErrorMessage('Đã có lỗi xảy ra trong quá trình xử lý.');
       } finally {
+        onClose();
+        reset();
         setLoading(false);
       }
     }else{
-      setErrorMessage('Please fill in both start date and end date.');
+      setLoading(false);
     }
   };
 
   const handleStartDateChange = (dateString) => {
     setStartDate(dateString);
-    setErrorMessage({ ...errorMessage, start: '' });
   };
 
   const handleEndDateChange = (dateString) => {
     setEndDate(dateString);
-    setErrorMessage({ ...errorMessage, end: '' }); // Reset thông báo lỗi khi người dùng bắt đầu nhập lại
   };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-75">
+      <Loading isLoading={loading} />
       <div className="relative w-[70%] rounded-lg bg-white p-6 shadow-lg">
         <h2 className="mb-2 text-center text-xl font-bold">Thêm năm học</h2>
         <hr className="mb-4" />
@@ -93,15 +118,15 @@ const Addyear = ({ isOpen, onClose }) => {
               <div className="flex w-4/5 flex-col">
                 <input
                   type="text"
-                  {...register("name", {
-                    required: "Tên của niên khóa bắt buộc nhập",
+                  {...register("schoolYearName", {
+                    required: "Tiêu đề năm học bắt buộc nhập",
                   })}
                   className="w-full rounded border p-2"
                   placeholder="Nhập tiêu đề năm học"
                 />
-                {errors.name && (
+                {errors.schoolYearName && (
                   <span className="mt-1 text-sm font-bold text-red-500">
-                    {errors.name.message}
+                    {errors.schoolYearName.message}
                   </span>
                 )}
               </div>
@@ -114,14 +139,14 @@ const Addyear = ({ isOpen, onClose }) => {
               </label>
               <div className="flex w-4/5 flex-col">
                 <select
-                  {...register("status", {
+                  {...register("schoolYearStatus", {
                     required: "Trạng thái bắt buộc phải chọn",
                   })}
                   className="w-full rounded border p-2"
                 >
-                  <option value={STATUS_SCHOOL_YEAR.NOT_STARTED_YET}>{STATUS_SCHOOL_YEAR.NOT_STARTED_YET_LABEL}</option>
-                  <option value={STATUS_SCHOOL_YEAR.ONGOING}>{STATUS_SCHOOL_YEAR.ONGOING_LABEL}</option>
-                  <option value={STATUS_SCHOOL_YEAR.FINISHED}>{STATUS_SCHOOL_YEAR.FINISHED_LABEL}</option>
+                  <option value={Number(STATUS_SCHOOL_YEAR.NOT_STARTED_YET)}>{STATUS_SCHOOL_YEAR.NOT_STARTED_YET_LABEL}</option>
+                  <option value={Number(STATUS_SCHOOL_YEAR.ONGOING)}>{STATUS_SCHOOL_YEAR.ONGOING_LABEL}</option>
+                  <option value={Number(STATUS_SCHOOL_YEAR.FINISHED)}>{STATUS_SCHOOL_YEAR.FINISHED_LABEL}</option>
                 </select>
                 {errors.status && (
                   <span className="mt-1 text-sm font-bold text-red-500">
@@ -150,7 +175,9 @@ const Addyear = ({ isOpen, onClose }) => {
                   </span>
                 )} */}
                 <DatePickerComponent onDateChange={handleStartDateChange} placeholder={'Chọn ngày bắt đầu năm học'} />
-                {!startDate && errorMessage && <p style={{ color: 'red' }}>Start date is required.</p>}
+                {!startDate && errorMessage.start && (
+                  <p style={{ color: 'red' }}>{errorMessage.start}</p>
+                )}
               </div>
             </div>
 
@@ -172,7 +199,9 @@ const Addyear = ({ isOpen, onClose }) => {
                   </span>
                 )} */}
                 <DatePickerComponent onDateChange={handleEndDateChange} placeholder={'Chọn ngày kết thúc năm học'} />
-                {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+                {!endDate && errorMessage.end && (
+                  <p style={{ color: 'red' }}>{errorMessage.end}</p>
+                )}
               </div>
             </div>
           </div>

@@ -26,12 +26,11 @@ const Student = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); // mở modal confirm xóa
   // Sử dụng react-hook-form
   const { register, handleSubmit, formState: { errors }, watch, trigger,reset } = useForm({mode: "onChange"});
-
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
     
   const openModal = (editMode = false, data = null) => {
-    const [items, setItems] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     setIsEditMode(editMode);
     setModalIsOpen(true); 
     if (editMode && data) {
@@ -68,21 +67,13 @@ const Student = () => {
   }
   
   const onSubmit = (data) => {
-    console.log(data)
     if (isEditMode) {
-      // Xử lý cập nhật dữ liệu khi đang chỉnh sửa
-      console.log("Dữ liệu chỉnh sửa:", data);
     } else {
-        // Xử lý thêm mới
-        console.log("Dữ liệu thêm mới:", data);
         try {
-          // Gọi API thêm dữ liệu
           const response = ApiService('manager/academicyear/add','post', data);
-          console.log("Dữ liệu trả về từ API: ", response);
     
-          // Nếu thành công
           if (response.success) {
-            onSuccess(); // Gọi hàm để cập nhật lại danh sách và đóng modal
+            onSuccess();
           } else {
             setError("Đã có lỗi xảy ra.");
           }
@@ -133,12 +124,10 @@ const Student = () => {
   ];
 
   const getItems = async () => {
-    // setLoading(true);  // Bắt đầu tải dữ liệu
-    // setError(null);    // Reset error
     try {
-      const data = await ApiService('manager/student');  // Gọi API lấy danh sách
-      console.log("Dữ liệu trả về từ API: ", data);  // Kiểm tra dữ liệu trả về
-      setItems(Array.isArray(data.data) ? data.data : []);  // Cập nhật danh sách
+      const data = await ApiService('manager/student');  
+      console.log("Dữ liệu trả về từ API: ", data);  
+      setItems(Array.isArray(data.data) ? data.data : []);
     } catch (err) {
       // setError(err.message);
     } finally {
@@ -147,7 +136,7 @@ const Student = () => {
   };
 
   useEffect(() => {
-    getItems();  // Gọi API lấy dữ liệu khi component được render lần đầu
+    getItems();  
   }, []);
   //open delete modal
   const showDeleteModal = () => {

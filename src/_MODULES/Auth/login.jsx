@@ -26,12 +26,12 @@ const Login = () => {
     );
 
       // Nếu đăng nhập thành công
-      console.log(response.data);
+      console.log(response);
       // Lưu token hoặc chuyển hướng tới trang khác nếu cần
-      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('token', response.data.data.token);
 
       // Điều hướng người dùng đến trang khác sau khi đăng nhập thành công
-      window.location.href = '/staff/class'; // chuyển hướng đến trang chủ hoặc bất kỳ trang nào
+      // window.location.href = '/staff/class'; // chuyển hướng đến trang chủ hoặc bất kỳ trang nào
     } catch (err) {
       setError(err.response ? err.response.data.message : 'Đăng nhập thất bại');
     } finally {

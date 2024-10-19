@@ -10,6 +10,7 @@ import Addyear from "./addyear";
 import Updateyear from "./updateyear";
 import { ApiService } from "../../../../Services/ApiService";
 import Loading from "../../../../_Shared/Components/Loading/Loading";
+import { formatTimestamp } from "../../../../_Shared/Pipe/Format-timestamp";
 const Listyear = () => {
   const [keyWord, setKeyWord] = useState('');  // Biến lưu từ khóa tìm kiếm
   const [items, setItems] = useState([]);
@@ -86,6 +87,11 @@ const Listyear = () => {
       getItems(keyWord);  // Gọi API ngay khi nhấn Enter
     }
   };
+
+  const handleCallBackApi = () => {
+    getItems();
+  }
+  
   return (
     <div>
       {/* Lớp phủ loading với hiệu ứng spinner */}
@@ -138,12 +144,12 @@ const Listyear = () => {
             <tbody>
               {items && Array.isArray(items) && items.length > 0 ? (
                 items.map((item, index) => (
-                  <tr className="align-middle" key={item.id}>
+                  <tr className="align-middle" key={item.id || index}>
                     <td className="text-center">{index + 1}</td>
                     <td>
                       <div className="ps-10">
                         <span>
-                          <b>{item.name}</b>
+                          <b>{item.schoolYearName}</b>
                         </span>
                         <br />
                       </div>
@@ -151,13 +157,13 @@ const Listyear = () => {
                     <td>
                       <div className="ps-10">
                         <span>
-                          <b>{item.status}</b>
+                          <b>{item.schoolYearStatus}</b>
                         </span>
                         <br />
                       </div>
                     </td>
-                    <td className="fw-700 text-center">{item.start_date}</td>
-                    <td className="fw-700 text-center">{item.end_date}</td>
+                    <td className="fw-700 text-center">{formatTimestamp(item.schoolYearStartDate)}</td>
+                    <td className="fw-700 text-center">{formatTimestamp(1728432000)}</td>
 
                     <td className="text-center">
                       <ActionMenu
@@ -184,7 +190,7 @@ const Listyear = () => {
 
       {/* Addyear Modal */}
       {isAddYearModalOpen && (
-        <Addyear isOpen={isAddYearModalOpen} onClose={closeAddYearModal} />
+        <Addyear isOpen={isAddYearModalOpen} onClose={closeAddYearModal} reloadApi={handleCallBackApi} />
       )}
 
       {/* Updateyear Modal */}
