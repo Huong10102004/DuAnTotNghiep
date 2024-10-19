@@ -9,8 +9,12 @@ import { useForm } from 'react-hook-form';
 import ActionMenu from "../../../../_Shared/Components/Action-menu/Action-menu";
 import { Modal } from "antd";
 import { useTranslation } from "react-i18next";
+import { ApiService } from "../../../../Services/ApiService";
+import Loading from "../../../../_Shared/Components/Loading/Loading";
+import DatePickerComponent from "../../../../_Shared/Components/Date-picker/Date-picker";
 
 const SchoolYear = () => {
+  const [items, setItems] = useState([]);
   // dịch đa ngôn ngữ
   const { t, i18n } = useTranslation();
   //modal 
@@ -18,6 +22,9 @@ const SchoolYear = () => {
   const [isEditMode, setIsEditMode] = useState(false); // mở modal edit
   const [currentData, setCurrentData] = useState(null); // dữ liệu truyền vào edit
   const [isModalVisible, setIsModalVisible] = useState(false); // mở modal confirm xóa
+  const [loading, setLoading] = useState(true);
+  const [startDate, setStartDate] = useState(Date.now()); // start Date
+  const [endDate, setEndDate] = useState(Date.now()); // start Date
   // Sử dụng react-hook-form
   const { register, handleSubmit, formState: { errors }, watch, trigger,reset } = useForm({mode: "onChange"});
 
@@ -44,12 +51,23 @@ const SchoolYear = () => {
     reset();
   };
   
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
+    console.log(data);
+    setLoading(true);
     if (isEditMode) {
       // Xử lý cập nhật dữ liệu khi đang chỉnh sửa
       console.log("Dữ liệu chỉnh sửa:", data);
     } else {
         // Xử lý thêm mới
+        try {
+          const data = await ApiService(`manager/schoolyear?keyWord=${keyWord}`);  // Gọi API lấy danh sách
+          console.log("Dữ liệu trả về từ API: ", data);  // Kiểm tra dữ liệu trả về
+          setItems(Array.isArray(data.data) ? data.data : []);  // Cập nhật danh sách
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setLoading(false);  // Dừng trạng thái tải dữ liệu
+        }
         console.log("Dữ liệu thêm mới:", data);
     }
     closeModal();
@@ -82,6 +100,24 @@ const SchoolYear = () => {
     // Thêm nhiều dữ liệu hơn ở đây
   ];
 
+  const getItems = async () => {
+    setLoading(true);  // Bắt đầu tải dữ liệu
+    // setError(null);    // Reset error
+    try {
+      const data = await ApiService('manager/academicyear');  // Gọi API lấy danh sách
+      console.log("Dữ liệu trả về từ API: ", data);  // Kiểm tra dữ liệu trả về
+      setItems(Array.isArray(data.data) ? data.data : []);  // Cập nhật danh sách
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);  // Dừng trạng thái tải dữ liệu
+    }
+  };
+
+  useEffect(() => {
+    getItems();  // Gọi API lấy dữ liệu khi component được render lần đầu
+  }, []);
+
   //open delete modal
   const showDeleteModal = () => {
     setIsModalVisible(true);
@@ -96,8 +132,26 @@ const SchoolYear = () => {
   const handleCancel = () => {
     setIsModalVisible(false);
   };
+
+   //footer modal
+   const footerModal = () => {
+    return <div className="text-center mt-3">
+            <button onClick={closeModal} className="btn bg-color-white-smoke me-3 w-100px">Đóng</button>
+            <button type="submit" className="btn btn-primary w-100px">Lưu</button>
+          </div>
+  }
+
+  //Handle model theem
+  const handleStartDateChange = (dateString) => {
+    setStartDate(dateString);
+  };
+
+  const handleEndDateChange = (dateString) => {
+    setEndDate(dateString);
+  };
   return (
     <div>
+      <Loading isLoading={loading} />
       {/* <header className="h-[100px] w-full"></header> */}
       <div className="pt-6rem bg-white h-100vh px-4">
             <h1 className="fs-16">{t('schoolYear')}</h1>
@@ -155,7 +209,7 @@ const SchoolYear = () => {
       </div>
 
       {/* modal  */}
-      <ModalReuse isOpen={modalIsOpen} onClose={closeModal} title={isEditMode ? "Chỉnh sửa niên khóa" : "Thêm niên khóa"} width="80%">
+      <ModalReuse isOpen={modalIsOpen} onClose={closeModal} title={isEditMode ? "Chỉnh sửa niên khóa" : "Thêm niên khóa"} footerModal={footerModal()} width="80%">
       <form onSubmit={handleSubmit(onSubmit)}>
           <div className="row">
             {/* Tên niên khóa */}
@@ -179,23 +233,29 @@ const SchoolYear = () => {
             {/* Ngày bắt đầu */}
             <div className="col-12 col-md-6 mb-3">
               <label>Ngày bắt đầu:</label>
-              <input type="date" className={`form-control ${errors.startDate ? 'is-invalid' : ''}`} {...register("startDate", { required: "Ngày bắt đầu là bắt buộc" })} />
-              {errors.startDate && <div className="invalid-feedback">{errors.startDate.message}</div>}
+              <div className="flex w-5/5 flex-col">
+                <DatePickerComponent onDateChange={handleStartDateChange} placeholder={'Chọn ngày bắt đầu năm học'} />
+                {!startDate && errorMessage.start && (
+                  <p style={{ color: 'red' }}>{errorMessage.start}</p>
+                )}
+              </div>
             </div>
 
             {/* Ngày kết thúc */}
             <div className="col-12 col-md-6 mb-3">
               <label>Ngày kết thúc:</label>
-              <input type="date" className={`form-control ${errors.endDate ? 'is-invalid' : ''}`} {...register("endDate", { required: "Ngày kết thúc là bắt buộc" })}/>
-              {errors.endDate && <div className="invalid-feedback">{errors.endDate.message}</div>}
+              <div className="w-100">
+              <div className="flex w-5/5 flex-col">
+                <DatePickerComponent onDateChange={handleEndDateChange} placeholder={'Chọn ngày kết thúc năm học'} />
+                  {!endDate && errorMessage.end && (
+                    <p style={{ color: 'red' }}>{errorMessage.end}</p>
+                  )}
+              </div>
+              </div>
             </div>
           </div>
 
-          <hr className="mt-20"/>
-          <div className="text-center mt-3">
-            <button onClick={closeModal} className="btn bg-color-white-smoke me-3 w-100px">Đóng</button>
-            <button type="submit" className="btn btn-primary w-100px">Lưu</button>
-          </div>
+          {/* <hr className="mt-20"/> */}
         </form>
       </ModalReuse>
 

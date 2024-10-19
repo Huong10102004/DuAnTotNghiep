@@ -12,6 +12,7 @@ import ActionMenu from "../../../../_Shared/Components/Action-menu/Action-menu";
 import { Button, Modal, Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { ApiService } from "../../../../Services/ApiService";
 
 const Student = () => {
   // dịch đa ngôn ngữ
@@ -25,7 +26,9 @@ const Student = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); // mở modal confirm xóa
   // Sử dụng react-hook-form
   const { register, handleSubmit, formState: { errors }, watch, trigger,reset } = useForm({mode: "onChange"});
-
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
     
   const openModal = (editMode = false, data = null) => {
     setIsEditMode(editMode);
@@ -65,11 +68,20 @@ const Student = () => {
   
   const onSubmit = (data) => {
     if (isEditMode) {
-      // Xử lý cập nhật dữ liệu khi đang chỉnh sửa
-      console.log("Dữ liệu chỉnh sửa:", data);
     } else {
-        // Xử lý thêm mới
-        console.log("Dữ liệu thêm mới:", data);
+        try {
+          const response = ApiService('manager/academicyear/add','post', data);
+    
+          if (response.success) {
+            onSuccess();
+          } else {
+            setError("Đã có lỗi xảy ra.");
+          }
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
     }
     closeModal();
   };
@@ -111,6 +123,21 @@ const Student = () => {
     // Thêm nhiều dữ liệu hơn ở đây
   ];
 
+  const getItems = async () => {
+    try {
+      const data = await ApiService('manager/student');  
+      console.log("Dữ liệu trả về từ API: ", data);  
+      setItems(Array.isArray(data.data) ? data.data : []);
+    } catch (err) {
+      // setError(err.message);
+    } finally {
+      // setLoading(false);  // Dừng trạng thái tải dữ liệu
+    }
+  };
+
+  useEffect(() => {
+    getItems();  
+  }, []);
   //open delete modal
   const showDeleteModal = () => {
     setIsModalVisible(true);

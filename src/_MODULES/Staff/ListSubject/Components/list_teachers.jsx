@@ -9,6 +9,9 @@ import ActionMenu from "../../../../_Shared/Components/Action-menu/Action-menu";
 
 import Addteacher from "./add_teachers";
 import Update_teacher from "./update_teacher";
+import { ApiService } from "../../../../Services/ApiService";
+import Loading from "../../../../_Shared/Components/Loading/Loading";
+import { formatTimestamp } from "../../../../_Shared/Pipe/Format-timestamp";
 
 const ListTeacher = () => {
   const [items, setItems] = useState([]);
@@ -43,20 +46,22 @@ const ListTeacher = () => {
     }
   };
 
-  useEffect(() => {
-    const getItems = async () => {
-      try {
-        const data = await getListClassToAttendance();
-        console.log(data);
-        setItems(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    getItems();
+  const getItems = async () => {
+    try {
+      // const data = await getListClassToAttendance();
+      const data = await ApiService('manager/user');
+      console.log('That data api: ',data.data);
+      setItems(data.data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getItems();  // Gọi API lấy dữ liệu khi component được render lần đầu
   }, []);
 
   const openAddTeacherModal = () => setIsAddTeacherModalOpen(true);
@@ -65,11 +70,15 @@ const ListTeacher = () => {
   const openUpdateTeacherModal = () => setIsUpdateTeacherModalOpen(true);
   const closeUpdateTeacherModal = () => setIsUpdateTeacherModalOpen(false);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  // if (loading) return <div>Loading...</div>;
+  // if (error) return <div>{error}</div>;
 
+  const handleCallBackApi = () => {
+    getItems();
+  }
   return (
     <div>
+      <Loading isLoading={loading} />
       <div className="pt-6rem h-100vh bg-white px-4">
         <h1 className="fs-16">Nhân viên</h1>
         <p className="mt-2">Task/Attendance/Attendance sheet</p>
@@ -105,7 +114,6 @@ const ListTeacher = () => {
                 </th>
                 <th className="text-center">Liên hệ</th>
                 <th className="text-center">Lớp chủ nhiệm</th>
-                <th className="text-center">Môn giảng dạy</th>
                 <th className="text-center">Chức vụ</th>
                 <th className="text-center">Trạng thái</th>
                 <th className="text-center">Ngày sinh</th>
@@ -114,35 +122,34 @@ const ListTeacher = () => {
             </thead>
             <tbody>
               {items.map((item, index) => (
-                <tr className="align-middle" key={item.id}>
+                <tr className="align-middle" key={item.id || index}>
                   <td className="text-center">{index + 1}</td>
                   <td>
                     <div className="ps-10">
                       <span>
-                        <b>{item.teacherName}</b>
+                        <b>{item.userName}</b>
                       </span>
                       <br />
                       <span>
-                        <b>{item.teacherCode}</b>
+                        <b>{item.userCode}</b>
                       </span>
                     </div>
                   </td>
                   <td>
                     <div className="ps-10">
                       <span>
-                        <b>{item.email}</b>
+                        <b>{item.userEmail}</b>
                       </span>
                       <br />
                       <span>
-                        <b>{item.phone}</b>
+                        <b>{item.userPhone}</b>
                       </span>
                     </div>
                   </td>
-                  <td className="text-center">{item.homeroomClass}</td>
-                  <td className="fw-700 text-center">{item.subject}</td>
-                  <td className="fw-700 text-center">{item.position}</td>
-                  <td className="fw-700 text-center">{item.status}</td>
-                  <td className="text-center">{item.birthDate}</td>
+                  <td className="text-center">{item.userMainClassName}</td>
+                  <td className="fw-700 text-center">{item.userAccessType}</td>
+                  <td className="fw-700 text-center">{item.userStatus}</td>
+                  <td className="text-center">{formatTimestamp(item.userDob)}</td>
                   <td className="text-center">
                     <ActionMenu
                       items={menuItems}
@@ -164,6 +171,7 @@ const ListTeacher = () => {
         <Addteacher
           isOpen={isAddTeacherModalOpen}
           onClose={closeAddTeacherModal}
+          reloadApi={handleCallBackApi}
         />
       )}
 

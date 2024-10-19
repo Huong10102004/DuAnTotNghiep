@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import PaginationAntd from "../../../../_Shared/Components/Pagination/Pagination";
-import { getListClassToAttendance } from "../../../../Services/Attendance/attendance";
 import icon_plus from "../../../../assets/images/svg/icon_plus.svg";
 import icon_edit from "../../../../assets/images/svg/icon_edit.svg";
 import icon_delete from "../../../../assets/images/svg/icon_delete.svg";
@@ -9,7 +8,11 @@ import ActionMenu from "../../../../_Shared/Components/Action-menu/Action-menu";
 
 import Addyear from "./addyear";
 import Updateyear from "./updateyear";
+import { ApiService } from "../../../../Services/ApiService";
+import Loading from "../../../../_Shared/Components/Loading/Loading";
+import { formatTimestamp } from "../../../../_Shared/Pipe/Format-timestamp";
 const Listyear = () => {
+  const [keyWord, setKeyWord] = useState('');  // Biến lưu từ khóa tìm kiếm
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -44,21 +47,30 @@ const Listyear = () => {
     setIsModalVisible(false);
   };
 
-  useEffect(() => {
-    const getItems = async () => {
-      try {
-        const data = await getListClassToAttendance();
-        console.log(data);
-        setItems(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Hàm lấy danh sách dữ liệu
+  const getItems = async (keyWord = '') => {
+    setLoading(true);  // Bắt đầu tải dữ liệu
+    setError(null);    // Reset error
+    try {
+      const data = await ApiService(`manager/schoolyear?keyWord=${keyWord}`);  // Gọi API lấy danh sách
+      console.log("Dữ liệu trả về từ API: ", data);  // Kiểm tra dữ liệu trả về
+      setItems(Array.isArray(data.data) ? data.data : []);  // Cập nhật danh sách
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);  // Dừng trạng thái tải dữ liệu
+    }
+  };
 
-    getItems();
+  useEffect(() => {
+    getItems();  // Gọi API lấy dữ liệu khi component được render lần đầu
   }, []);
+
+  // Hàm xử lý sau khi thêm thành công
+  const handleAddYearSuccess = () => {
+    setIsAddYearModalOpen(false); // Đóng modal
+    getItems(); // Gọi lại API để cập nhật danh sách
+  };
 
   const openAddYearModal = () => setIsAddYearModalOpen(true);
   const closeAddYearModal = () => setIsAddYearModalOpen(false);
@@ -66,16 +78,30 @@ const Listyear = () => {
   const openUpdateyearModal = () => setIsUpdateYearModalOpen(true);
   const closeUpdateyearModal = () => setIsUpdateYearModalOpen(false);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  const handleSearchChange = (e) => {
+    setKeyWord(e.target.value);  // Cập nhật từ khóa
+  };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      getItems(keyWord);  // Gọi API ngay khi nhấn Enter
+    }
+  };
+
+  const handleCallBackApi = () => {
+    getItems();
+  }
+  
   return (
     <div>
+      {/* Lớp phủ loading với hiệu ứng spinner */}
+      <Loading isLoading={loading} />
+
       <div className="pt-6rem h-100vh bg-white px-4">
         <h1 className="fs-16">Năm học</h1>
         <p className="mt-2">Task/Attendance/Attendance sheet</p>
 
-        <div className="d-flex align-items-end mt-2 justify-around">
+        <div className="d-flex align-items-end mt-2 justify-content-between">
           <p>
             Số niên khóa: <span className="text-red-600">10 năm học</span>
           </p>
@@ -84,6 +110,9 @@ const Listyear = () => {
             <input
               placeholder="Tìm kiếm...."
               className={`bg-color-white-smoke border-radius-10px w-300px px-3 py-2`}
+              value={keyWord}
+              onChange={handleSearchChange}
+              onKeyDown={handleKeyDown}
             />
             <button className="h-10 w-24 rounded bg-blue-500 text-sm text-white">
               Xuất file Excel
@@ -109,42 +138,48 @@ const Listyear = () => {
                 <th className="text-center">Trạng thái</th>
                 <th className="text-center">Thời gian bắt đầu</th>
                 <th className="text-center">thời gian kết thúc</th>
-                <th className="text-center">Khối hiện tại</th>
                 <th className="text-center">Thao tác</th>
               </tr>
             </thead>
             <tbody>
-              {items.map((item, index) => (
-                <tr className="align-middle" key={item.id}>
-                  <td className="text-center">{index + 1}</td>
-                  <td>
-                    <div className="ps-10">
-                      <span>
-                        <b>{item.yearInfo}</b>
-                      </span>
-                      <br />
-                    </div>
-                  </td>
-                  <td>
-                    <div className="ps-10">
-                      <span>
-                        <b>{item.status}</b>
-                      </span>
-                      <br />
-                    </div>
-                  </td>
-                  <td className="fw-700 text-center">{item.startDate}</td>
-                  <td className="fw-700 text-center">{item.endDate}</td>
-                  <td className="fw-700 text-center">{item.currentGrade}</td>
+              {items && Array.isArray(items) && items.length > 0 ? (
+                items.map((item, index) => (
+                  <tr className="align-middle" key={item.id || index}>
+                    <td className="text-center">{index + 1}</td>
+                    <td>
+                      <div className="ps-10">
+                        <span>
+                          <b>{item.schoolYearName}</b>
+                        </span>
+                        <br />
+                      </div>
+                    </td>
+                    <td>
+                      <div className="ps-10">
+                        <span>
+                          <b>{item.schoolYearStatus}</b>
+                        </span>
+                        <br />
+                      </div>
+                    </td>
+                    <td className="fw-700 text-center">{formatTimestamp(item.schoolYearStartDate)}</td>
+                    <td className="fw-700 text-center">{formatTimestamp(1728432000)}</td>
 
-                  <td className="text-center">
-                    <ActionMenu
-                      items={menuItems}
-                      onMenuClick={(key) => handleMenuClick(key, item)}
-                    />
+                    <td className="text-center">
+                      <ActionMenu
+                        items={menuItems}
+                        onMenuClick={(key) => handleMenuClick(key, item)}
+                      />
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7" className="text-center">
+                    Không có dữ liệu
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
@@ -155,7 +190,7 @@ const Listyear = () => {
 
       {/* Addyear Modal */}
       {isAddYearModalOpen && (
-        <Addyear isOpen={isAddYearModalOpen} onClose={closeAddYearModal} />
+        <Addyear isOpen={isAddYearModalOpen} onClose={closeAddYearModal} reloadApi={handleCallBackApi} />
       )}
 
       {/* Updateyear Modal */}

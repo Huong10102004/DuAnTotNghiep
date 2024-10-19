@@ -1,0 +1,350 @@
+/* Add these styles to your CSS file or inside a style tag in your component */
+/* animation loai 1 */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  
+  .spinner {
+    border: 12px solid rgba(255, 255, 255, 0.3); /* Light border */
+    border-top: 12px solid #fff; /* White top border */
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    animation: spin 1s linear infinite; /* Animation */
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* //================================================ animation loai 2 ============================================ */
+  .custom-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .svg-spinner {
+    animation: rotate 2s linear infinite;
+    width: 50px;
+    height: 50px;
+  }
+  
+  .path {
+    stroke: #3498db;
+    stroke-linecap: round;
+    animation: dash 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes rotate {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @keyframes dash {
+    0% {
+      stroke-dasharray: 1, 150;
+      stroke-dashoffset: 0;
+    }
+    50% {
+      stroke-dasharray: 90, 150;
+      stroke-dashoffset: -35;
+    }
+    100% {
+      stroke-dasharray: 90, 150;
+      stroke-dashoffset: -124;
+    }
+  }
+
+  /* //================================================ animation loai 3 ============================================ */
+  .custom-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Tùy chỉnh độ mờ */
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .multi-svg-spinner {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .path {
+    stroke-linecap: round;
+    animation: rotate 2s linear infinite;
+  }
+  
+  .path1 {
+    stroke: #3498db;
+    stroke-width: 5;
+    animation: dash 1.5s ease-in-out infinite;
+  }
+  
+  .path2 {
+    stroke: #9b59b6;
+    stroke-width: 3;
+    animation: dash 2s ease-in-out infinite reverse;
+  }
+  
+  .path3 {
+    stroke: #e74c3c;
+    stroke-width: 2;
+    animation: dash 1s ease-in-out infinite;
+  }
+  
+  @keyframes rotate {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @keyframes dash {
+    0% {
+      stroke-dasharray: 1, 150;
+      stroke-dashoffset: 0;
+    }
+    50% {
+      stroke-dasharray: 90, 150;
+      stroke-dashoffset: -40;
+    }
+    100% {
+      stroke-dasharray: 90, 150;
+      stroke-dashoffset: -120;
+    }
+  }
+
+
+  /* //================================================ animation loai 4 ============================================ */
+
+  .custom-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Màu nền mờ */
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .gradient-spinner {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0) 33%, rgba(0, 123, 255, 0.8) 100%);
+    animation: spin-gradient 1.2s linear infinite;
+  }
+  
+  @keyframes spin-gradient {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* //================================================ animation loai 5 ============================================ */
+  .custom-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Nền mờ */
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .cube-container {
+    perspective: 800px; /* Tạo hiệu ứng 3D */
+  }
+  
+  .cube {
+    width: 50px;
+    height: 50px;
+    position: relative;
+    transform-style: preserve-3d; /* Giữ cho các mặt 3D */
+    animation: rotate 2s infinite linear; /* Animation quay */
+  }
+  
+  .face {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(45deg, rgba(255, 0, 0, 0.8), rgba(0, 0, 255, 0.8)); /* Gradient cho các mặt */
+    border: 1px solid #fff; /* Đường viền trắng */
+  }
+  
+  .face1 {
+    transform: rotateY(0deg) translateZ(25px);
+  }
+  
+  .face2 {
+    transform: rotateY(90deg) translateZ(25px);
+  }
+  
+  .face3 {
+    transform: rotateY(180deg) translateZ(25px);
+  }
+  
+  .face4 {
+    transform: rotateY(-90deg) translateZ(25px);
+  }
+  
+  .face5 {
+    transform: rotateX(90deg) translateZ(25px);
+  }
+  
+  .face6 {
+    transform: rotateX(-90deg) translateZ(25px);
+  }
+  
+  @keyframes rotate {
+    0% {
+      transform: rotateX(0) rotateY(0);
+    }
+    100% {
+      transform: rotateX(360deg) rotateY(360deg);
+    }
+  }
+  
+  /* //================================================ animation loai 6 ============================================ */
+  .custom-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Nền mờ */
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .spiral-loader {
+    width: 100px;
+    height: 100px;
+    border: 8px solid transparent;
+    border-top: 8px solid #3498db; /* Màu sắc cho đường kẻ */
+    border-radius: 50%;
+    animation: spin 1s linear infinite; /* Hiệu ứng xoay */
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+
+  /* //================================================ animation loai 7 ============================================ */
+
+  .custom-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Nền mờ */
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .loading-sphere {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%; /* Tạo hình cầu */
+    background: linear-gradient(135deg, #ff0080, #00bfff); /* Gradient màu */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); /* Đổ bóng */
+    animation: spin 1.5s infinite linear; /* Hiệu ứng xoay */
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotateX(0deg) rotateY(0deg);
+    }
+    100% {
+      transform: rotateX(360deg) rotateY(360deg);
+    }
+  }
+  
+  /* //================================================ animation loai 8 ============================================ */
+  .custom-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Nền mờ */
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .loading-pyramid {
+    width: 0;
+    height: 0;
+    border-left: 50px solid transparent; /* Một bên */
+    border-right: 50px solid transparent; /* Bên kia */
+    border-bottom: 100px solid #ff0080; /* Màu sắc cho cạnh dưới */
+    position: relative;
+    animation: rotate 2s infinite linear; /* Hiệu ứng xoay */
+  }
+  
+  .loading-pyramid::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 50px solid transparent; /* Một bên */
+    border-right: 50px solid transparent; /* Bên kia */
+    border-bottom: 100px solid #00bfff; /* Màu sắc cho cạnh dưới */
+    position: absolute;
+    top: 50px; /* Vị trí của mặt thứ hai */
+    left: -50px; /* Căn giữa */
+  }
+  
+  @keyframes rotate {
+    0% {
+      transform: rotateY(0deg);
+    }
+    100% {
+      transform: rotateY(360deg);
+    }
+  }
+  

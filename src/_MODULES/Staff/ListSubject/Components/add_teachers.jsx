@@ -1,31 +1,78 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { NavLink } from "react-router-dom";
-import PaginationAntd from "../../../../_Shared/Components/Pagination/Pagination";
-import { getListClassToAttendance } from "../../../../Services/Attendance/attendance";
+import Loading from "../../../../_Shared/Components/Loading/Loading";
+import { ApiService } from "../../../../Services/ApiService";
+import NotifcationComponent from "../../../../_Shared/Components/Notifcation/Notification";
 
-const Addteacher = ({ isOpen, onClose }) => {
+const Addteacher = ({ isOpen, onClose, reloadApi }) => {
+  const [loading, setLoading] = useState(null);
+  const [statusCode, setStatusCode] = useState(null);  // Lưu mã trạng thái
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
-    onClose();
+  const onSubmit = async (data) => {
+    setLoading(true)
+    const formData = {
+      ...data,
+      userStatus: Number(data.userStatus)
+    };
+
+    try {
+      // Gọi API thêm dữ liệu
+      const response = await ApiService('manager/user/add', 'post', formData);
+
+      // Nếu thành công
+      if (response) {
+        await reloadApi();
+        reset();
+        onClose();
+      } else {
+        setStatusCode(400)
+      }
+    } catch (error) {
+      if (error.response) {
+        // Nếu có response từ server
+        setStatusCode(error.response.status);
+      } else if (error.request) {
+        // Nếu không có phản hồi (lỗi kết nối)
+        setStatusCode(502);  // Có thể set là lỗi 502 nếu không nhận được response
+      } else {
+        // Nếu có lỗi khác xảy ra
+        setStatusCode(500);  // Lỗi hệ thống
+      }
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    if (statusCode) {
+      const timeout = setTimeout(() => setStatusCode(null), 5000); // 5 giây là thời gian thông báo hiện ra
+
+      return () => clearTimeout(timeout);  // Dọn dẹp timeout khi component unmount hoặc khi statusCode thay đổi
+    }
+  }, [statusCode]);  // Mỗi khi statusCode thay đổi, đoạn này sẽ chạy
+
+  const onClickClose = () => {
+    reset();
+    onClose();
+  }
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-75">
+      <Loading isLoading={loading} />
       <div className="relative w-[70%] rounded-lg bg-white p-6 shadow-lg">
         <h2 className="mb-2 text-center text-xl font-bold">Thêm nhân viên</h2>
         <hr className="mb-4" />
         <button
           className="absolute right-4 top-4 text-gray-600 hover:text-red-600"
-          onClick={onClose}
+          onClick={onClickClose}
         >
           &times;
         </button>
@@ -39,15 +86,37 @@ const Addteacher = ({ isOpen, onClose }) => {
               <div className="flex w-4/5 flex-col">
                 <input
                   type="text"
-                  {...register("tenNhanVien", {
+                  {...register("userName", {
                     required: "Tên của nhân viên bắt buộc nhập",
                   })}
                   className="w-full rounded border p-2"
                   placeholder="Nhập tên nhân viên"
                 />
-                {errors.tenNhanVien && (
+                {errors.userName && (
                   <span className="mt-1 text-sm font-bold text-red-500">
-                    {errors.tenNhanVien.message}
+                    {errors.userName.message}
+                  </span>
+                )}
+              </div>
+            </div>
+
+             {/* username */}
+             <div className="mb-4 flex">
+              <label className="mb-1 mr-2 mt-1 block w-1/5 font-medium text-gray-700">
+                Username
+              </label>
+              <div className="flex w-4/5 flex-col">
+                <input
+                  type="text"
+                  {...register("userUsername", {
+                    required: "Username bắt buộc nhập",
+                  })}
+                  className="w-full rounded border p-2"
+                  placeholder="Nhập userName"
+                />
+                {errors.userUserName && (
+                  <span className="mt-1 text-sm font-bold text-red-500">
+                    {errors.userUserName.message}
                   </span>
                 )}
               </div>
@@ -60,8 +129,8 @@ const Addteacher = ({ isOpen, onClose }) => {
               </label>
               <div className="flex w-4/5 flex-col">
                 <input
-                  type="email"
-                  {...register("email", {
+                  type="text"
+                  {...register("userEmail", {
                     required: "Email của nhân viên bắt buộc nhập",
                     pattern: {
                       value:
@@ -72,9 +141,9 @@ const Addteacher = ({ isOpen, onClose }) => {
                   className="w-full rounded border p-2"
                   placeholder="Nhập email"
                 />
-                {errors.email && (
+                {errors.userEmail && (
                   <span className="mt-1 text-sm font-bold text-red-500">
-                    {errors.email.message}
+                    {errors.userEmail.message}
                   </span>
                 )}
               </div>
@@ -88,15 +157,15 @@ const Addteacher = ({ isOpen, onClose }) => {
               <div className="flex w-4/5 flex-col">
                 <input
                   type="text"
-                  {...register("soDienThoai", {
+                  {...register("userPhone", {
                     required: "Số điện thoại của nhân viên bắt buộc nhập",
                   })}
                   className="w-full rounded border p-2"
                   placeholder="Nhập số điện thoại"
                 />
-                {errors.soDienThoai && (
+                {errors.userPhone && (
                   <span className="mt-1 text-sm font-bold text-red-500">
-                    {errors.soDienThoai.message}
+                    {errors.userPhone.message}
                   </span>
                 )}
               </div>
@@ -109,18 +178,18 @@ const Addteacher = ({ isOpen, onClose }) => {
               </label>
               <div className="flex w-4/5 flex-col">
                 <select
-                  {...register("chucVu", {
+                  {...register("userAccessType", {
                     required: "Chức vụ của nhân viên bắt buộc nhập",
                   })}
                   className="w-full rounded border p-2"
                 >
                   <option value="">Chọn chức vụ</option>
-                  <option value="teacher">Giáo viên</option>
-                  <option value="manager">Quản lý</option>
+                  <option value="1">Giáo viên</option>
+                  <option value="2">Quản lý</option>
                 </select>
-                {errors.chucVu && (
+                {errors.userAccessType && (
                   <span className="mt-1 text-sm font-bold text-red-500">
-                    {errors.chucVu.message}
+                    {errors.userAccessType.message}
                   </span>
                 )}
               </div>
@@ -134,15 +203,15 @@ const Addteacher = ({ isOpen, onClose }) => {
               <div className="flex w-4/5 flex-col">
                 <input
                   type="password"
-                  {...register("matKhau", {
+                  {...register("userPassword", {
                     required: "Mật khẩu của nhân viên bắt buộc nhập",
                   })}
                   className="w-full rounded border p-2"
                   placeholder="Nhập mật khẩu"
                 />
-                {errors.matKhau && (
+                {errors.userPassword && (
                   <span className="mt-1 text-sm font-bold text-red-500">
-                    {errors.matKhau.message}
+                    {errors.userPassword.message}
                   </span>
                 )}
               </div>
@@ -156,15 +225,15 @@ const Addteacher = ({ isOpen, onClose }) => {
               <div className="flex w-4/5 flex-col">
                 <input
                   type="password"
-                  {...register("xacNhanMatKhau", {
+                  {...register("userConfirmPassword", {
                     required: "Xác nhận mật khẩu của nhân viên bắt buộc nhập",
                   })}
                   className="w-full rounded border p-2"
                   placeholder="Xác nhận mật khẩu"
                 />
-                {errors.xacNhanMatKhau && (
+                {errors.userConfirmPassword && (
                   <span className="mt-1 text-sm font-bold text-red-500">
-                    {errors.xacNhanMatKhau.message}
+                    {errors.userConfirmPassword.message}
                   </span>
                 )}
               </div>
@@ -177,7 +246,7 @@ const Addteacher = ({ isOpen, onClose }) => {
               </label>
               <div className="flex w-4/5 flex-col">
                 <select
-                  name="lop"
+                  name="classId"
                   id="lop"
                   className="w-full rounded border p-2"
                 >
@@ -239,7 +308,7 @@ const Addteacher = ({ isOpen, onClose }) => {
               <div className="flex w-4/5 flex-col">
                 <input
                   type="text"
-                  {...register("diaChi")}
+                  {...register("userAddress")}
                   className="w-full rounded border p-2"
                   placeholder="Nhập địa chỉ"
                 />
@@ -254,14 +323,30 @@ const Addteacher = ({ isOpen, onClose }) => {
               <div className="flex w-4/5 flex-col">
                 <input
                   type="date"
-                  {...register("ngaySinh", {
-                    required: "Ngày sinh là bắt buộc",
+                  {...register("userDob", {
                   })}
                   className="w-full rounded border p-2"
                 />
-                {errors.ngaySinh && (
+              </div>
+            </div>
+
+              {/* gender */}
+              <div className="mb-4 flex">
+              <label className="mb-1 mr-2 mt-1 block w-1/5 font-medium text-gray-700">
+                Giới tính
+              </label>
+              <div className="flex w-4/5 flex-col">
+                <select
+                  className={`form-control ${errors.userGender ? 'is-invalid' : ''}`}
+                  {...register("userGender", { required: "Giới tính bắt buộc chọn" })}
+                >
+                  <option value="">Chọn giới tính</option>
+                  <option value="1">Nam</option>
+                  <option value="2">Nữ</option>
+                </select>
+                {errors.userGender && (
                   <span className="mt-1 text-sm font-bold text-red-500">
-                    {errors.ngaySinh.message}
+                    {errors.userGender.message}
                   </span>
                 )}
               </div>
@@ -276,7 +361,7 @@ const Addteacher = ({ isOpen, onClose }) => {
               <input
                 type="checkbox"
                 className="mr-2"
-                {...register("hoatDong")}
+                {...register("userStatus")}
               />
             </div>
           </div>
@@ -286,7 +371,7 @@ const Addteacher = ({ isOpen, onClose }) => {
             <button
               type="button"
               className="rounded bg-gray-300 px-4 py-2 font-semibold text-gray-700 hover:bg-gray-400"
-              onClick={onClose}
+              onClick={onClickClose}
             >
               Đóng
             </button>
@@ -300,6 +385,7 @@ const Addteacher = ({ isOpen, onClose }) => {
           </div>
         </form>
       </div>
+      {statusCode && <NotifcationComponent statusCode={statusCode} />}
     </div>
   );
 };
