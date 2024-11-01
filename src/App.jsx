@@ -21,7 +21,6 @@ import Login from "./_MODULES/Auth/login";
 import Listyear from "./_MODULES/Staff/ListSubject/Components/listyear";
 import DatePickerComponent from "./_Shared/Components/Date-picker/Date-picker";
 import ListTeacher from "./_MODULES/Staff/ListSubject/Components/list_teachers";
-import NotificationComponent from "./_Shared/Components/Notifcation/Notification";
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -76,8 +75,6 @@ export default function App() {
           {/* teachers */}
           <Route path="/staff/teacher" element={<ListTeacher />} />
 
-          {/* demo */}
-          <Route path="/demo" element={<NotificationComponent />} />
           {/*  */}
           <Route path="/staff/year" element={<Listyear />} />
           

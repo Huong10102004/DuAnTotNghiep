@@ -4,12 +4,15 @@ import { STATUS_SCHOOL_YEAR } from "../../../../ENUM/StatusSchoolYear";
 import { ApiService } from "../../../../Services/ApiService";
 import DatePickerComponent from "../../../../_Shared/Components/Date-picker/Date-picker";
 import Loading from "../../../../_Shared/Components/Loading/Loading";
+import NotificationCustom from "../../../../_Shared/Components/Notification-custom/Notification-custom";
+import { SET_TIMEOUT_MESSAGE } from "../../../../_Shared/Constant/constant";
 
 const Addyear = ({ isOpen, onClose, reloadApi }) => {
   const [loading, setLoading] = useState(null);
   const [errorMessage, setErrorMessage] = useState({ start: '', end: '' });
   const [startDate, setStartDate] = useState(null); // start Date
   const [endDate, setEndDate] = useState(null); // start Date
+  const [notification, setNotification] = useState({ type: '', message: '' });
   const {
     register,
     handleSubmit,
@@ -31,13 +34,20 @@ const Addyear = ({ isOpen, onClose, reloadApi }) => {
         setErrorMessage(prevState => ({ ...prevState, end: '' }));
       }
     }
-  }, [startDate, endDate]);
+
+    if (notification.message) {
+      const timer = setTimeout(() => {
+        setNotification({ type: '', message: '', title: '' }); 
+      }, SET_TIMEOUT_MESSAGE);
+
+      return () => clearTimeout(timer); 
+    }
+  }, [startDate, endDate, notification]);
 
   const onSubmit = async (data) => {
-    setLoading(true);  // Bắt đầu tải dữ liệu
+    setLoading(true);  
     isValid = true;
 
-    // Validate ngày bắt đầu và ngày kết thúc
     if (!startDate) {
       setErrorMessage(prevState => ({ ...prevState, start: 'Start date is required.' }));
       isValid = false;
@@ -51,7 +61,7 @@ const Addyear = ({ isOpen, onClose, reloadApi }) => {
     } else {
       setErrorMessage(prevState => ({ ...prevState, end: '' }));
     }
-    // Nếu tất cả các trường hợp đều hợp lệ
+    
     if (isValid && !Object.keys(errors).length) {
       setLoading(true);
 
@@ -69,16 +79,18 @@ const Addyear = ({ isOpen, onClose, reloadApi }) => {
 
         // Nếu thành công
         if (response) {
-          await reloadApi()
+          await reloadApi();
+          setNotification({ type: 'success', message: 'Thêm năm học mới thành công',title: 'Thành công' });
+          setTimeout(() => {
+            onClose();
+          }, SET_TIMEOUT_MESSAGE);
         } else {
           setErrorMessage('Đã có lỗi xảy ra.');
+          setNotification({ type: 'error', message: 'Có lỗi xảy ra, vui lòng kiểm tra lại dữ liệu nhập vào',title: 'Lỗi' });
         }
       } catch (err) {
-        console.error('Error:', err);
-        setErrorMessage('Đã có lỗi xảy ra trong quá trình xử lý.');
+        setNotification({ type: 'error', message: 'Có lỗi xảy ra, vui lòng kiểm tra lại dữ liệu nhập vào',title: 'Lỗi' });
       } finally {
-        onClose();
-        reset();
         setLoading(false);
       }
     }else{
@@ -162,19 +174,7 @@ const Addyear = ({ isOpen, onClose, reloadApi }) => {
                 Ngày bắt đầu
               </label>
               <div className="flex w-4/5 flex-col">
-                {/* <input
-                  type="date"
-                  {...register("start_date", {
-                    required: "Ngày bắt đầu bắt buộc chọn",
-                  })}
-                  className="w-full rounded border p-2"
-                />
-                {errors.start_date && (
-                  <span className="mt-1 text-sm font-bold text-red-500">
-                    {errors.start_date.message}
-                  </span>
-                )} */}
-                <DatePickerComponent onDateChange={handleStartDateChange} placeholder={'Chọn ngày bắt đầu năm học'} />
+                <DatePickerComponent onDateChange={handleStartDateChange} selectedDate={startDate} placeholder={'Chọn ngày bắt đầu năm học'} />
                 {!startDate && errorMessage.start && (
                   <p style={{ color: 'red' }}>{errorMessage.start}</p>
                 )}
@@ -186,19 +186,7 @@ const Addyear = ({ isOpen, onClose, reloadApi }) => {
                 Ngày kết thúc
               </label>
               <div className="flex w-4/5 flex-col">
-                {/* <input
-                  type="date"
-                  {...register("end_date", {
-                    required: "Ngày kết thúc bắt buộc chọn",
-                  })}
-                  className="w-full rounded border p-2"
-                />
-                {errors.end_date && (
-                  <span className="mt-1 text-sm font-bold text-red-500">
-                    {errors.end_date.message}
-                  </span>
-                )} */}
-                <DatePickerComponent onDateChange={handleEndDateChange} placeholder={'Chọn ngày kết thúc năm học'} />
+                <DatePickerComponent onDateChange={handleEndDateChange} selectedDate={endDate} placeholder={'Chọn ngày kết thúc năm học'} />
                 {!endDate && errorMessage.end && (
                   <p style={{ color: 'red' }}>{errorMessage.end}</p>
                 )}
@@ -224,6 +212,7 @@ const Addyear = ({ isOpen, onClose, reloadApi }) => {
           </div>
         </form>
       </div>
+      {notification.message && <NotificationCustom type={notification.type} message={notification.message} title={notification.title} />}
     </div>
   );
 };

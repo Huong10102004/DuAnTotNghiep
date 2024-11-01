@@ -11,6 +11,10 @@ import Updateyear from "./updateyear";
 import { ApiService } from "../../../../Services/ApiService";
 import Loading from "../../../../_Shared/Components/Loading/Loading";
 import { formatTimestamp } from "../../../../_Shared/Pipe/Format-timestamp";
+import StatusYearSchoolDirective from "../../../../_Shared/Directive/status-year-school-directive";
+import { Modal } from "antd";
+import NotificationCustom from "../../../../_Shared/Components/Notification-custom/Notification-custom";
+import { SET_TIMEOUT_HIDDEN_MODAL, SET_TIMEOUT_MESSAGE } from "../../../../_Shared/Constant/constant";
 const Listyear = () => {
   const [keyWord, setKeyWord] = useState('');  // Biến lưu từ khóa tìm kiếm
   const [items, setItems] = useState([]);
@@ -19,6 +23,8 @@ const Listyear = () => {
   const [isAddYearModalOpen, setIsAddYearModalOpen] = useState(false);
   const [isUpdateYearModalOpen, setIsUpdateYearModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false); // mở modal confirm xóa
+  const [notification, setNotification] = useState({ type: '', message: '' });
 
   const menuItems = [
     { key: "edit", label: "Chỉnh sửa", icon: icon_edit },
@@ -26,21 +32,41 @@ const Listyear = () => {
   ];
 
   const handleMenuClick = (key, data) => {
-    if (key === "edit") {
+      if (key === "edit") {
+        setSelectedItem(data);
+        setIsUpdateYearModalOpen(true);
+      } else if (key === "delete") {
+        console.log("Deleting: ", data);
+      }
+  };
+
+  const showDeleteModal = (data) => {
+    if(data){
       setSelectedItem(data);
-      setIsUpdateYearModalOpen(true);
-    } else if (key === "delete") {
-      console.log("Deleting: ", data);
+      setIsModalVisible(true);
     }
   };
 
-  const showDeleteModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const handleDelete = () => {
-    console.log("Đã xóa bản ghi");
-    setIsModalVisible(false);
+  const handleDelete = async (data) => {
+    setLoading(true);
+    if (data && data.schoolYearId) {
+      try {
+        const response = await ApiService(`manager/schoolyear/delete/${data.schoolYearId}`, 'post'); // Gọi API xóa
+        if (response) {
+          getItems(); // Cập nhật lại danh sách sau khi xóa thành công
+          setNotification({ type: 'success', message: 'Xóa năm học thành công',title: 'Thành công' });
+          setTimeout(() => {
+            setIsModalVisible(false);
+          }, SET_TIMEOUT_HIDDEN_MODAL);
+        } else {
+          setNotification({ type: 'error', message: 'Có lỗi xảy ra, vui lòng kiểm tra lại dữ liệu nhập vào',title: 'Lỗi' });
+        }
+      } catch (error) {
+        setNotification({ type: 'error', message: 'Có lỗi xảy ra, vui lòng kiểm tra lại dữ liệu nhập vào',title: 'Lỗi' });
+      } 
+    }else{
+      setLoading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -64,7 +90,17 @@ const Listyear = () => {
 
   useEffect(() => {
     getItems();  // Gọi API lấy dữ liệu khi component được render lần đầu
-  }, []);
+  }, [])
+
+  useEffect(() => {
+    if (notification.message) {
+      const timer = setTimeout(() => {
+        setNotification({ type: '', message: '', title: '' }); 
+      }, SET_TIMEOUT_MESSAGE);
+
+      return () => clearTimeout(timer); 
+    }
+  }, [notification]);
 
   // Hàm xử lý sau khi thêm thành công
   const handleAddYearSuccess = () => {
@@ -157,18 +193,19 @@ const Listyear = () => {
                     <td>
                       <div className="ps-10">
                         <span>
-                          <b>{item.schoolYearStatus}</b>
+                          <b><StatusYearSchoolDirective status={item.schoolYearStatus} /></b>
                         </span>
                         <br />
                       </div>
                     </td>
                     <td className="fw-700 text-center">{formatTimestamp(item.schoolYearStartDate)}</td>
-                    <td className="fw-700 text-center">{formatTimestamp(1728432000)}</td>
+                    <td className="fw-700 text-center">{formatTimestamp(item.schoolYearEndDate)}</td>
 
                     <td className="text-center">
                       <ActionMenu
                         items={menuItems}
                         onMenuClick={(key) => handleMenuClick(key, item)}
+                        onDelete={() => showDeleteModal(item)}
                       />
                     </td>
                   </tr>
@@ -198,9 +235,25 @@ const Listyear = () => {
         <Updateyear
           isOpen={isUpdateYearModalOpen}
           onClose={closeUpdateyearModal}
-          teacher={selectedItem}
+          data={selectedItem}
         />
       )}
+
+    <Modal
+        title={<div style={{ color: 'red', textAlign: 'center' }}>Xóa dữ liệu - năm học</div>} 
+        open={isModalVisible}
+        onOk={() => handleDelete(selectedItem)}
+        onCancel={handleCancel}
+        okText="Có"
+        cancelText="Không"
+      >
+        <hr className="mt-2 mb-3" />
+        {selectedItem && (
+          <p>Bạn có chắc chắn muốn xóa năm học <span className="fw-700">{selectedItem.schoolYearName}</span> không?</p>
+        )}
+      </Modal>
+
+      {notification.message && <NotificationCustom type={notification.type} message={notification.message} title={notification.title} />}
     </div>
   );
 };

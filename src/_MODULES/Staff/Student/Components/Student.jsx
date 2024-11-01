@@ -13,6 +13,7 @@ import { Button, Modal, Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { ApiService } from "../../../../Services/ApiService";
+import Loading from "../../../../_Shared/Components/Loading/Loading";
 
 const Student = () => {
   // dịch đa ngôn ngữ
@@ -27,6 +28,7 @@ const Student = () => {
   // Sử dụng react-hook-form
   const { register, handleSubmit, formState: { errors }, watch, trigger,reset } = useForm({mode: "onChange"});
   const [items, setItems] = useState([]);
+  const [listClasses, setListClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
     
@@ -69,6 +71,7 @@ const Student = () => {
   const onSubmit = (data) => {
     if (isEditMode) {
     } else {
+        setLoading(true);
         try {
           const response = ApiService('manager/academicyear/add','post', data);
     
@@ -124,20 +127,39 @@ const Student = () => {
   ];
 
   const getItems = async () => {
+    setLoading(true);
     try {
       const data = await ApiService('manager/student');  
-      console.log("Dữ liệu trả về từ API: ", data);  
       setItems(Array.isArray(data.data) ? data.data : []);
     } catch (err) {
-      // setError(err.message);
+      setError(err.message);
     } finally {
-      // setLoading(false);  // Dừng trạng thái tải dữ liệu
+      setLoading(false);  // Dừng trạng thái tải dữ liệu
     }
   };
 
+  const getClasses = async () => {
+    setLoading(true);
+    try {
+      const schoolYearId = localStorage.getItem('schoolYearCurrent')
+      const data = await ApiService(`manager/class?school_year_id=${schoolYearId}`);  
+      setListClasses(Array.isArray(data.data.classes) ? data.data.classes : []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);  // Dừng trạng thái tải dữ liệu
+    }
+  }
+
   useEffect(() => {
-    getItems();  
+    getItems();
   }, []);
+
+  useEffect(() => {
+    if(modalIsOpen){
+      getClasses();
+    }
+  },[modalIsOpen])
   //open delete modal
   const showDeleteModal = () => {
     setIsModalVisible(true);
@@ -169,6 +191,7 @@ const Student = () => {
   }
   return (
     <div>
+      <Loading isLoading={loading} />
       {/* <header className="h-[100px] w-full"></header> */}
       <div className="pt-6rem bg-white h-100vh px-4">
             <h1 className="fs-16">Danh sách học sinh</h1>
@@ -254,8 +277,8 @@ const Student = () => {
               <label>Trạng thái:</label>
               <select className={`form-control ${errors.status ? 'is-invalid' : ''}`} {...register("status", { required: "Trạng thái là bắt buộc" })}>
                 <option value="">Chọn trạng thái</option>
-                <option value="1">Đang học</option>
-                <option value="2">Nghỉ học</option>
+                <option value="0">Đang học</option>
+                <option value="1">Nghỉ học</option>
               </select>
               {errors.status && <div className="invalid-feedback">{errors.status.message}</div>}
             </div>
@@ -265,9 +288,9 @@ const Student = () => {
               <label>Lớp học:</label>
               <select className={`form-control ${errors.class ? 'is-invalid' : ''}`} {...register("class")}>
                 <option value="">Chọn lớp</option>
-                <option value="10A1">10A1</option>
-                <option value="10A2">10A2</option>
-                <option value="10A3">10A3</option>
+                {listClasses.map((item,index) => (
+                  <option key={index} value={item.id}>{item.name}</option>
+                ))}
               </select>
             </div>
 

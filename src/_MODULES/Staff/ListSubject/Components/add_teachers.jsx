@@ -3,10 +3,12 @@ import { useForm } from "react-hook-form";
 import Loading from "../../../../_Shared/Components/Loading/Loading";
 import { ApiService } from "../../../../Services/ApiService";
 import NotifcationComponent from "../../../../_Shared/Components/Notifcation/Notification";
+import NotificationCustom from "../../../../_Shared/Components/Notification-custom/Notification-custom";
 
 const Addteacher = ({ isOpen, onClose, reloadApi }) => {
   const [loading, setLoading] = useState(null);
   const [statusCode, setStatusCode] = useState(null);  // Lưu mã trạng thái
+  const [notification, setNotification] = useState({ type: '', message: '' });
   const {
     register,
     handleSubmit,
@@ -31,31 +33,23 @@ const Addteacher = ({ isOpen, onClose, reloadApi }) => {
         reset();
         onClose();
       } else {
-        setStatusCode(400)
       }
     } catch (error) {
-      if (error.response) {
-        // Nếu có response từ server
-        setStatusCode(error.response.status);
-      } else if (error.request) {
-        // Nếu không có phản hồi (lỗi kết nối)
-        setStatusCode(502);  // Có thể set là lỗi 502 nếu không nhận được response
-      } else {
-        // Nếu có lỗi khác xảy ra
-        setStatusCode(500);  // Lỗi hệ thống
-      }
+      setNotification({ type: 'error', message: 'Gán học sinh vào lớp không thành công',title: 'Lỗi xảy ra' });
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (statusCode) {
-      const timeout = setTimeout(() => setStatusCode(null), 5000); // 5 giây là thời gian thông báo hiện ra
+    if (notification.message) {
+      const timer = setTimeout(() => {
+        setNotification({ type: '', message: '', title: '' }); // Ẩn thông báo sau 3 giây
+      }, 3000);
 
-      return () => clearTimeout(timeout);  // Dọn dẹp timeout khi component unmount hoặc khi statusCode thay đổi
+      return () => clearTimeout(timer); // Xóa bộ hẹn giờ khi component bị unmount hoặc message thay đổi
     }
-  }, [statusCode]);  // Mỗi khi statusCode thay đổi, đoạn này sẽ chạy
+  }, [notification]);  // Mỗi khi statusCode thay đổi, đoạn này sẽ chạy
 
   const onClickClose = () => {
     reset();
@@ -385,7 +379,7 @@ const Addteacher = ({ isOpen, onClose, reloadApi }) => {
           </div>
         </form>
       </div>
-      {statusCode && <NotifcationComponent statusCode={statusCode} />}
+      {notification.message && <NotificationCustom type={notification.type} message={notification.message} title={notification.title} />}
     </div>
   );
 };

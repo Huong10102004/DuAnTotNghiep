@@ -26,9 +26,12 @@ const Login = () => {
     );
 
       // Nếu đăng nhập thành công
-      console.log(response);
       // Lưu token hoặc chuyển hướng tới trang khác nếu cần
       localStorage.setItem('token', response.data.data.token);
+      localStorage.setItem('userLogin', JSON.stringify(response.data.data.user));
+      localStorage.setItem('schoolYear', JSON.stringify(response.data.data.schoolYear));
+      localStorage.setItem('dataLogin', JSON.stringify(response.data.data));
+      localStorage.setItem('schoolYearCurrent', JSON.stringify(response.data.data.schoolYear[0].id));
 
       // Điều hướng người dùng đến trang khác sau khi đăng nhập thành công
       // window.location.href = '/staff/class'; // chuyển hướng đến trang chủ hoặc bất kỳ trang nào

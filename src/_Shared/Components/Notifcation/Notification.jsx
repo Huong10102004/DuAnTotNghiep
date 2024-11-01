@@ -15,8 +15,6 @@ const NotificationComponent = ({ statusCode}) => {
       });
     };
 
-    console.log(api);
-    console.log(contextHolder)
     // Hiển thị thông báo dựa trên statusCode
     if (statusCode) {
       if (statusCode === 422) {
