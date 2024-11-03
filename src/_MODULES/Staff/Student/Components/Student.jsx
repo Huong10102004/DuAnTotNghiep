@@ -20,6 +20,7 @@ const Student = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate(); // Hook để điều hướng
   //modal 
+  const [data, setData] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false); // mở dal
   const [modalIsOpenAssignParent, setModalIsOpenAssignParent] = useState(false); // mở dal
   const [isEditMode, setIsEditMode] = useState(false); // mở modal edit
@@ -31,6 +32,34 @@ const Student = () => {
   const [listClasses, setListClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [notification, setNotification] = useState({ type: '', message: '' });
+
+  // danh sách
+  useEffect(() => {
+    // Gọi API khi component mount
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        let dataRequest = {
+          pageIndex: 1,
+          pageSize: 10,
+          keyWord: ''
+        }
+        const responseData = await ApiService(`manager/student?pageIndex=${dataRequest.pageIndex}&pageSize=${dataRequest.pageSize}&keyWord=${dataRequest.keyWord}`, 'GET');
+        if(responseData){
+          setData(responseData.data);
+        }
+        setTotalItems(responseData.data.total)
+      } catch (error) {
+        setLoading(true);
+        setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
     
   const openModal = (editMode = false, data = null) => {
     setIsEditMode(editMode);
@@ -109,22 +138,6 @@ const Student = () => {
   ];
 
   // Dữ liệu hiển thị 
-  const studentsInformation = [
-    {
-        id: 1,
-        studentName: 'Nguyễn Duy Kiên',
-        studentCode: "GV01",
-        studentClass: '6a1',
-        email: 'kiennd@gmail.com',
-        phone: '03680215485',
-        gender: 1,
-        schoolYear: "2024-2028",
-        status: 1,
-        parent: "Duy Khánh",
-        address: "Hà Nội"
-    },
-    // Thêm nhiều dữ liệu hơn ở đây
-  ];
 
   const getItems = async () => {
     setLoading(true);
@@ -221,20 +234,20 @@ const Student = () => {
                         </tr>
                     </thead>
                     <tbody>
-                      {studentsInformation.map((item, index) => (
+                      {data?.map((item, index) => (
                         <tr className="align-middle" key={item.id}>
                             <td className="text-center">{index + 1}</td>
                             <td>
-                                <span className="fw-700">{item.studentName}</span><br />
-                                <span className="fw-700">Mã: {item.studentCode}</span> <br/>
-                                <span className="fw-700">Lớp: {item.studentClass}</span>
+                                <span className="fw-700">{item.fullname}</span><br />
+                                <span className="fw-700">Mã: {item.student_code}</span> <br/>
+                                <span className="fw-700">Lớp: {item.class_name ? item.class_name : 'Chưa gán lớp'}</span>
                             </td>
                             <td>
                               <span>{item.email}</span><br/>
                               <span>SĐT: {item.phone}</span>
                             </td>
                             <td className="text-center">{item.gender}</td>
-                            <td className="text-center">{item.schoolYear}</td>
+                            <td className="text-center">{item.academic_year_name}</td>
                             <td className="text-center">{item.status}</td>
                             <td className="text-center">{item.parent}</td>
                             <td className="text-center">

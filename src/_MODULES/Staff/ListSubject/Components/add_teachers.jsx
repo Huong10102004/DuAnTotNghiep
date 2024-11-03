@@ -4,11 +4,13 @@ import Loading from "../../../../_Shared/Components/Loading/Loading";
 import { ApiService } from "../../../../Services/ApiService";
 import NotifcationComponent from "../../../../_Shared/Components/Notifcation/Notification";
 import NotificationCustom from "../../../../_Shared/Components/Notification-custom/Notification-custom";
+import { ACCESS_TYPE_ENUM } from "../../../../_Shared/Enum/access-type.enum";
 
 const Addteacher = ({ isOpen, onClose, reloadApi }) => {
   const [loading, setLoading] = useState(null);
   const [statusCode, setStatusCode] = useState(null);  // Lưu mã trạng thái
   const [notification, setNotification] = useState({ type: '', message: '' });
+  const [dataClassNoMainTeacher, setDataClassNoMainTeacher] = useState([]);
   const {
     register,
     handleSubmit,
@@ -41,6 +43,21 @@ const Addteacher = ({ isOpen, onClose, reloadApi }) => {
     }
   };
 
+  const getClassNoMainTeacher = async () => {
+    setLoading(true);
+    try {
+      const schoolYearId = localStorage.getItem('schoolYearCurrent')
+      const responseData = await ApiService(`manager/user/chooseClassToMainTearch?schoolYearId=${schoolYearId}`, 'GET');
+      console.log(responseData);
+      setDataClassNoMainTeacher(Array.isArray(responseData.data) ? responseData.data : []);
+    } catch (error) {
+      setLoading(true);
+      setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (notification.message) {
       const timer = setTimeout(() => {
@@ -50,6 +67,10 @@ const Addteacher = ({ isOpen, onClose, reloadApi }) => {
       return () => clearTimeout(timer); // Xóa bộ hẹn giờ khi component bị unmount hoặc message thay đổi
     }
   }, [notification]);  // Mỗi khi statusCode thay đổi, đoạn này sẽ chạy
+
+  useEffect(() => {
+    getClassNoMainTeacher();
+  },[])
 
   const onClickClose = () => {
     reset();
@@ -178,8 +199,9 @@ const Addteacher = ({ isOpen, onClose, reloadApi }) => {
                   className="w-full rounded border p-2"
                 >
                   <option value="">Chọn chức vụ</option>
-                  <option value="1">Giáo viên</option>
-                  <option value="2">Quản lý</option>
+                  <option value={ACCESS_TYPE_ENUM.MANAGER}>{ACCESS_TYPE_ENUM.MANAGER_LABEL}</option>
+                  <option value={ACCESS_TYPE_ENUM.TEACHER}>{ACCESS_TYPE_ENUM.TEACHER_LABEL}</option>
+                  <option value={ACCESS_TYPE_ENUM.GUARDIAN}>{ACCESS_TYPE_ENUM.GUARDIAN_LABEL}</option>
                 </select>
                 {errors.userAccessType && (
                   <span className="mt-1 text-sm font-bold text-red-500">
@@ -247,42 +269,9 @@ const Addteacher = ({ isOpen, onClose, reloadApi }) => {
                   <option value="" className="border-b-4 border-black">
                     Chọn lớp chủ nhiệm
                   </option>
-                  <option
-                    value="1"
-                    className="border-b-4 border-black bg-zinc-300"
-                  >
-                    6A1
-                  </option>
-                  <option
-                    value="2"
-                    className="border-b-4 border-black bg-zinc-300"
-                  >
-                    6A2
-                  </option>
-                  <option
-                    value="3"
-                    className="border-b-4 border-black bg-zinc-300"
-                  >
-                    6A3
-                  </option>
-                  <option
-                    value="4"
-                    className="border-b-4 border-black bg-zinc-300"
-                  >
-                    7A1
-                  </option>
-                  <option
-                    value="5"
-                    className="border-b-4 border-black bg-zinc-300"
-                  >
-                    7A2
-                  </option>
-                  <option
-                    value="6"
-                    className="border-b-4 border-black bg-zinc-300"
-                  >
-                    7A3
-                  </option>
+                  {dataClassNoMainTeacher.map(item => (
+                  <option value={item.classId} key={item.classId} className="border-b-4 border-black bg-zinc-300">{item.className}</option>
+                  ))}
                 </select>
 
                 {/* <input

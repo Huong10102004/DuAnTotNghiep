@@ -14,6 +14,8 @@ import { useNavigate } from 'react-router-dom';
 import  { ApiService } from '../../../../Services/ApiService'
 import NotificationCustom from "../../../../_Shared/Components/Notification-custom/Notification-custom";
 import Loading from "../../../../_Shared/Components/Loading/Loading";
+import { GRADE_ENUM } from "../../../../_Shared/Enum/grade.enum";
+import { STATUS_CLASS_ENUM } from "../../../../_Shared/Enum/status-class-enum";
 
 const ClassStaff = () => {
   const [loading, setLoading] = useState(false);
@@ -21,6 +23,7 @@ const ClassStaff = () => {
   const [data, setData] = useState([]);
   const [dataSchoolYear, setDataSchoolYear] = useState([]);
   const [dataAcademic, setDataAcademic] = useState([]);
+  const [dataTeacher, setDataTeacher] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const { t, i18n } = useTranslation(); // dịch đa ngôn ngữ
   const navigate = useNavigate(); // Hook để điều hướng
@@ -80,28 +83,13 @@ const ClassStaff = () => {
     }
   };
 
-  const getSchoolYear = async () => {
+  const getFormData = async () => {
     setLoading(true);
     try {
-      const responseData = await ApiService(`manager/schoolyear`, 'GET');
-      if(responseData){
-        setDataSchoolYear(responseData.data);
-      }
-    } catch (error) {
-      setLoading(true);
-      setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getAcdemicYear = async () => {
-    setLoading(true);
-    try {
-      const responseData = await ApiService(`manager/academicyear`, 'GET');
-      if(responseData){
-        setDataAcademic(Array.isArray(responseData.data.data) ? responseData.data.data : []);
-      }
+      const responseData = await ApiService(`manager/class/form`, 'GET');
+      setDataAcademic(Array.isArray(responseData.data.academics) ? responseData.data.academics : []);
+      setDataSchoolYear(Array.isArray(responseData.data.schoolYears) ? responseData.data.schoolYears : []);
+      setDataTeacher(Array.isArray(responseData.data.teachers) ? responseData.data.teachers : []);
     } catch (error) {
       setLoading(true);
       setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
@@ -111,8 +99,7 @@ const ClassStaff = () => {
   }
 
   useEffect(() => {
-    getAcdemicYear();
-    getSchoolYear();
+    getFormData();
   },[]);
 
   const openModalAssignTeacher = (editMode = false, data = null) => {
@@ -126,13 +113,43 @@ const ClassStaff = () => {
     reset();
   };
   
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
+    setLoading(true);  
     if (isEditMode) {
       // Xử lý cập nhật dữ liệu khi đang chỉnh sửa
       console.log("Dữ liệu chỉnh sửa:", data);
     } else {
         // Xử lý thêm mới
         console.log("Dữ liệu thêm mới:", data);
+        const formData = {
+          ...data,
+          academic_id: Number(data.academic_id),
+          teacher_id: Number(data.teacher_id),
+          school_year_id: Number(data.school_year_id),
+          status: Number(data.status),
+          grade_id: Number(data.grade_id),
+        };
+
+        try {
+          // Gọi API thêm dữ liệu
+          const response = await ApiService('manager/class/create', 'post', formData);
+  
+          // Nếu thành công
+          if (response) {
+            await reloadApi();
+            setNotification({ type: 'success', message: 'Thêm lớp học mới thành công',title: 'Thành công' });
+            setTimeout(() => {
+              onClose();
+            }, SET_TIMEOUT_MESSAGE);
+          } else {
+            setErrorMessage('Đã có lỗi xảy ra.');
+            setNotification({ type: 'error', message: 'Có lỗi xảy ra, vui lòng kiểm tra lại dữ liệu nhập vào',title: 'Lỗi' });
+          }
+        } catch (err) {
+          setNotification({ type: 'error', message: 'Có lỗi xảy ra, vui lòng kiểm tra lại dữ liệu nhập vào',title: 'Lỗi' });
+        } finally {
+          setLoading(false);
+        }
     }
     closeModal();
   };
@@ -252,7 +269,7 @@ const ClassStaff = () => {
         <input
           type="text"
           className={`form-control ${errors.className ? 'is-invalid' : ''}`}
-          {...register("className", { required: "Tên lớp học bắt buộc" })}
+          {...register("name", { required: "Tên lớp học bắt buộc" })}
           placeholder="Tên lớp học..."
         />
         {errors.className && <div className="invalid-feedback">{errors.className.message}</div>}
@@ -263,7 +280,7 @@ const ClassStaff = () => {
         <label>Niên khóa:</label>
         <select
           className={`form-control ${errors.schoolYear ? 'is-invalid' : ''}`}
-          {...register("schoolYear", { required: "Niên khóa là bắt buộc" })}
+          {...register("academic_id", { required: "Niên khóa là bắt buộc" })}
         >
           <option value="">Chọn niên khóa</option>
           {dataAcademic.map((item,index) => (
@@ -277,45 +294,46 @@ const ClassStaff = () => {
       <div className="col-12 col-md-6 mb-3">
         <label>Chủ nhiệm:</label>
         <select
-          className={`form-control ${errors.teacher ? 'is-invalid' : ''}`}
-          {...register("teacher", { required: "Chủ nhiệm là bắt buộc" })}
+          className={`form-control ${errors.teacher_id ? 'is-invalid' : ''}`}
+          {...register("teacher_id")}
         >
           <option value="">Chọn chủ nhiệm</option>
-          <option value="teacher1">Nguyễn Văn A</option>
-          <option value="teacher2">Trần Thị B</option>
-          <option value="teacher3">Lê Văn C</option>
+          {dataTeacher.map((item,index) => (
+            <option value={item.id} key={index}>{item.name}</option>
+          ))}
         </select>
-        {errors.teacher && <div className="invalid-feedback">{errors.teacher.message}</div>}
+        {errors.teacher_id && <div className="invalid-feedback">{errors.teacher_id.message}</div>}
       </div>
 
       {/* Khối học */}
       <div className="col-12 col-md-6 mb-3">
         <label>Khối học:</label>
         <select
-          className={`form-control ${errors.grade ? 'is-invalid' : ''}`}
-          {...register("grade", { required: "Khối học là bắt buộc" })}
+          className={`form-control ${errors.grade_id ? 'is-invalid' : ''}`}
+          {...register("grade_id", { required: "Khối học là bắt buộc" })}
         >
           <option value="">Chọn khối học</option>
-          <option value="10">Khối 10</option>
-          <option value="11">Khối 11</option>
-          <option value="12">Khối 12</option>
+          <option value={GRADE_ENUM.GRADE_SIX}>{GRADE_ENUM.GRADE_SIX_LABEL}</option>
+          <option value={GRADE_ENUM.GRADE_SEVEN}>{GRADE_ENUM.GRADE_SEVEN_LABEL}</option>
+          <option value={GRADE_ENUM.GRADE_EIGHT}>{GRADE_ENUM.GRADE_EIGHT_LABEL}</option>
+          <option value={GRADE_ENUM.GRADE_NIGHT}>{GRADE_ENUM.GRADE_NIGHT_LABEL}</option>
         </select>
-        {errors.grade && <div className="invalid-feedback">{errors.grade.message}</div>}
+        {errors.grade_id && <div className="invalid-feedback">{errors.grade_id.message}</div>}
       </div>
 
       {/* Năm học */}
       <div className="col-12 col-md-6 mb-3">
         <label>Năm học:</label>
         <select
-          className={`form-control ${errors.academicYear ? 'is-invalid' : ''}`}
-          {...register("academicYear", { required: "Năm học là bắt buộc" })}
+          className={`form-control ${errors.school_year_id ? 'is-invalid' : ''}`}
+          {...register("school_year_id", { required: "Năm học là bắt buộc" })}
         >
           <option value="">Chọn năm học</option>
           {dataSchoolYear.map((item,index) => (
-            <option value={item.id} key={index}>{item.schoolYearName}</option>
+            <option value={item.id} key={index}>{item.name}</option>
           ))}
         </select>
-        {errors.academicYear && <div className="invalid-feedback">{errors.academicYear.message}</div>}
+        {errors.school_year_id && <div className="invalid-feedback">{errors.school_year_id.message}</div>}
       </div>
 
       {/* Trạng thái */}
@@ -326,9 +344,9 @@ const ClassStaff = () => {
           {...register("status", { required: "Trạng thái là bắt buộc" })}
         >
           <option value="">Chọn trạng thái</option>
-          <option value="1">Chưa diễn ra</option>
-          <option value="2">Đang diễn ra</option>
-          <option value="3">Đã kết thúc</option>
+          <option value={STATUS_CLASS_ENUM.HAS_NOT_HAPPENDED}>{STATUS_CLASS_ENUM.HAS_NOT_HAPPENDED_LABEL}</option>
+          <option value={STATUS_CLASS_ENUM.HAS_APPROVED}>{STATUS_CLASS_ENUM.HAS_APPROVED_LABEL}</option>
+          <option value={STATUS_CLASS_ENUM.FINISHED}>{STATUS_CLASS_ENUM.FINISHED_LABEL}</option>
         </select>
         {errors.status && <div className="invalid-feedback">{errors.status.message}</div>}
       </div>
