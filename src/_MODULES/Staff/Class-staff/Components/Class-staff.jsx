@@ -136,14 +136,12 @@ const ClassStaff = () => {
   
           // Nếu thành công
           if (response) {
-            await reloadApi();
+            await fetchData();
             setNotification({ type: 'success', message: 'Thêm lớp học mới thành công',title: 'Thành công' });
-            setTimeout(() => {
-              onClose();
-            }, SET_TIMEOUT_MESSAGE);
+            setModalIsOpen(false); //set modal mở thêm, sửa về false
           } else {
             setErrorMessage('Đã có lỗi xảy ra.');
-            setNotification({ type: 'error', message: 'Có lỗi xảy ra, vui lòng kiểm tra lại dữ liệu nhập vào',title: 'Lỗi' });
+            setNotification({ type: 'error', message: 'response no data',title: 'Lỗi' });
           }
         } catch (err) {
           setNotification({ type: 'error', message: 'Có lỗi xảy ra, vui lòng kiểm tra lại dữ liệu nhập vào',title: 'Lỗi' });
@@ -151,7 +149,6 @@ const ClassStaff = () => {
           setLoading(false);
         }
     }
-    closeModal();
   };
 
   // Hàm click thao tác 
