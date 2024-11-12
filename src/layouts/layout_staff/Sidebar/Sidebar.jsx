@@ -33,7 +33,7 @@ function Sidebar() {
         <div className="d-flex align-items-center"><img src={sidebar_home}/> <span className="ps-3 fs-18px fw-700">{t('home')}</span></div>
         <ul className="mt-4">
           <li className={`d-flex align-items-center ps-3 py-2 cursor-pointer ${isActive('/') ? 'active' : ''}`}><img src={home}/> <span className="ps-2">{t('overView')}</span></li>
-          <li className={`d-flex align-items-center ps-3 py-2 cursor-pointer ${isActive('/staff/teacher') ? 'active' : ''}`}><img src={icon_teacher}/> <span className="ps-2">{t('teacher')}</span></li>
+          <Link to="/staff/teacher"><li className={`d-flex align-items-center ps-3 py-2 cursor-pointer ${isActive('/staff/teacher') ? 'active' : ''}`}><img src={icon_teacher}/> <span className="ps-2">{t('teacher')}</span></li></Link>
           <Link to="/staff/student"><li className={`d-flex align-items-center ps-3 py-2 cursor-pointer ${isActive('/staff/student') ? 'active' : ''}`}><img src={icon_student}/> <span className="ps-2">{t('student')}</span></li></Link>
           <Link to="/staff/parent"><li className={`d-flex align-items-center ps-3 py-2 cursor-pointer ${isActive('/staff/parent') ? 'active' : ''}`}><img src={icon_parent}/> <span className="ps-2">{t('parent')}</span></li></Link>
           <li className={`d-flex align-items-center ps-3 py-2 cursor-pointer ${isActive('/staff/timetable') ? 'active' : ''}`}><img src={icon_timetable}/> <span className="ps-2">{t('timetable')}</span></li>

@@ -1,0 +1,2 @@
+export const SET_TIMEOUT_MESSAGE = 3000
+export const SET_TIMEOUT_HIDDEN_MODAL = 200

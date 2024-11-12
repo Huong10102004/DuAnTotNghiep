@@ -283,15 +283,20 @@ const Update_teacher = ({ isOpen, onClose }) => {
           <hr className="mb-4" />
 
           <div className="flex justify-end gap-2">
-            <NavLink to={"/staff/list_teacher"}>
-              <button
-                type="button"
-                className="rounded bg-gray-300 px-4 py-2 font-semibold text-gray-700 hover:bg-gray-400"
-                onClick={onClose}
-              >
-                Đóng
-              </button>
-            </NavLink>
+            <button
+              type="button"
+              className="rounded bg-gray-300 px-4 py-2 font-semibold text-gray-700 hover:bg-gray-400"
+              onClick={onClose}
+            >
+              Đóng
+            </button>
+
+            <button
+              type="submit"
+              className="rounded bg-blue-500 px-4 py-2 font-semibold text-white hover:bg-blue-600"
+            >
+              Lưu
+            </button>
           </div>
         </form>
       </div>

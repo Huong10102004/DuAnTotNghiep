@@ -11,8 +11,17 @@ import { Modal } from "antd";
 import { useTranslation } from "react-i18next";
 import PaginationAntd from "../../../../_Shared/Components/Pagination/Pagination";
 import { useNavigate } from 'react-router-dom';
+import  { ApiService } from '../../../../Services/ApiService'
+import NotificationCustom from "../../../../_Shared/Components/Notification-custom/Notification-custom";
+import Loading from "../../../../_Shared/Components/Loading/Loading";
 
 const ClassStaff = () => {
+  const [loading, setLoading] = useState(false);
+  //Lấy dữ liệu call api
+  const [data, setData] = useState([]);
+  const [dataSchoolYear, setDataSchoolYear] = useState([]);
+  const [dataAcademic, setDataAcademic] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
   const { t, i18n } = useTranslation(); // dịch đa ngôn ngữ
   const navigate = useNavigate(); // Hook để điều hướng
   //modal 
@@ -22,10 +31,35 @@ const ClassStaff = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); // mở modal confirm xóa
   // 
   const [modalAssignTeacherOpen, setModalAssignTeacherOpen] = useState(false); // mở modal gán giáo viên chủ nhiệm
+  const [notification, setNotification] = useState({ type: '', message: '' });
   // Sử dụng react-hook-form
   const { register, handleSubmit, formState: { errors }, watch, trigger,reset } = useForm({mode: "onChange"});
 
-    
+  useEffect(() => {
+    // Gọi API khi component mount
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        let dataRequest = {
+          school_year_id: localStorage.getItem('schoolYearCurrent') ?? '',
+          page: 1,
+          size: 10,
+          search: ''
+        }
+        const responseData = await ApiService(`manager/class?school_year_id=${dataRequest.school_year_id}&page=${dataRequest.page}&size=${dataRequest.size}&search=${dataRequest.search}`, 'GET');
+        setData(responseData.data.classes);
+        setTotalItems(responseData.data.totalItems)
+      } catch (error) {
+        setLoading(true);
+        setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const openModal = (editMode = false, data = null) => {
     setIsEditMode(editMode);
     setModalIsOpen(true); 
@@ -45,6 +79,41 @@ const ClassStaff = () => {
       reset();
     }
   };
+
+  const getSchoolYear = async () => {
+    setLoading(true);
+    try {
+      const responseData = await ApiService(`manager/schoolyear`, 'GET');
+      if(responseData){
+        setDataSchoolYear(responseData.data);
+      }
+    } catch (error) {
+      setLoading(true);
+      setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getAcdemicYear = async () => {
+    setLoading(true);
+    try {
+      const responseData = await ApiService(`manager/academicyear`, 'GET');
+      if(responseData){
+        setDataAcademic(Array.isArray(responseData.data.data) ? responseData.data.data : []);
+      }
+    } catch (error) {
+      setLoading(true);
+      setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    getAcdemicYear();
+    getSchoolYear();
+  },[]);
 
   const openModalAssignTeacher = (editMode = false, data = null) => {
     setModalAssignTeacherOpen(true); 
@@ -88,21 +157,6 @@ const ClassStaff = () => {
     { key: 'assign_student', label: 'Gán học sinh vào lớp', icon: icon_assign_teacher },
   ];
 
-  // Dữ liệu hiển thị 
-  const listClassData= [
-    {
-        id: 1,
-        className: '6A',
-        status: 2,
-        teacherName: 'Nguyễn Duy kiên',
-        teacherEmail: 'kiennd@gmail.com',
-        schoolYearName: 'Khóa 18.3',
-        schoolYearCode: 'K18.3',
-        grade: 10,
-    },
-    // Thêm nhiều dữ liệu hơn ở đây
-  ];
-
   //open delete modal
   const showDeleteModal = () => {
     setIsModalVisible(true);
@@ -127,13 +181,14 @@ const ClassStaff = () => {
   }
   return (
     <div>
+      <Loading isLoading={loading} />
       {/* <header className="h-[100px] w-full"></header> */}
       <div className="pt-6rem bg-white h-100vh px-4">
             <h1 className="fs-16">Danh sách lớp học</h1>
             <p className="mt-2">Task/subtitle/subtitle</p>
 
             <div className="d-flex justify-content-between align-items-end mt-2">
-              <p>Số lớp học: <span className="fw-700">32 lớp</span></p>
+              <p>Số lớp học: <span className="fw-700">{totalItems} lớp</span></p>
                 <div className="d-flex">
                     <input placeholder={t('search')} className={`bg-color-white-smoke px-3 py-2 border-radius-10px w-300px`}/>
                     <button className="btn bg-color-green-bold text-color-white d-flex align-items-center" onClick={() => openModal(false)}>{t('create')} <img className="ps-2" src={icon_plus}/></button>
@@ -154,20 +209,20 @@ const ClassStaff = () => {
                         </tr>
                     </thead>
                     <tbody>
-                      {listClassData.map((item, index) => (
+                      {data.map((item, index) => (
                         <tr className="align-middle" key={item.id}>
                             <td className="text-center">{index + 1}</td>
                             <td>
-                                <span className="fw-700">Lớp: {item.className}</span><br />
+                                <span className="fw-700">Lớp: {item.name}</span><br />
                             </td>
                             <td className="text-center">{item.status}</td>
                             <td className="text-center">
-                              <span>{item.teacherName}</span> <br />
-                              <span>{item.teacherEmail}</span>
+                              <span>{item.teacher_name}</span> <br />
+                              <span>{item.teacher_email}</span>
                             </td>
                             <td className="text-center">
-                              <span>{item.schoolYearName}</span> <br />
-                              <span>Mã: {item.schoolYearCode}</span>
+                              <span>{item.academic_name}</span> <br />
+                              <span>Mã: {item.academic_code}</span>
                             </td>
                             <td className="text-center">{item.grade}</td>
                             <td className="text-center">
@@ -211,10 +266,9 @@ const ClassStaff = () => {
           {...register("schoolYear", { required: "Niên khóa là bắt buộc" })}
         >
           <option value="">Chọn niên khóa</option>
-          <option value="2020-2021">2020-2021</option>
-          <option value="2021-2022">2021-2022</option>
-          <option value="2022-2023">2022-2023</option>
-          <option value="2023-2024">2023-2024</option>
+          {dataAcademic.map((item,index) => (
+            <option value={item.id} key={index}>{item.name}</option>
+          ))}
         </select>
         {errors.schoolYear && <div className="invalid-feedback">{errors.schoolYear.message}</div>}
       </div>
@@ -257,9 +311,9 @@ const ClassStaff = () => {
           {...register("academicYear", { required: "Năm học là bắt buộc" })}
         >
           <option value="">Chọn năm học</option>
-          <option value="2023">2023</option>
-          <option value="2024">2024</option>
-          <option value="2025">2025</option>
+          {dataSchoolYear.map((item,index) => (
+            <option value={item.id} key={index}>{item.schoolYearName}</option>
+          ))}
         </select>
         {errors.academicYear && <div className="invalid-feedback">{errors.academicYear.message}</div>}
       </div>
@@ -418,6 +472,8 @@ const ClassStaff = () => {
         <hr className="mt-2 mb-3" />
         <p>Bạn có chắc chắn muốn xóa lớp học <span className="fw-700">6a1</span> không?</p>
       </Modal>
+
+      {notification.message && <NotificationCustom type={notification.type} message={notification.message} title={notification.title} />}
     </div>
   );
 };
