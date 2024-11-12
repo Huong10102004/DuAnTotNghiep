@@ -16,6 +16,7 @@ const Parentaccount = (props: Props) => {
           <h2 className="text-md">Teack/Attendance/Attendance sheet</h2>
 
           <div className="contenttt flex">
+            +
             <div className="flex flex-1 items-stretch gap-4 bg-gray-100 p-4">
               <div className="w-1/4 flex-none rounded-lg border-2 border-blue-300 bg-white p-4">
                 <h2 className="mb-4 border-b-2 border-black pb-[14px] text-center text-[25px] font-bold">
