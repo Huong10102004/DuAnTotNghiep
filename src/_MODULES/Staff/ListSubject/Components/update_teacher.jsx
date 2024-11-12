@@ -5,20 +5,11 @@ import { ACCESS_TYPE_ENUM } from "../../../../_Shared/Enum/access-type.enum";
 import Loading from "../../../../_Shared/Components/Loading/Loading";
 import { ApiService } from "../../../../Services/ApiService";
 
-const Update_teacher = ({ isOpen, onClose, teacher }) => {
+const Update_teacher = ({ isOpen, onClose, teacher, reloadApi }) => {
   const [loading, setLoading] = useState(null);
   const [notification, setNotification] = useState({ type: '', message: '' });
   const [dataClassNoMainTeacher, setDataClassNoMainTeacher] = useState([]);
   const [userId, setUserId] = useState(''); // Controlled input cho tên năm học
-  // const [userName, setUserName] = useState(''); // Controlled input cho tên năm học
-  // const [userEMail, setUserEMail] = useState(''); // Controlled input cho trạng thái
-  // const [userPhone, setuserPhone] = useState(''); // Controlled input cho trạng thái
-  // const [classId, setclassId] = useState(''); // Controlled input cho trạng thái
-  // const [userAccessType, setUserAccessType] = useState(''); // Controlled input cho trạng thái
-  // const [userStatus, setUserStatus] = useState(''); // Controlled input cho trạng thái
-  // const [userDob, setUserDob] = useState(''); // Controlled input cho trạng thái
-  // const [userAddress, setUserAddress] = useState(''); // Controlled input cho trạng thái
-  // const [userGender, setUserGender] = useState(''); // Controlled input cho trạng thái
   const {
     register,
     handleSubmit,
@@ -26,11 +17,30 @@ const Update_teacher = ({ isOpen, onClose, teacher }) => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
-    onClose();
+  const onSubmit = async (data) => {
+    setLoading(true)
+    const formData = {
+      ...data,
+      userGender: Number(data.gender),
+      userStatus: Number(data.userStatus)
+    };
+    try {
+      // Gọi API thêm dữ liệu
+      const response = await ApiService(`manager/user/edit/${teacher?.userId}`, 'post', formData);
+
+      // Nếu thành công
+      if (response) {
+        await reloadApi();
+        setNotification({ type: 'success', message: 'Chỉnh sửa công nhân viên chức thành công',title: 'Thành công' });
+        onClose();
+      } 
+    } catch (error) {
+      console.log(error);
+      setNotification({ type: 'error', message: 'Chỉnh sửa công nhân viên chức không thành công',title: 'Lỗi xảy ra' });
+    } finally {
+      setLoading(false);
+    }
   };
-  console.log(teacher)
 
   useEffect(() => {
     if (notification.message) {
@@ -62,7 +72,6 @@ const Update_teacher = ({ isOpen, onClose, teacher }) => {
   },[])
 
   useEffect(() => {
-    console.log(teacher);
     setValue("userName", teacher.userName || ''); 
     setValue("userUserName", teacher.userUserName || ''); 
     setValue("userEmail", teacher.userEmail || ''); 
@@ -71,8 +80,8 @@ const Update_teacher = ({ isOpen, onClose, teacher }) => {
     setValue("userAccessType", teacher.userAccessType || ''); 
     setValue("userStatus", teacher.userStatus || ''); 
     setValue("userDob", teacher.userDob || ''); 
-    setValue("userAddress", teacher.userAddress || ''); 
-    setValue("userGender", teacher.userGender || ''); 
+    setValue("address", teacher.address || ''); 
+    setValue("gender", teacher.gender || ''); 
     setUserId(teacher.userId)
   }, [teacher])
 
@@ -122,7 +131,7 @@ const Update_teacher = ({ isOpen, onClose, teacher }) => {
               <div className="flex w-4/5 flex-col">
                 <input
                   type="text"
-                  {...register("userUsername", {
+                  {...register("userUserName", {
                     required: "Username bắt buộc nhập",
                   })}
                   className="w-full rounded border p-2"
@@ -240,7 +249,7 @@ const Update_teacher = ({ isOpen, onClose, teacher }) => {
               <div className="flex w-4/5 flex-col">
                 <input
                   type="text"
-                  {...register("userAddress")}
+                  {...register("address")}
                   className="w-full rounded border p-2"
                   placeholder="Nhập địa chỉ"
                 />
@@ -269,16 +278,16 @@ const Update_teacher = ({ isOpen, onClose, teacher }) => {
               </label>
               <div className="flex w-4/5 flex-col">
                 <select
-                  className={`form-control ${errors.userGender ? 'is-invalid' : ''}`}
-                  {...register("userGender", { required: "Giới tính bắt buộc chọn" })}
+                  className={`form-control ${errors.gender ? 'is-invalid' : ''}`}
+                  {...register("gender", { required: "Giới tính bắt buộc chọn" })}
                 >
                   <option value="">Chọn giới tính</option>
                   <option value="1">Nam</option>
                   <option value="2">Nữ</option>
                 </select>
-                {errors.userGender && (
+                {errors.gender && (
                   <span className="mt-1 text-sm font-bold text-red-500">
-                    {errors.userGender.message}
+                    {errors.gender.message}
                   </span>
                 )}
               </div>

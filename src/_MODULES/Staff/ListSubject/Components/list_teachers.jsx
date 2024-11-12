@@ -229,6 +229,7 @@ const ListTeacher = () => {
           isOpen={isUpdateTeacherModalOpen}
           onClose={closeUpdateTeacherModal}
           teacher={selectedItem}
+          reloadApi={handleCallBackApi}
         />
       )}
 

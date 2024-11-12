@@ -14,6 +14,8 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { ApiService } from "../../../../Services/ApiService";
 import Loading from "../../../../_Shared/Components/Loading/Loading";
+import genderDirective from "../../../../_Shared/Components/Gender/Gender";
+import studentStatusDirective from "../../../../_Shared/Components/Status/Student-status-directive";
 
 const Student = () => {
   // dịch đa ngôn ngữ
@@ -102,7 +104,11 @@ const Student = () => {
     } else {
         setLoading(true);
         try {
-          const response = ApiService('manager/academicyear/add','post', data);
+          let formData = {
+            ...data,
+            gender: 1
+          }
+          const response = ApiService('manager/student/store','post', formData);
     
           if (response.success) {
             onSuccess();
@@ -225,7 +231,7 @@ const Student = () => {
                         <tr>
                             <th className="w-5 text-center">{t('STT')}</th>
                             <th><span className="ps-10">Thông tin học sinh</span></th>
-                            <th className="text-center">Liên hệ</th>
+                            <th className="text-center">Lớp học</th>
                             <th className="text-center w-10">Giới tính</th>
                             <th className="text-center">Niên khóa</th>
                             <th className="w-15 text-center">{t('status')}</th>
@@ -240,16 +246,14 @@ const Student = () => {
                             <td>
                                 <span className="fw-700">{item.fullname}</span><br />
                                 <span className="fw-700">Mã: {item.student_code}</span> <br/>
-                                <span className="fw-700">Lớp: {item.class_name ? item.class_name : 'Chưa gán lớp'}</span>
                             </td>
                             <td>
-                              <span>{item.email}</span><br/>
-                              <span>SĐT: {item.phone}</span>
+                            <span className="fw-700">Lớp: {item.class_name ? item.class_name : 'Chưa gán lớp'}</span>
                             </td>
-                            <td className="text-center">{item.gender}</td>
-                            <td className="text-center">{item.academic_year_name}</td>
-                            <td className="text-center">{item.status}</td>
-                            <td className="text-center">{item.parent}</td>
+                            <td className="text-center">{genderDirective(item.gender)}</td>
+                            <td className="text-center fw-700">{item.academic_year_name}</td>
+                            <td className="text-center">{studentStatusDirective(item.status)}</td>
+                            <td className="text-center fw-700">{item.parent}</td>
                             <td className="text-center">
                                 <ActionMenu
                                     items={menuItems}
@@ -274,16 +278,16 @@ const Student = () => {
             {/* Tên học sinh */}
             <div className="col-12 col-md-6 mb-3">
               <label>Tên học sinh:</label>
-              <input type="text" className={`form-control ${errors.studentName ? 'is-invalid' : ''}`} {...register("studentName", { required: "Tên học sinh là bắt buộc" })} placeholder="Tên học sinh..." />
-              {errors.studentName && <div className="invalid-feedback">{errors.studentName.message}</div>}
+              <input type="text" className={`form-control ${errors.fullname ? 'is-invalid' : ''}`} {...register("fullname", { required: "Tên học sinh là bắt buộc" })} placeholder="Tên học sinh..." />
+              {errors.fullname && <div className="invalid-feedback">{errors.fullname.message}</div>}
             </div>
 
             {/* Số điện thoại */}
-            <div className="col-12 col-md-6 mb-3">
+            {/* <div className="col-12 col-md-6 mb-3">
               <label>Số điện thoại:</label>
               <input type="text" className={`form-control ${errors.phone ? 'is-invalid' : ''}`} {...register("phone")} placeholder="Số điện thoại..." />
               {errors.phone && <div className="invalid-feedback">{errors.phone.message}</div>}
-            </div>
+            </div> */}
 
             {/* Trạng thái */}
             <div className="col-12 col-md-6 mb-3">
@@ -299,7 +303,7 @@ const Student = () => {
             {/* Lớp học */}
             <div className="col-12 col-md-6 mb-3">
               <label>Lớp học:</label>
-              <select className={`form-control ${errors.class ? 'is-invalid' : ''}`} {...register("class")}>
+              <select className={`form-control ${errors.class_id ? 'is-invalid' : ''}`} {...register("class_id")}>
                 <option value="">Chọn lớp</option>
                 {listClasses.map((item,index) => (
                   <option key={index} value={item.id}>{item.name}</option>

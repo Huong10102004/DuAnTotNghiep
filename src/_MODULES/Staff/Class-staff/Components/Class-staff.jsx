@@ -16,6 +16,7 @@ import NotificationCustom from "../../../../_Shared/Components/Notification-cust
 import Loading from "../../../../_Shared/Components/Loading/Loading";
 import { GRADE_ENUM } from "../../../../_Shared/Enum/grade.enum";
 import { STATUS_CLASS_ENUM } from "../../../../_Shared/Enum/status-class-enum";
+import { formatTimestamp } from "../../../../_Shared/Pipe/Format-timestamp";
 
 const ClassStaff = () => {
   const [loading, setLoading] = useState(false);
@@ -25,6 +26,8 @@ const ClassStaff = () => {
   const [dataAcademic, setDataAcademic] = useState([]);
   const [dataTeacher, setDataTeacher] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
+  const [dataClassAssign, setDataClassAssign] = useState(null);
+  const [totalItemsTeacher, setTotalItemsTeacher] = useState(0);
   const { t, i18n } = useTranslation(); // dịch đa ngôn ngữ
   const navigate = useNavigate(); // Hook để điều hướng
   //modal 
@@ -36,48 +39,45 @@ const ClassStaff = () => {
   const [modalAssignTeacherOpen, setModalAssignTeacherOpen] = useState(false); // mở modal gán giáo viên chủ nhiệm
   const [notification, setNotification] = useState({ type: '', message: '' });
   // Sử dụng react-hook-form
-  const { register, handleSubmit, formState: { errors }, watch, trigger,reset } = useForm({mode: "onChange"});
+  const { register, handleSubmit, setValue, formState: { errors }, watch, trigger,reset } = useForm({mode: "onChange"});
 
   useEffect(() => {
     // Gọi API khi component mount
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        let dataRequest = {
-          school_year_id: localStorage.getItem('schoolYearCurrent') ?? '',
-          page: 1,
-          size: 10,
-          search: ''
-        }
-        const responseData = await ApiService(`manager/class?school_year_id=${dataRequest.school_year_id}&page=${dataRequest.page}&size=${dataRequest.size}&search=${dataRequest.search}`, 'GET');
-        setData(responseData.data.classes);
-        setTotalItems(responseData.data.totalItems)
-      } catch (error) {
-        setLoading(true);
-        setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
   }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      let dataRequest = {
+        school_year_id: localStorage.getItem('schoolYearCurrent') ?? '',
+        page: 1,
+        size: 10,
+        search: ''
+      }
+      const responseData = await ApiService(`manager/class?school_year_id=${dataRequest.school_year_id}&page=${dataRequest.page}&size=${dataRequest.size}&search=${dataRequest.search}`, 'GET');
+      setData(responseData.data.classes);
+      setTotalItems(responseData.data.totalItems)
+    } catch (error) {
+      setLoading(true);
+      setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const openModal = (editMode = false, data = null) => {
     setIsEditMode(editMode);
     setModalIsOpen(true); 
     if (editMode && data) {
       console.log(data);
-      setCurrentData(data);
-      reset({
-        className: data.className,
-        status: data.status,
-        teacherName: data.teacherName,
-        teacherEmail: data.teacherEmail,
-        schoolYearName: data.schoolYearName,
-        schoolYearCode: data.schoolYearCode,
-        grade: data.grade,
-      });
+      setValue("academic_id", data.academic_id || ''); 
+      setValue("grade_id", data.grade_id || ''); 
+      setValue("name", data.name || ''); 
+      setValue("status", data.status || ''); 
+      setValue("school_year_id", data.school_year_id || ''); 
+      setValue("teacher_id", data.teacher_id || ''); 
+      setValue("id", data.id || ''); 
     }else{
       reset();
     }
@@ -102,8 +102,19 @@ const ClassStaff = () => {
     getFormData();
   },[]);
 
-  const openModalAssignTeacher = (editMode = false, data = null) => {
-    setModalAssignTeacherOpen(true); 
+  useEffect(() => {
+    if (notification.message) {
+      const timer = setTimeout(() => {
+        setNotification({ type: '', message: '', title: '' }); // Ẩn thông báo sau 3 giây
+      }, 3000);
+
+      return () => clearTimeout(timer); // Xóa bộ hẹn giờ khi component bị unmount hoặc message thay đổi
+    }
+  }, [notification]);  // Mỗi khi statusCode thay đổi, đoạn này sẽ chạy
+
+  const openModalAssignTeacher = async (editMode = false, data = null) => {
+    setCurrentData(data);
+    setModalAssignTeacherOpen(true)
   };
     
   const closeModal = () => {
@@ -112,12 +123,71 @@ const ClassStaff = () => {
     setCurrentData(null);
     reset();
   };
-  
+
+  const getDataTeacherAssignClass = async () => {
+    try {
+      // Gọi API thêm dữ liệu
+      let page = 1;
+      let size = 5;
+      let search = '';
+      const response = await ApiService(`manager/class/formAssignMainTeacher?page=${page}&size=${size}&search=${search}`);
+      setDataClassAssign(Array.isArray(response.data.teachers) ? response.data.teachers : []);
+      setTotalItemsTeacher(response.data.totalItems);
+      console.log(dataClassAssign)
+      setTimeout(() => {
+      },10000) 
+    } catch (err) {
+      setNotification({ type: 'error', message: 'Có lỗi xảy ra, vui lòng kiểm tra lại dữ liệu nhập vào',title: 'Lỗi' });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    getDataTeacherAssignClass();
+  },[])
+  useEffect(() => {
+    if (dataClassAssign !== null) {
+      setDataClassAssign(dataClassAssign)
+      console.log('dataClassAssign updated:', dataClassAssign);
+      console.log('dataaClassAssignBefore',dataClassAssign)
+    }
+  },[dataClassAssign])
+
   const onSubmit = async (data) => {
     setLoading(true);  
     if (isEditMode) {
       // Xử lý cập nhật dữ liệu khi đang chỉnh sửa
-      console.log("Dữ liệu chỉnh sửa:", data);
+       // Xử lý thêm mới
+       console.log("Dữ liệu thêm mới:", data);
+       const formData = {
+         ...data,
+         academic_id: Number(data.academic_id),
+         teacher_id: Number(data.teacher_id),
+         school_year_id: Number(data.school_year_id),
+         status: Number(data.status),
+         grade_id: Number(data.grade_id),
+         class_id: Number(data.id),
+       };
+
+       try {
+         // Gọi API thêm dữ liệu
+         const response = await ApiService('manager/class/update', 'post', formData);
+ 
+         // Nếu thành công
+         if (response) {
+           await fetchData();
+           setNotification({ type: 'success', message: 'Chỉnh sửa lớp học thành công',title: 'Thành công' });
+           setModalIsOpen(false); //set modal mở thêm, sửa về false
+         } else {
+           setErrorMessage('Đã có lỗi xảy ra.');
+           setNotification({ type: 'error', message: 'response no data',title: 'Lỗi' });
+         }
+       } catch (err) {
+         setNotification({ type: 'error', message: 'Có lỗi xảy ra, vui lòng kiểm tra lại dữ liệu nhập vào',title: 'Lỗi' });
+       } finally {
+         setLoading(false);
+       }
     } else {
         // Xử lý thêm mới
         console.log("Dữ liệu thêm mới:", data);
@@ -172,14 +242,34 @@ const ClassStaff = () => {
   ];
 
   //open delete modal
-  const showDeleteModal = () => {
+  const showDeleteModal = (data) => {
+    setCurrentData(data)
     setIsModalVisible(true);
   };
 
-  const handleDelete = () => {
-    // Xử lý xóa bản ghi ở đây
-    console.log('Đã xóa bản ghi');
-    setIsModalVisible(false);
+  const handleDelete = async (classId) => {
+    setLoading(true);
+    try {
+      // Gọi API thêm dữ liệu
+      const formData = {
+        class_id: classId
+      }
+      const response = await ApiService('manager/class/delete', 'post', formData);
+
+      // Nếu thành công
+      if (response) {
+        await fetchData();
+        setNotification({ type: 'success', message: 'Xóa lớp học thành công',title: 'Thành công' });
+        setIsModalVisible(false);
+      } else {
+        setErrorMessage('Đã có lỗi xảy ra.');
+        setNotification({ type: 'error', message: 'response no data',title: 'Lỗi' });
+      }
+    } catch (err) {
+      setNotification({ type: 'error', message: 'Có lỗi xảy ra, vui lòng kiểm tra lại dữ liệu nhập vào',title: 'Lỗi' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -243,7 +333,7 @@ const ClassStaff = () => {
                                 <ActionMenu
                                     items={menuItems}
                                     onMenuClick={(key) => handleMenuClick(key, item)}
-                                    onDelete={showDeleteModal}
+                                    onDelete={() => showDeleteModal(item)}
                                 />
                             </td>
                         </tr>
@@ -265,18 +355,18 @@ const ClassStaff = () => {
         <label>Tên lớp học:</label>
         <input
           type="text"
-          className={`form-control ${errors.className ? 'is-invalid' : ''}`}
+          className={`form-control ${errors.name ? 'is-invalid' : ''}`}
           {...register("name", { required: "Tên lớp học bắt buộc" })}
           placeholder="Tên lớp học..."
         />
-        {errors.className && <div className="invalid-feedback">{errors.className.message}</div>}
+        {errors.name && <div className="invalid-feedback">{errors.name.message}</div>}
       </div>
 
       {/* Niên khóa */}
       <div className="col-12 col-md-6 mb-3">
         <label>Niên khóa:</label>
         <select
-          className={`form-control ${errors.schoolYear ? 'is-invalid' : ''}`}
+          className={`form-control ${errors.academic_id ? 'is-invalid' : ''}`}
           {...register("academic_id", { required: "Niên khóa là bắt buộc" })}
         >
           <option value="">Chọn niên khóa</option>
@@ -284,23 +374,25 @@ const ClassStaff = () => {
             <option value={item.id} key={index}>{item.name}</option>
           ))}
         </select>
-        {errors.schoolYear && <div className="invalid-feedback">{errors.schoolYear.message}</div>}
+        {errors.academic_id && <div className="invalid-feedback">{errors.academic_id.message}</div>}
       </div>
 
       {/* Chủ nhiệm */}
-      <div className="col-12 col-md-6 mb-3">
-        <label>Chủ nhiệm:</label>
-        <select
-          className={`form-control ${errors.teacher_id ? 'is-invalid' : ''}`}
-          {...register("teacher_id")}
-        >
-          <option value="">Chọn chủ nhiệm</option>
-          {dataTeacher.map((item,index) => (
-            <option value={item.id} key={index}>{item.name}</option>
-          ))}
-        </select>
-        {errors.teacher_id && <div className="invalid-feedback">{errors.teacher_id.message}</div>}
-      </div>
+      {!isEditMode && (
+        <div className="col-12 col-md-6 mb-3" >
+          <label>Chủ nhiệm:</label>
+          <select
+            className={`form-control ${errors.teacher_id ? 'is-invalid' : ''}`}
+            {...register("teacher_id")}
+          >
+            <option value="">Chọn chủ nhiệm</option>
+            {dataTeacher.map((item,index) => (
+              <option value={item.id} key={index}>{item.name}</option>
+            ))}
+          </select>
+          {errors.teacher_id && <div className="invalid-feedback">{errors.teacher_id.message}</div>}
+        </div>
+      )}
 
       {/* Khối học */}
       <div className="col-12 col-md-6 mb-3">
@@ -358,7 +450,7 @@ const ClassStaff = () => {
 
       <ModalReuse isOpen={modalAssignTeacherOpen} onClose={closeModal} title={"Gán giáo viên chủ nhiệm vào lớp 6a1"} width="80%" footerModal={footerModal()}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <h1 className="fs-16">Danh sách lớp học</h1>
+          <h1 className="fs-16">Danh sách giáo viên</h1>
 
           <div className="d-flex justify-content-between align-items-end mt-2">
             <p>Số lượng: <span className="fw-700">32 giáo viên</span></p>
@@ -374,98 +466,32 @@ const ClassStaff = () => {
                 <th className="pb-3">Giới tính</th>
                 <th className="pb-3">Ngày sinh</th>
                 <th className="pb-3">SĐT</th>
-                <th className="pb-3">Trạng thái</th>
               </tr>
             </thead>
             <tbody>
-              <tr className="border-bottom align-middle">
-                  <td className="py-3">
-                    <input type="radio" />
-                  </td>
-                  <td className="py-3">01</td>
-                  <td className="py-3">
-                    <span>Nguyễn Duy Kiên</span> <br />
-                    <span>ID: 0001</span>
-                  </td>
-                  <td className="py-3">
-                    kiennd@gmail.com
-                  </td>
-                  <td className="py-3">Nam</td>
-                  <td className="py-3">1/1/2024</td>
-                  <td className="py-3">0365215485</td>
-                  <td className="py-3">Chính thức</td>
+              {dataClassAssign && dataClassAssign.length > 0 ? dataClassAssign.map((item, index) => {
+                <tr className="border-bottom align-middle" key={index}>
+                  123123123131231212312312132321
+                    <td className="py-3">
+                      <input type="radio" />
+                    </td>
+                    <td className="py-3">{index}</td>
+                    <td className="py-3">
+                      <span>{item.name}</span> <br />
+                      <span>ID: {item.code}</span>
+                    </td>
+                    <td className="py-3">
+                      {item.email}
+                    </td>
+                    <td className="py-3">{item.gender}</td>
+                    <td className="py-3">{formatTimestamp(item.dob)}</td>
+                    <td className="py-3">{item.phone}</td>
                 </tr>
-                <tr className="border-bottom align-middle">
-                  <td className="py-3">
-                    <input type="radio" />
-                  </td>
-                  <td className="py-3">01</td>
-                  <td className="py-3">
-                    <span>Nguyễn Duy Kiên</span> <br />
-                    <span>ID: 0001</span>
-                  </td>
-                  <td className="py-3">
-                    kiennd@gmail.com
-                  </td>
-                  <td className="py-3">Nam</td>
-                  <td className="py-3">1/1/2024</td>
-                  <td className="py-3">0365215485</td>
-                  <td className="py-3">Chính thức</td>
+              }) : (
+                <tr>
+                  <td colSpan={7}>Không có dữ liệu</td>
                 </tr>
-                <tr className="border-bottom align-middle">
-                  <td className="py-3">
-                    <input type="radio" />
-                  </td>
-                  <td className="py-3">01</td>
-                  <td className="py-3">
-                    <span>Nguyễn Duy Kiên</span> <br />
-                    <span>ID: 0001</span>
-                  </td>
-                  <td className="py-3">
-                    kiennd@gmail.com
-                  </td>
-                  <td className="py-3">Nam</td>
-                  <td className="py-3">1/1/2024</td>
-                  <td className="py-3">0365215485</td>
-                  <td className="py-3">Chính thức</td>
-                </tr>
-                <tr className="border-bottom align-middle">
-                  <td className="py-3">
-                    <input type="radio" />
-                  </td>
-                  <td className="py-3">01</td>
-                  <td className="py-3">
-                    <span>Nguyễn Duy Kiên</span> <br />
-                    <span>ID: 0001</span>
-                  </td>
-                  <td className="py-3">
-                    kiennd@gmail.com
-                  </td>
-                  <td className="py-3">Nam</td>
-                  <td className="py-3">1/1/2024</td>
-                  <td className="py-3">0365215485</td>
-                  <td className="py-3">Chính thức</td>
-                </tr>
-                <tr className="border-bottom align-middle">
-                  <td className="py-3">
-                    <input type="radio" />
-                  </td>
-                  <td className="py-3">01</td>
-                  <td className="py-3">
-                    <span>Nguyễn Duy Kiên</span> <br />
-                    <span>ID: 0001</span>
-                  </td>
-                  <td className="py-3">
-                    kiennd@gmail.com
-                  </td>
-                  <td className="py-3">Nam</td>
-                  <td className="py-3">1/1/2024</td>
-                  <td className="py-3">0365215485</td>
-                  <td className="py-3">Chính thức</td>
-                </tr>
-              
-              
-               
+              )}
             </tbody>
           </table>
           <div className="mt-4 d-flex justify-content-end mb-20">
@@ -479,13 +505,13 @@ const ClassStaff = () => {
       <Modal
         title={<div style={{ color: 'red', textAlign: 'center' }}>Xóa dữ liệu - Lớp học</div>} 
         open={isModalVisible}
-        onOk={handleDelete}
+        onOk={() => handleDelete(currentData.id)}
         onCancel={handleCancel}
         okText="Có"
         cancelText="Không"
       >
         <hr className="mt-2 mb-3" />
-        <p>Bạn có chắc chắn muốn xóa lớp học <span className="fw-700">6a1</span> không?</p>
+        <p>Bạn có chắc chắn muốn xóa lớp học <span className="fw-700">{currentData?.name}</span> không?</p>
       </Modal>
 
       {notification.message && <NotificationCustom type={notification.type} message={notification.message} title={notification.title} />}

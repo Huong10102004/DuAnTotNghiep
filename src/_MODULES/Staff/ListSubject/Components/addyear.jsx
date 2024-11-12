@@ -34,7 +34,9 @@ const Addyear = ({ isOpen, onClose, reloadApi }) => {
         setErrorMessage(prevState => ({ ...prevState, end: '' }));
       }
     }
+  }, [startDate, endDate]);
 
+  useEffect(() => {
     if (notification.message) {
       const timer = setTimeout(() => {
         setNotification({ type: '', message: '', title: '' }); 
@@ -42,7 +44,7 @@ const Addyear = ({ isOpen, onClose, reloadApi }) => {
 
       return () => clearTimeout(timer); 
     }
-  }, [startDate, endDate, notification]);
+  }, [notification])
 
   const onSubmit = async (data) => {
     setLoading(true);  
@@ -81,9 +83,9 @@ const Addyear = ({ isOpen, onClose, reloadApi }) => {
         if (response) {
           await reloadApi();
           setNotification({ type: 'success', message: 'Thêm năm học mới thành công',title: 'Thành công' });
-          setTimeout(() => {
-            onClose();
-          }, SET_TIMEOUT_MESSAGE);
+          // setTimeout(() => {
+          //   onClose();
+          // }, SET_TIMEOUT_MESSAGE);
         } else {
           setErrorMessage('Đã có lỗi xảy ra.');
           setNotification({ type: 'error', message: 'Có lỗi xảy ra, vui lòng kiểm tra lại dữ liệu nhập vào',title: 'Lỗi' });
