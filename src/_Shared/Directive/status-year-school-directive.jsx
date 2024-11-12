@@ -17,7 +17,7 @@ const StatusYearSchoolDirective = ({ status }) => {
       text = 'No data';
   }
 
-  return <div>{text}</div>;
+  return <span>{text}</span>;
 };
 
 export default StatusYearSchoolDirective;

@@ -34,7 +34,6 @@ const SchoolYear = () => {
     
   const openModal = (editMode = false, data = null) => {
     setIsEditMode(editMode);
-    console.log(editMode);
     setModalIsOpen(true); 
     if (editMode && data) {
       setCurrentData(data);
@@ -44,7 +43,8 @@ const SchoolYear = () => {
         start_year: data.start_year,
         end_year: data.end_year
       });
-      console.log(data);
+      setStartDate(data.start_year);
+      setEndDate(data.end_year);
     }else{
       reset({
         name: '', // example data fields
@@ -72,14 +72,10 @@ const SchoolYear = () => {
           name: data.name,
           status: Number(data.status)
         };
-        console.log(formData);
         const response = await ApiService(`manager/academicyear/update/${currentData.id}`,'PUT', formData);  // Gọi API lấy danh sách
         if (response) {
           await getItems();
           setNotification({ type: 'success', message: 'Chỉnh sửa niên khóa thành công',title: 'Thành công' });
-          setTimeout(() => {
-            onClose();
-          }, SET_TIMEOUT_MESSAGE);
         } else {
           setErrorMessage('Đã có lỗi xảy ra.');
           setNotification({ type: 'error', message: 'Có lỗi xảy ra, vui lòng kiểm tra lại dữ liệu nhập vào',title: 'Lỗi' });
@@ -102,9 +98,6 @@ const SchoolYear = () => {
           if (response) {
             await getItems();
             setNotification({ type: 'success', message: 'Thêm niên khóa mới thành công',title: 'Thành công' });
-            setTimeout(() => {
-              onClose();
-            }, SET_TIMEOUT_MESSAGE);
           } else {
             setErrorMessage('Đã có lỗi xảy ra.');
             setNotification({ type: 'error', message: 'Có lỗi xảy ra, vui lòng kiểm tra lại dữ liệu nhập vào',title: 'Lỗi' });
@@ -132,6 +125,10 @@ const SchoolYear = () => {
   };
 
   useEffect(() => {
+    getItems();
+  }, []);
+
+  useEffect(() => {
     if (notification.message) {
       const timer = setTimeout(() => {
         setNotification({ type: '', message: '', title: '' }); // Ẩn thông báo sau 3 giây
@@ -139,15 +136,13 @@ const SchoolYear = () => {
 
       return () => clearTimeout(timer); // Xóa bộ hẹn giờ khi component bị unmount hoặc message thay đổi
     }
-    getItems();
-  }, []);
+  }, [notification])
 
   // Hàm click thao tác 
   const handleMenuClick = (key, data) => {
     if (key === "edit") {
       openModal(true, data); // Pass the data for editing
     } else if (key === "delete") {
-      console.log("Deleting: ", data);
     }
   };
 
@@ -161,13 +156,30 @@ const SchoolYear = () => {
   }, []);
 
   //open delete modal
-  const showDeleteModal = () => {
+  const showDeleteModal = (dataItem) => {
+    setCurrentData(dataItem);
     setIsModalVisible(true);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async (id) => {
     // Xử lý xóa bản ghi ở đây
-    console.log('Đã xóa bản ghi');
+    setLoading(true);
+    if(id){
+    try {
+      const response = await ApiService(`manager/academicyear/delete/${id}`,'DELETE');
+      if (response) {
+        await getItems();
+        setNotification({ type: 'success', message: 'Xóa niên khóa thành công',title: 'Thành công' });
+      } else {
+        setErrorMessage('Đã có lỗi xảy ra.');
+        setNotification({ type: 'error', message: 'Có lỗi xảy ra, vui lòng kiểm tra lại dữ liệu nhập vào',title: 'Lỗi' });
+      }
+    } catch (error) {
+      setNotification({ type: 'error', message: 'Lỗi liên quan hệ thống. Vui lòng liên hệ QTV',title: 'Lỗi xảy ra' });
+    } finally {
+      setLoading(false);
+    }
+    }
     setIsModalVisible(false);
   };
 
@@ -177,7 +189,6 @@ const SchoolYear = () => {
 
   //Handle model theem
   const handleStartDateChange = (dateString) => {
-    console.log(dateString);
     if(dateString){
       setStartDate(dateString);
     }
@@ -213,7 +224,7 @@ const SchoolYear = () => {
                     <thead className="bg-color-blue text-white">
                         <tr>
                             <th className="w-5 text-center">{t('STT')}</th>
-                            <th><span className="ps-10">{t('schoolYearInformation')}</span></th>
+                            <th><span className="">{t('schoolYearInformation')}</span></th>
                             <th className="text-center">{t('status')}</th>
                             <th className="text-center">{t('startDate')}</th>
                             <th className="text-center">{t('endDate')}</th>
@@ -237,7 +248,7 @@ const SchoolYear = () => {
                                 <ActionMenu
                                     items={menuItems}
                                     onMenuClick={(key) => handleMenuClick(key, item)}
-                                    onDelete={showDeleteModal}
+                                    onDelete={() => showDeleteModal(item)}
                                 />
                             </td>
                         </tr>
@@ -302,14 +313,14 @@ const SchoolYear = () => {
       <Modal
         title={<div style={{ color: 'red', textAlign: 'center' }}>Xóa dữ liệu - niên khóa</div>} 
         open={isModalVisible}
-        onOk={handleDelete}
+        onOk={() => handleDelete(currentData?.id)}
         onCancel={handleCancel}
         okText="Có"
         cancelText="Không"
         centered={true}
       >
         <hr className="mt-2 mb-3" />
-        <p>Bạn có chắc chắn muốn xóa niên khóa <span className="fw-700">K10.3</span> không?</p>
+        <p>Bạn có chắc chắn muốn xóa niên khóa <span className="fw-700">{currentData?.name}</span> không?</p>
       </Modal>
       {notification.message && <NotificationCustom type={notification.type} message={notification.message} title={notification.title} />}
     </div>

@@ -190,7 +190,7 @@ const Listyear = () => {
                         <br />
                       </div>
                     </td>
-                    <td>
+                    <td className="d-flex align-items-center">
                       <div className="ps-10">
                         <span>
                           <b><StatusYearSchoolDirective status={item.schoolYearStatus} /></b>
@@ -236,6 +236,7 @@ const Listyear = () => {
           isOpen={isUpdateYearModalOpen}
           onClose={closeUpdateyearModal}
           data={selectedItem}
+          reloadApi={handleCallBackApi}
         />
       )}
 

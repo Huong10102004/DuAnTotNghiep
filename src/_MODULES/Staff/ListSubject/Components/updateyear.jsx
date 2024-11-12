@@ -5,7 +5,7 @@ import { STATUS_SCHOOL_YEAR } from "../../../../ENUM/StatusSchoolYear";
 import { SET_TIMEOUT_MESSAGE } from "../../../../_Shared/Constant/constant";
 import { ApiService } from "../../../../Services/ApiService";
 
-const Updateyear = ({ isOpen, onClose, data }) => {
+const Updateyear = ({ isOpen, onClose, data, reloadApi }) => {
   const [loading, setLoading] = useState(null);
   const [errorMessage, setErrorMessage] = useState({ start: '', end: '' });
   const [schoolYearStartDate, setSchoolYearStartDate] = useState(null); // start Date
@@ -24,7 +24,7 @@ const Updateyear = ({ isOpen, onClose, data }) => {
 
   const onSubmit = async (data) => {
     console.log(data);
-    setLoading(true);  
+    setLoading(true);
     isValid = true;
     if (!schoolYearStartDate) {
       setErrorMessage(prevState => ({ ...prevState, start: 'Start date is required.' }));
@@ -40,7 +40,6 @@ const Updateyear = ({ isOpen, onClose, data }) => {
       setErrorMessage(prevState => ({ ...prevState, end: '' }));
     }
     if (isValid && !Object.keys(errors).length) {
-      setLoading(true);
 
       const formData = {
         ...data,
@@ -57,9 +56,6 @@ const Updateyear = ({ isOpen, onClose, data }) => {
         if (response) {
           await reloadApi();
           setNotification({ type: 'success', message: 'Chỉnh sửa năm học thành công',title: 'Thành công' });
-          setTimeout(() => {
-            onClose();
-          }, SET_TIMEOUT_MESSAGE);
         } else {
           setErrorMessage('Đã có lỗi xảy ra.');
           setNotification({ type: 'error', message: 'Có lỗi xảy ra, vui lòng kiểm tra lại dữ liệu nhập vào',title: 'Lỗi' });
@@ -73,6 +69,7 @@ const Updateyear = ({ isOpen, onClose, data }) => {
     }else{
       setLoading(false);
     }
+    onClose();
   };
 
   let isValid = false;

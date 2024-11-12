@@ -1,25 +1,95 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { NavLink } from "react-router-dom";
-import PaginationAntd from "../../../../_Shared/Components/Pagination/Pagination";
-import { getListClassToAttendance } from "../../../../Services/Attendance/attendance";
+import NotificationCustom from "../../../../_Shared/Components/Notification-custom/Notification-custom";
+import { ACCESS_TYPE_ENUM } from "../../../../_Shared/Enum/access-type.enum";
+import Loading from "../../../../_Shared/Components/Loading/Loading";
+import { ApiService } from "../../../../Services/ApiService";
 
-const Update_teacher = ({ isOpen, onClose }) => {
+const Update_teacher = ({ isOpen, onClose, teacher, reloadApi }) => {
+  const [loading, setLoading] = useState(null);
+  const [notification, setNotification] = useState({ type: '', message: '' });
+  const [dataClassNoMainTeacher, setDataClassNoMainTeacher] = useState([]);
+  const [userId, setUserId] = useState(''); // Controlled input cho tên năm học
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
-    onClose();
+  const onSubmit = async (data) => {
+    setLoading(true)
+    const formData = {
+      ...data,
+      userGender: Number(data.gender),
+      userStatus: Number(data.userStatus)
+    };
+    try {
+      // Gọi API thêm dữ liệu
+      const response = await ApiService(`manager/user/edit/${teacher?.userId}`, 'post', formData);
+
+      // Nếu thành công
+      if (response) {
+        await reloadApi();
+        setNotification({ type: 'success', message: 'Chỉnh sửa công nhân viên chức thành công',title: 'Thành công' });
+        onClose();
+      } 
+    } catch (error) {
+      console.log(error);
+      setNotification({ type: 'error', message: 'Chỉnh sửa công nhân viên chức không thành công',title: 'Lỗi xảy ra' });
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    if (notification.message) {
+      const timer = setTimeout(() => {
+        setNotification({ type: '', message: '', title: '' }); // Ẩn thông báo sau 3 giây
+      }, 3000);
+
+      return () => clearTimeout(timer); // Xóa bộ hẹn giờ khi component bị unmount hoặc message thay đổi
+    }
+  }, [notification]);  // Mỗi khi statusCode thay đổi, đoạn này sẽ chạy
+
+  const getClassNoMainTeacher = async () => {
+    setLoading(true);
+    try {
+      const schoolYearId = localStorage.getItem('schoolYearCurrent')
+      const responseData = await ApiService(`manager/user/chooseClassToMainTearch?schoolYearId=${schoolYearId}`, 'GET');
+      console.log(responseData);
+      setDataClassNoMainTeacher(Array.isArray(responseData.data) ? responseData.data : []);
+    } catch (error) {
+      setLoading(true);
+      setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    getClassNoMainTeacher();
+  },[])
+
+  useEffect(() => {
+    setValue("userName", teacher.userName || ''); 
+    setValue("userUserName", teacher.userUserName || ''); 
+    setValue("userEmail", teacher.userEmail || ''); 
+    setValue("userPhone", teacher.userPhone || ''); 
+    setValue("classId", teacher.classId || ''); 
+    setValue("userAccessType", teacher.userAccessType || ''); 
+    setValue("userStatus", teacher.userStatus || ''); 
+    setValue("userDob", teacher.userDob || ''); 
+    setValue("address", teacher.address || ''); 
+    setValue("gender", teacher.gender || ''); 
+    setUserId(teacher.userId)
+  }, [teacher])
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-75">
+      <Loading isLoading={loading} />
       <div className="relative w-[70%] rounded-lg bg-white p-6 shadow-lg">
         <h2 className="mb-2 text-center text-xl font-bold">sửa nhân viên</h2>
         <hr className="mb-4" />
@@ -39,15 +109,37 @@ const Update_teacher = ({ isOpen, onClose }) => {
               <div className="flex w-4/5 flex-col">
                 <input
                   type="text"
-                  {...register("tenNhanVien", {
+                  {...register("userName", {
                     required: "Tên của nhân viên bắt buộc nhập",
                   })}
                   className="w-full rounded border p-2"
                   placeholder="Nhập tên nhân viên"
                 />
-                {errors.tenNhanVien && (
+                {errors.userName && (
                   <span className="mt-1 text-sm font-bold text-red-500">
-                    {errors.tenNhanVien.message}
+                    {errors.userName.message}
+                  </span>
+                )}
+              </div>
+            </div>
+
+             {/* username */}
+             <div className="mb-4 flex">
+              <label className="mb-1 mr-2 mt-1 block w-1/5 font-medium text-gray-700">
+                Username
+              </label>
+              <div className="flex w-4/5 flex-col">
+                <input
+                  type="text"
+                  {...register("userUserName", {
+                    required: "Username bắt buộc nhập",
+                  })}
+                  className="w-full rounded border p-2"
+                  placeholder="Nhập userName"
+                />
+                {errors.userUserName && (
+                  <span className="mt-1 text-sm font-bold text-red-500">
+                    {errors.userUserName.message}
                   </span>
                 )}
               </div>
@@ -60,8 +152,8 @@ const Update_teacher = ({ isOpen, onClose }) => {
               </label>
               <div className="flex w-4/5 flex-col">
                 <input
-                  type="email"
-                  {...register("email", {
+                  type="text"
+                  {...register("userEmail", {
                     required: "Email của nhân viên bắt buộc nhập",
                     pattern: {
                       value:
@@ -72,9 +164,9 @@ const Update_teacher = ({ isOpen, onClose }) => {
                   className="w-full rounded border p-2"
                   placeholder="Nhập email"
                 />
-                {errors.email && (
+                {errors.userEmail && (
                   <span className="mt-1 text-sm font-bold text-red-500">
-                    {errors.email.message}
+                    {errors.userEmail.message}
                   </span>
                 )}
               </div>
@@ -88,15 +180,15 @@ const Update_teacher = ({ isOpen, onClose }) => {
               <div className="flex w-4/5 flex-col">
                 <input
                   type="text"
-                  {...register("soDienThoai", {
+                  {...register("userPhone", {
                     required: "Số điện thoại của nhân viên bắt buộc nhập",
                   })}
                   className="w-full rounded border p-2"
                   placeholder="Nhập số điện thoại"
                 />
-                {errors.soDienThoai && (
+                {errors.userPhone && (
                   <span className="mt-1 text-sm font-bold text-red-500">
-                    {errors.soDienThoai.message}
+                    {errors.userPhone.message}
                   </span>
                 )}
               </div>
@@ -109,62 +201,19 @@ const Update_teacher = ({ isOpen, onClose }) => {
               </label>
               <div className="flex w-4/5 flex-col">
                 <select
-                  {...register("chucVu", {
+                  {...register("userAccessType", {
                     required: "Chức vụ của nhân viên bắt buộc nhập",
                   })}
                   className="w-full rounded border p-2"
                 >
                   <option value="">Chọn chức vụ</option>
-                  <option value="teacher">Giáo viên</option>
-                  <option value="manager">Quản lý</option>
+                  <option value={ACCESS_TYPE_ENUM.MANAGER}>{ACCESS_TYPE_ENUM.MANAGER_LABEL}</option>
+                  <option value={ACCESS_TYPE_ENUM.TEACHER}>{ACCESS_TYPE_ENUM.TEACHER_LABEL}</option>
+                  <option value={ACCESS_TYPE_ENUM.GUARDIAN}>{ACCESS_TYPE_ENUM.GUARDIAN_LABEL}</option>
                 </select>
-                {errors.chucVu && (
+                {errors.userAccessType && (
                   <span className="mt-1 text-sm font-bold text-red-500">
-                    {errors.chucVu.message}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Mật khẩu */}
-            <div className="mb-4 flex">
-              <label className="mb-1 mr-2 mt-1 block w-1/5 font-medium text-gray-700">
-                Mật khẩu
-              </label>
-              <div className="flex w-4/5 flex-col">
-                <input
-                  type="password"
-                  {...register("matKhau", {
-                    required: "Mật khẩu của nhân viên bắt buộc nhập",
-                  })}
-                  className="w-full rounded border p-2"
-                  placeholder="Nhập mật khẩu"
-                />
-                {errors.matKhau && (
-                  <span className="mt-1 text-sm font-bold text-red-500">
-                    {errors.matKhau.message}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Xác nhận mật khẩu */}
-            <div className="mb-4 flex">
-              <label className="mb-1 mr-2 mt-1 block w-1/5 font-medium text-gray-700">
-                Xác nhận
-              </label>
-              <div className="flex w-4/5 flex-col">
-                <input
-                  type="password"
-                  {...register("xacNhanMatKhau", {
-                    required: "Xác nhận mật khẩu của nhân viên bắt buộc nhập",
-                  })}
-                  className="w-full rounded border p-2"
-                  placeholder="Xác nhận mật khẩu"
-                />
-                {errors.xacNhanMatKhau && (
-                  <span className="mt-1 text-sm font-bold text-red-500">
-                    {errors.xacNhanMatKhau.message}
+                    {errors.userAccessType.message}
                   </span>
                 )}
               </div>
@@ -177,57 +226,18 @@ const Update_teacher = ({ isOpen, onClose }) => {
               </label>
               <div className="flex w-4/5 flex-col">
                 <select
-                  name="lop"
+                  name="classId"
                   id="lop"
                   className="w-full rounded border p-2"
                 >
                   <option value="" className="border-b-4 border-black">
                     Chọn lớp chủ nhiệm
                   </option>
-                  <option
-                    value="1"
-                    className="border-b-4 border-black bg-zinc-300"
-                  >
-                    6A1
-                  </option>
-                  <option
-                    value="2"
-                    className="border-b-4 border-black bg-zinc-300"
-                  >
-                    6A2
-                  </option>
-                  <option
-                    value="3"
-                    className="border-b-4 border-black bg-zinc-300"
-                  >
-                    6A3
-                  </option>
-                  <option
-                    value="4"
-                    className="border-b-4 border-black bg-zinc-300"
-                  >
-                    7A1
-                  </option>
-                  <option
-                    value="5"
-                    className="border-b-4 border-black bg-zinc-300"
-                  >
-                    7A2
-                  </option>
-                  <option
-                    value="6"
-                    className="border-b-4 border-black bg-zinc-300"
-                  >
-                    7A3
-                  </option>
+                  {dataClassNoMainTeacher.map(item => (
+                  <option value={item.classId} key={item.classId} className="border-b-4 border-black bg-zinc-300">{item.className}</option>
+                  ))}
                 </select>
 
-                {/* <input
-                  type="text"
-                  {...register("chuNhiem")}
-                  className="w-full rounded border p-2"
-                  placeholder="Nhập lớp chủ nhiệm"
-                /> */}
               </div>
             </div>
 
@@ -239,7 +249,7 @@ const Update_teacher = ({ isOpen, onClose }) => {
               <div className="flex w-4/5 flex-col">
                 <input
                   type="text"
-                  {...register("diaChi")}
+                  {...register("address")}
                   className="w-full rounded border p-2"
                   placeholder="Nhập địa chỉ"
                 />
@@ -254,14 +264,30 @@ const Update_teacher = ({ isOpen, onClose }) => {
               <div className="flex w-4/5 flex-col">
                 <input
                   type="date"
-                  {...register("ngaySinh", {
-                    required: "Ngày sinh là bắt buộc",
+                  {...register("userDob", {
                   })}
                   className="w-full rounded border p-2"
                 />
-                {errors.ngaySinh && (
+              </div>
+            </div>
+
+              {/* gender */}
+              <div className="mb-4 flex">
+              <label className="mb-1 mr-2 mt-1 block w-1/5 font-medium text-gray-700">
+                Giới tính
+              </label>
+              <div className="flex w-4/5 flex-col">
+                <select
+                  className={`form-control ${errors.gender ? 'is-invalid' : ''}`}
+                  {...register("gender", { required: "Giới tính bắt buộc chọn" })}
+                >
+                  <option value="">Chọn giới tính</option>
+                  <option value="1">Nam</option>
+                  <option value="2">Nữ</option>
+                </select>
+                {errors.gender && (
                   <span className="mt-1 text-sm font-bold text-red-500">
-                    {errors.ngaySinh.message}
+                    {errors.gender.message}
                   </span>
                 )}
               </div>
@@ -276,7 +302,7 @@ const Update_teacher = ({ isOpen, onClose }) => {
               <input
                 type="checkbox"
                 className="mr-2"
-                {...register("hoatDong")}
+                {...register("userStatus")}
               />
             </div>
           </div>
@@ -295,11 +321,12 @@ const Update_teacher = ({ isOpen, onClose }) => {
               type="submit"
               className="rounded bg-blue-500 px-4 py-2 font-semibold text-white hover:bg-blue-600"
             >
-              Lưu
+              Thêm
             </button>
           </div>
         </form>
       </div>
+      {notification.message && <NotificationCustom type={notification.type} message={notification.message} title={notification.title} />}
     </div>
   );
 };

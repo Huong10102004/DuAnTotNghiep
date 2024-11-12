@@ -12,6 +12,8 @@ import Update_teacher from "./update_teacher";
 import { ApiService } from "../../../../Services/ApiService";
 import Loading from "../../../../_Shared/Components/Loading/Loading";
 import { formatTimestamp } from "../../../../_Shared/Pipe/Format-timestamp";
+import { Modal } from "antd";
+import NotificationCustom from "../../../../_Shared/Components/Notification-custom/Notification-custom";
 
 const ListTeacher = () => {
   const [items, setItems] = useState([]);
@@ -21,6 +23,9 @@ const ListTeacher = () => {
   const [isUpdateTeacherModalOpen, setIsUpdateTeacherModalOpen] =
     useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false); // mở modal confirm xóa
+  const [notification, setNotification] = useState({ type: '', message: '', title: '' });
+
 
   const menuItems = [
     { key: "edit", label: "Chỉnh sửa", icon: icon_edit },
@@ -48,6 +53,7 @@ const ListTeacher = () => {
 
 
   const getItems = async () => {
+    setLoading(true);
     try {
       // const data = await getListClassToAttendance();
       const data = await ApiService('manager/user');
@@ -64,6 +70,16 @@ const ListTeacher = () => {
     getItems();  // Gọi API lấy dữ liệu khi component được render lần đầu
   }, []);
 
+  useEffect(() => {
+    if (notification.message) {
+      const timer = setTimeout(() => {
+        setNotification({ type: '', message: '', title: '' }); // Ẩn thông báo sau 3 giây
+      }, 3000);
+
+      return () => clearTimeout(timer); // Xóa bộ hẹn giờ khi component bị unmount hoặc message thay đổi
+    }
+  }, [notification]);  // Mỗi khi statusCode thay đổi, đoạn này sẽ chạy
+
   const openAddTeacherModal = () => setIsAddTeacherModalOpen(true);
   const closeAddTeacherModal = () => setIsAddTeacherModalOpen(false);
 
@@ -76,6 +92,37 @@ const ListTeacher = () => {
   const handleCallBackApi = () => {
     getItems();
   }
+
+  const showDeleteModal = (data) => {
+    if(data){
+      setSelectedItem(data);
+      setIsModalVisible(true);
+    }
+  };
+
+  const handleDelete = async (data) => {
+    setLoading(true)
+    try {
+      // Gọi API thêm dữ liệu
+      const response = await ApiService(`manager/user/delete/${data.userId}`, 'post');
+      // Nếu thành công
+      if (response) {
+        await getItems();
+        setNotification({ type: 'success', message: 'Xóa nhân viên thành công',title: 'Thành công' });
+      } else {
+        setNotification({ type: 'error', message: 'Xóa nhân viên không thành công',title: 'Lỗi xảy ra' });
+      }
+    } catch (error) {
+      setNotification({ type: 'error', message: 'Xóa nhân viên không thành công',title: 'Lỗi xảy ra' });
+    } finally {
+      setLoading(false);
+      setIsModalVisible(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
   return (
     <div>
       <Loading isLoading={loading} />
@@ -154,6 +201,7 @@ const ListTeacher = () => {
                     <ActionMenu
                       items={menuItems}
                       onMenuClick={(key) => handleMenuClick(key, item)}
+                      onDelete={() => showDeleteModal(item)}
                     />
                   </td>
                 </tr>
@@ -181,8 +229,23 @@ const ListTeacher = () => {
           isOpen={isUpdateTeacherModalOpen}
           onClose={closeUpdateTeacherModal}
           teacher={selectedItem}
+          reloadApi={handleCallBackApi}
         />
       )}
+
+      <Modal
+        title={<div style={{ color: 'red', textAlign: 'center' }}>Xóa dữ liệu - Nhân viên</div>} 
+        open={isModalVisible}
+        onOk={() => handleDelete(selectedItem)}
+        onCancel={handleCancel}
+        okText="Có"
+        cancelText="Không"
+        centered={true}
+      >
+        <hr className="mt-2 mb-3" />
+        <p>Bạn có chắc chắn muốn xóa nhân viên <span className="fw-700">{selectedItem?.userName} ({selectedItem?.userCode})</span> không?</p>
+      </Modal>
+      {notification.message && <NotificationCustom type={notification.type} message={notification.message} title={notification.title} />}
     </div>
   );
 };

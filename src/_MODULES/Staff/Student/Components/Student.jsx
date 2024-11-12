@@ -14,12 +14,15 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { ApiService } from "../../../../Services/ApiService";
 import Loading from "../../../../_Shared/Components/Loading/Loading";
+import genderDirective from "../../../../_Shared/Components/Gender/Gender";
+import studentStatusDirective from "../../../../_Shared/Components/Status/Student-status-directive";
 
 const Student = () => {
   // dịch đa ngôn ngữ
   const { t, i18n } = useTranslation();
   const navigate = useNavigate(); // Hook để điều hướng
   //modal 
+  const [data, setData] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false); // mở dal
   const [modalIsOpenAssignParent, setModalIsOpenAssignParent] = useState(false); // mở dal
   const [isEditMode, setIsEditMode] = useState(false); // mở modal edit
@@ -31,6 +34,34 @@ const Student = () => {
   const [listClasses, setListClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [notification, setNotification] = useState({ type: '', message: '' });
+
+  // danh sách
+  useEffect(() => {
+    // Gọi API khi component mount
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        let dataRequest = {
+          pageIndex: 1,
+          pageSize: 10,
+          keyWord: ''
+        }
+        const responseData = await ApiService(`manager/student?pageIndex=${dataRequest.pageIndex}&pageSize=${dataRequest.pageSize}&keyWord=${dataRequest.keyWord}`, 'GET');
+        if(responseData){
+          setData(responseData.data);
+        }
+        setTotalItems(responseData.data.total)
+      } catch (error) {
+        setLoading(true);
+        setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
     
   const openModal = (editMode = false, data = null) => {
     setIsEditMode(editMode);
@@ -73,7 +104,11 @@ const Student = () => {
     } else {
         setLoading(true);
         try {
-          const response = ApiService('manager/academicyear/add','post', data);
+          let formData = {
+            ...data,
+            gender: 1
+          }
+          const response = ApiService('manager/student/store','post', formData);
     
           if (response.success) {
             onSuccess();
@@ -109,22 +144,6 @@ const Student = () => {
   ];
 
   // Dữ liệu hiển thị 
-  const studentsInformation = [
-    {
-        id: 1,
-        studentName: 'Nguyễn Duy Kiên',
-        studentCode: "GV01",
-        studentClass: '6a1',
-        email: 'kiennd@gmail.com',
-        phone: '03680215485',
-        gender: 1,
-        schoolYear: "2024-2028",
-        status: 1,
-        parent: "Duy Khánh",
-        address: "Hà Nội"
-    },
-    // Thêm nhiều dữ liệu hơn ở đây
-  ];
 
   const getItems = async () => {
     setLoading(true);
@@ -212,7 +231,7 @@ const Student = () => {
                         <tr>
                             <th className="w-5 text-center">{t('STT')}</th>
                             <th><span className="ps-10">Thông tin học sinh</span></th>
-                            <th className="text-center">Liên hệ</th>
+                            <th className="text-center">Lớp học</th>
                             <th className="text-center w-10">Giới tính</th>
                             <th className="text-center">Niên khóa</th>
                             <th className="w-15 text-center">{t('status')}</th>
@@ -221,22 +240,20 @@ const Student = () => {
                         </tr>
                     </thead>
                     <tbody>
-                      {studentsInformation.map((item, index) => (
+                      {data?.map((item, index) => (
                         <tr className="align-middle" key={item.id}>
                             <td className="text-center">{index + 1}</td>
                             <td>
-                                <span className="fw-700">{item.studentName}</span><br />
-                                <span className="fw-700">Mã: {item.studentCode}</span> <br/>
-                                <span className="fw-700">Lớp: {item.studentClass}</span>
+                                <span className="fw-700">{item.fullname}</span><br />
+                                <span className="fw-700">Mã: {item.student_code}</span> <br/>
                             </td>
                             <td>
-                              <span>{item.email}</span><br/>
-                              <span>SĐT: {item.phone}</span>
+                            <span className="fw-700">Lớp: {item.class_name ? item.class_name : 'Chưa gán lớp'}</span>
                             </td>
-                            <td className="text-center">{item.gender}</td>
-                            <td className="text-center">{item.schoolYear}</td>
-                            <td className="text-center">{item.status}</td>
-                            <td className="text-center">{item.parent}</td>
+                            <td className="text-center">{genderDirective(item.gender)}</td>
+                            <td className="text-center fw-700">{item.academic_year_name}</td>
+                            <td className="text-center">{studentStatusDirective(item.status)}</td>
+                            <td className="text-center fw-700">{item.parent}</td>
                             <td className="text-center">
                                 <ActionMenu
                                     items={menuItems}
@@ -261,16 +278,16 @@ const Student = () => {
             {/* Tên học sinh */}
             <div className="col-12 col-md-6 mb-3">
               <label>Tên học sinh:</label>
-              <input type="text" className={`form-control ${errors.studentName ? 'is-invalid' : ''}`} {...register("studentName", { required: "Tên học sinh là bắt buộc" })} placeholder="Tên học sinh..." />
-              {errors.studentName && <div className="invalid-feedback">{errors.studentName.message}</div>}
+              <input type="text" className={`form-control ${errors.fullname ? 'is-invalid' : ''}`} {...register("fullname", { required: "Tên học sinh là bắt buộc" })} placeholder="Tên học sinh..." />
+              {errors.fullname && <div className="invalid-feedback">{errors.fullname.message}</div>}
             </div>
 
             {/* Số điện thoại */}
-            <div className="col-12 col-md-6 mb-3">
+            {/* <div className="col-12 col-md-6 mb-3">
               <label>Số điện thoại:</label>
               <input type="text" className={`form-control ${errors.phone ? 'is-invalid' : ''}`} {...register("phone")} placeholder="Số điện thoại..." />
               {errors.phone && <div className="invalid-feedback">{errors.phone.message}</div>}
-            </div>
+            </div> */}
 
             {/* Trạng thái */}
             <div className="col-12 col-md-6 mb-3">
@@ -286,7 +303,7 @@ const Student = () => {
             {/* Lớp học */}
             <div className="col-12 col-md-6 mb-3">
               <label>Lớp học:</label>
-              <select className={`form-control ${errors.class ? 'is-invalid' : ''}`} {...register("class")}>
+              <select className={`form-control ${errors.class_id ? 'is-invalid' : ''}`} {...register("class_id")}>
                 <option value="">Chọn lớp</option>
                 {listClasses.map((item,index) => (
                   <option key={index} value={item.id}>{item.name}</option>
