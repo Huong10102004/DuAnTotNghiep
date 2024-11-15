@@ -86,3 +86,7 @@
     width: 100%; /* Chiều rộng toàn bộ */
     background-color: rgba(0, 0, 0, 0.5); /* Màu nền nếu cần, có thể dùng để đổ bóng */
   }
+
+  .text-left{
+    text-align: left !important;
+  }

@@ -2,33 +2,44 @@ import React, { useEffect, useState } from "react";
 import PaginationAntd from "../../../../_Shared/Components/Pagination/Pagination";
 import { getListClassToAttendance } from "../../../../Services/Attendance/attendance";
 import { Link } from "react-router-dom";
+import { ApiService } from "../../../../Services/ApiService";
+import Loading from "../../../../_Shared/Components/Loading/Loading";
 
 const HistoryDetailClassAttendance = () => {
-    // const [items, setItems] = useState([]);
-    // const [loading, setLoading] = useState(true);
-    // const [error, setError] = useState(null);
+    const [listData, setListData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // useEffect(() => {
-    //     const getItems = async () => {
-    //     try {
-    //         const data = await getListClassToAttendance(); 
-    //         console.log(data);
-    //         setItems(data);
-    //     } catch (err) {
-    //         setError(err.message);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    //     };
-
-    //     getItems();
-    // }, []);
-
-    // if (loading) return <div>Loading...</div>;
-    // if (error) return <div>{error}</div>;
+    useEffect(() => {
+        getItems();
+    },[])
+    
+    const getItems = async () => {
+        setLoading(true);
+        try {
+            let dataRequest = {
+            school_year_id: localStorage.getItem('schoolYearCurrent') ?? '',
+            page: 1,
+            size: 10,
+            search: ''
+            }
+            const responseData = await ApiService(`manager/rollcallhistory/showclass/2`, 'GET');
+            if(responseData){
+            setListData(responseData?.data)
+            }
+            console.log(responseData?.data);
+        } catch (error) {
+            setLoading(true);
+            setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
+        } finally {
+            setLoading(false);
+        }
+    };
+    
   return (
     <div>
       {/* <header className="h-[100px] w-full"></header> */}
+      <Loading isLoading={loading} />
       <div className="pt-6rem bg-white h-100vh px-4">
             <h1 className="fs-16">Lịch sử điểm danh lớp 6a1</h1>
             <p className="mt-2">Task/subtitle/subtitle</p>
@@ -37,7 +48,7 @@ const HistoryDetailClassAttendance = () => {
                 <p>Từ ngày: <span className="text-color-orange">10/09/2024 - 19/09/2024</span></p>
                 <div className="d-flex">
                     <button className="bg-color-white-smoke border-radius-5px px-3 me-3">Chọn ngày</button>
-                    <input placeholder="Tìm kiếm...." class={`bg-color-white-smoke px-3 py-2 border-radius-10px w-300px`}/>
+                    <input placeholder="Tìm kiếm...." className={`bg-color-white-smoke px-3 py-2 border-radius-10px w-300px`}/>
                 </div>
             </div>
 
@@ -53,90 +64,22 @@ const HistoryDetailClassAttendance = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Thứ 2, Ngày 9/9/2024</td>
-                            <td>
-                                <span>Nguyễn Duy Kiên</span><br />
-                                <span>kiennd@gmail.com</span>
-                            </td>
-                            <td className="text-center">
-                                48/50
-                            </td>
-                            <td className="text-center">
-                                <Link to={`/staff/history_attendance/detail/attendance/`+1231231}><span>Xem chi tiết</span></Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>1</td>
-                            <td>Thứ 2, Ngày 9/9/2024</td>
-                            <td>
-                                <span>Nguyễn Duy Kiên</span><br />
-                                <span>kiennd@gmail.com</span>
-                            </td>
-                            <td className="text-center">
-                                48/50
-                            </td>
-                            <td className="text-center">
-                                <Link to={`/staff/history_attendance/detail/attendance/`+1231231}><span>Xem chi tiết</span></Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>1</td>
-                            <td>Thứ 2, Ngày 9/9/2024</td>
-                            <td>
-                                <span>Nguyễn Duy Kiên</span><br />
-                                <span>kiennd@gmail.com</span>
-                            </td>
-                            <td className="text-center">
-                                48/50
-                            </td>
-                            <td className="text-center">
-                                <Link to={`/staff/history_attendance/detail/attendance/`+1231231}><span>Xem chi tiết</span></Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>1</td>
-                            <td>Thứ 2, Ngày 9/9/2024</td>
-                            <td>
-                                <span>Nguyễn Duy Kiên</span><br />
-                                <span>kiennd@gmail.com</span>
-                            </td>
-                            <td className="text-center">
-                                48/50
-                            </td>
-                            <td className="text-center">
-                                <Link to={`/staff/history_attendance/detail/attendance/`+1231231}><span>Xem chi tiết</span></Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>1</td>
-                            <td>Thứ 2, Ngày 9/9/2024</td>
-                            <td>
-                                <span>Nguyễn Duy Kiên</span><br />
-                                <span>kiennd@gmail.com</span>
-                            </td>
-                            <td className="text-center">
-                                48/50
-                            </td>
-                            <td className="text-center">
-                                <Link to={`/staff/history_attendance/detail/attendance/`+1231231}><span>Xem chi tiết</span></Link>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>1</td>
-                            <td>Thứ 2, Ngày 9/9/2024</td>
-                            <td>
-                                <span>Nguyễn Duy Kiên</span><br />
-                                <span>kiennd@gmail.com</span>
-                            </td>
-                            <td className="text-center">
-                                48/50
-                            </td>
-                            <td className="text-center">
-                                <Link to={`/staff/history_attendance/detail/attendance/`+1231231}><span>Xem chi tiết</span></Link>
-                            </td>
-                        </tr>
+                        {listData.map((item,index) => (
+                            <tr key={index}>
+                                <td>{index}</td>
+                                <td>{item.date}</td>
+                                <td>
+                                    <span>{item.teacherHomeRoomName}</span><br />
+                                    <span>{item.teacherHomeRoomGmail}</span>
+                                </td>
+                                <td className="text-center">
+                                    {item.total_Studente_Attendenced}/50
+                                </td>
+                                <td className="text-center">
+                                    <Link to={`/staff/history_attendance/detail/attendance/`+ item.class_id}><span>Xem chi tiết</span></Link>
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>

@@ -1,12 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css"; // CSS của react-datepicker
+import Loading from "../../../../_Shared/Components/Loading/Loading";
+import NotificationCustom from "../../../../_Shared/Components/Notification-custom/Notification-custom";
+import { ApiService } from "../../../../Services/ApiService";
+import statusAttendanceDirective from "../../../../_Shared/Components/Status/Status-attendance-directive";
+import { Link } from "react-router-dom";
 
 const Attendance: React.FC = () => {
+  const [loading, setLoading] = useState(false);
+  const [notification, setNotification] = useState({ type: '', message: '', title: '' });
   const [selectedDays, setSelectedDays] = useState<Date | null>(null); // Chọn ngày
   const [selectedGrades, setSelectedGrades] = useState<string[]>([]);
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [listData, setListData] = useState([]);
   const onChange = (dates) => {
     const [start, end] = dates;
     setStartDate(start);
@@ -55,8 +63,36 @@ const Attendance: React.FC = () => {
     console.log("Các khối lớp đã chọn:", selectedGrades);
     console.log("Trạng thái điểm danh:", attendanceData);
   };
+
+  useEffect(() => {
+    getItems();
+  },[])
+
+  const getItems = async () => {
+    setLoading(true);
+    try {
+      let dataRequest = {
+        school_year_id: localStorage.getItem('schoolYearCurrent') ?? '',
+        page: 1,
+        size: 10,
+        search: ''
+      }
+      const responseData = await ApiService(`manager/rollcall`, 'GET');
+      if(responseData){
+        setListData(responseData?.data?.data);
+      }
+      console.log(responseData?.data?.data);
+    } catch (error) {
+      setLoading(true);
+      setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div>
+      <Loading isLoading={loading} />
       <div className="pt-6rem h-100vh flex flex-row bg-white">
         <div className="w-[100%]">
           <h1 className="mb-3 text-3xl font-bold text-[#4154F1]">Điểm danh</h1>
@@ -154,69 +190,73 @@ const Attendance: React.FC = () => {
                     fill="none"
                     viewBox="0 0 20 20"
                   >
-                    <path
+                    {/* <path
                       stroke="currentColor"
                       stroke-linecap="round"
                       stroke-linejoin="round"
                       stroke-width="2"
                       d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                    />
+                    /> */}
                   </svg>
                 </button>
               </div>
             </div>
-
-            {/* Bảng điểm danh */}
-            <div className="mt-5 overflow-x-auto">
+          </div>
+           {/* Bảng điểm danh */}
+           <div className="mt-5 overflow-x-auto">
               <table className="min-w-full border-collapse border border-gray-300">
                 <thead>
-                  <tr className="bg-blue-500 text-white">
-                    <th className="border border-gray-300 p-2">STT</th>
-                    <th className="border border-gray-300 p-2">
-                      Thông tin lớp
-                    </th>
-                    <th className="border border-gray-300 p-2">
-                      Ngày điểm danh
-                    </th>
-                    <th className="border border-gray-300 p-2">
-                      Giáo viên chủ nhiệm
-                    </th>
-                    <th className="border border-gray-300 p-2">Trạng thái</th>
-                    <th className="border border-gray-300 p-2">Có mặt</th>
-                    <th className="border border-gray-300 p-2">Điểm danh</th>
-                  </tr>
+                    <tr className="bg-blue-500 text-white">
+                      <th className="border border-gray-300 p-2">STT</th>
+                      <th className="border border-gray-300 p-2">
+                        Thông tin lớp
+                      </th>
+                      <th className="border border-gray-300 p-2">
+                        Ngày điểm danh
+                      </th>
+                      <th className="border border-gray-300 p-2">
+                        Giáo viên chủ nhiệm
+                      </th>
+                      <th className="border border-gray-300 p-2">Trạng thái</th>
+                      <th className="border border-gray-300 p-2">Có mặt</th>
+                      <th className="border border-gray-300 p-2">Điểm danh</th>
+                    </tr>
                 </thead>
                 <tbody>
-                  <tr className="bg-white text-center">
-                    <td className="border border-gray-300 p-2">1</td>
-                    <td className="border border-gray-300 p-2">
-                      <div>Tên lớp: 6A13</div>
-                      <div>Khối: 6</div>
-                      <div>Số lượng học sinh: 48</div>
+                  {listData.map((item,index) => (
+                    <tr className="bg-white text-center" key={index}>
+                    <td className="border border-gray-300 p-2">{index}</td>
+                    <td className="border border-gray-300 p-2 text-left">
+                      <div>{item.className}</div>
+                      <div>{item.grade}</div>
+                      <div>Số lượng học sinh: {item.studentAttendanced}</div>
                     </td>
                     <td className="border border-gray-300 p-2">
                       Thứ 2, Ngày 9/9/2024
                     </td>
                     <td className="border border-gray-300 p-2">
-                      Nguyễn Duy Kiên
+                      {item.fullname}
                       <br />
-                      <span className="text-gray-500">ndkdzl@gmail.com</span>
+                      <span className="text-gray-500">{item.email}</span>
                     </td>
                     <td className="border border-gray-300 p-2">
                       <span className="font-bold text-green-600">
-                        Đã điểm danh
+                        {statusAttendanceDirective(item.status)}
                       </span>
                       <br />
-                      Bởi: Nguyễn Duy Khánh
+                      Bởi: {item.attendanceBy} <br/>
+                      Lúc: {item.attendanceAt}
                     </td>
-                    <td className="border border-gray-300 p-2">48 / 50</td>
+                    <td className="border border-gray-300 p-2">{item.studentAttendanced} / {item.totalStudent}</td>
                     <td className="border border-gray-300 p-2">
+                    <Link to={"/staff/attendance/" + item.classId}>
                       <button className="rounded bg-green-500 px-3 py-1 text-white">
                         Điểm danh
                       </button>
+                      </Link>
                     </td>
                   </tr>
-                  {/* Các hàng khác */}
+                  ))}
                 </tbody>
               </table>
 
@@ -225,9 +265,9 @@ const Attendance: React.FC = () => {
                 {/* <Pagination></Pagination> */}
               </div>
             </div>
-          </div>
         </div>
       </div>
+      {notification.message && <NotificationCustom type={notification.type} message={notification.message} title={notification.title} />}
     </div>
   );
 };

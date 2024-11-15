@@ -21,6 +21,7 @@ import Login from "./_MODULES/Auth/login";
 import Listyear from "./_MODULES/Staff/ListSubject/Components/listyear";
 import DatePickerComponent from "./_Shared/Components/Date-picker/Date-picker";
 import ListTeacher from "./_MODULES/Staff/ListSubject/Components/list_teachers";
+import Attendancebyclass from "./_MODULES/Staff/Attendance/Components/attendancebyclass";
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -53,6 +54,7 @@ export default function App() {
         <Route element={<LayoutWithSidebar />}>
           {/* attendance */}
           <Route path="/staff/attendance" element={<Attendance />} />
+          <Route path="/staff/attendance/:id" element={<Attendancebyclass />} />
           <Route path="/staff/history_attendance" element={<HistoryAttendance />} />
           <Route path="/staff/history_attendance/detail/:id" element={<HistoryDetailClassAttendance />} />
           <Route path="/staff/history_attendance/detail/attendance/:id" element={<HistoryDetailAttendanceOneClass />} />

@@ -1,8 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { ApiService } from "../../../../Services/ApiService";
+import Loading from "../../../../_Shared/Components/Loading/Loading";
 
 const Attendancebyclass = () => {
+  const [loading, setLoading] = useState(false);
+  const [notification, setNotification] = useState({ type: '', message: '', title: '' });
+  const [listData, setListData] = useState([]);
+  useEffect(() => {
+    getItems();
+  },[])
+
+  const getItems = async () => {
+    setLoading(true);
+    try {
+      let dataRequest = {
+        // rollCallData: [
+        //   {
+        //     studentId: 1,
+        //     status: 1,
+        //     note: "hihi"
+        //   }
+        // ]
+      }
+      const responseData = await ApiService(`manager/rollcall/attendaced/student/1`, 'POST', dataRequest);
+      if(responseData){
+        setListData(responseData?.data?.data);
+      }
+      console.log(responseData?.data?.data);
+    } catch (error) {
+      setLoading(true);
+      setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="flex flex-row">
+      <Loading isLoading={loading} />
       <div className="w-[100%]">
         {/* <div className="mb-[40px] h-[110px] w-full bg-[#0078FF]">
       <ul className="flex h-full w-full items-center justify-around">
