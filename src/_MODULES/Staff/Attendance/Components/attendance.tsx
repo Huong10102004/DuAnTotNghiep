@@ -4,8 +4,8 @@ import "react-datepicker/dist/react-datepicker.css"; // CSS của react-datepick
 import Loading from "../../../../_Shared/Components/Loading/Loading";
 import NotificationCustom from "../../../../_Shared/Components/Notification-custom/Notification-custom";
 import { ApiService } from "../../../../Services/ApiService";
-import statusAttendanceDirective from "../../../../_Shared/Components/Status/Status-attendance-directive";
 import { Link } from "react-router-dom";
+import statusAttendanceDirective from "../../../../_Shared/Directive/Status-attendance-directive";
 
 const Attendance: React.FC = () => {
   const [loading, setLoading] = useState(false);

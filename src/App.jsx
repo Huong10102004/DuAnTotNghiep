@@ -11,7 +11,6 @@ import HistoryAttendance from "/src/_MODULES/Staff/History_attendance/Components
 import HistoryDetailClassAttendance from "./_MODULES/Staff/History_attendance/Components/history-detail-class-attendance";
 import HistoryDetailAttendanceOneClass from "./_MODULES/Staff/History_attendance/Components/history-detail-attendance-one-class";
 import SchoolYear from "./_MODULES/Staff/Schol-year/Components/school-year";
-import ClassStaff from "./_MODULES/Staff/Class-staff/components/Class-staff";
 import ClassAssignStudent from "./_MODULES/Staff/Class-staff/Components/Class-assign-student";
 import Student from "./_MODULES/Staff/Student/Components/Student";
 import StudentDetail from "./_MODULES/Staff/Student/Components/Student-detail";
@@ -22,6 +21,7 @@ import Listyear from "./_MODULES/Staff/ListSubject/Components/listyear";
 import DatePickerComponent from "./_Shared/Components/Date-picker/Date-picker";
 import ListTeacher from "./_MODULES/Staff/ListSubject/Components/list_teachers";
 import Attendancebyclass from "./_MODULES/Staff/Attendance/Components/attendancebyclass";
+import ClassStaff from "./_MODULES/Staff/Class-staff/Components/Class-staff";
 
 export default function App() {
   const { t, i18n } = useTranslation();

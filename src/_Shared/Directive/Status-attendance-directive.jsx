@@ -1,9 +1,8 @@
 import React from 'react';
-import { STATUS_CLASS_ATTENDANCE_ENUM } from '../../Enum/status-class-attendance';
+import { STATUS_CLASS_ATTENDANCE_ENUM } from '../Enum/status-class-attendance';
 
 const statusAttendanceDirective = ({ status }) => {
   // Định nghĩa màu sắc theo status
-  console.log(status)
   let statusLabel = "";
   const getStatusColor = (status) => {
     switch (status) {

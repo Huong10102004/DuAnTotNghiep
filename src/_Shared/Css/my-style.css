@@ -90,3 +90,11 @@
   .text-left{
     text-align: left !important;
   }
+
+  .w-100vw{
+    width: 100vw !important;
+  }
+
+  .btn-icon-css{
+    width: 26px !important;
+  }

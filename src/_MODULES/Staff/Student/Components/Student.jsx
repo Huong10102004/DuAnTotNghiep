@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { ApiService } from "../../../../Services/ApiService";
 import Loading from "../../../../_Shared/Components/Loading/Loading";
 import genderDirective from "../../../../_Shared/Components/Gender/Gender";
-import studentStatusDirective from "../../../../_Shared/Components/Status/Student-status-directive";
+import studentStatusDirective from "../../../../_Shared/Directive/Student-status-directive";
 
 const Student = () => {
   // dịch đa ngôn ngữ

@@ -1,11 +1,10 @@
 import React from 'react';
-import { STATUS_STUDENT_STUDY_ENUM } from '../../Enum/status-student-study.enum';
+import { STATUS_STUDENT_STUDY_ENUM } from '../Enum/status-student-study.enum';
 
 const studentStatusDirective = ({ status }) => {
   // Định nghĩa màu sắc theo status
   let statusLabel = "";
   const getStatusColor = (status) => {
-    console.log(status);
     switch (status) {
       case STATUS_STUDENT_STUDY_ENUM.LEAVE_SCHOOL:
         statusLabel = STATUS_STUDENT_STUDY_ENUM.LEAVE_SCHOOL_LABEL
