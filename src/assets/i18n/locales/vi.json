@@ -78,5 +78,20 @@
   "confirmRemoveTeacher": "Bạn có chắc chắn muốn xóa công nhân viên chức",
   "no": "không",
   "contact": "Liên hệ",
-  "yes": "Có"
+  "yes": "Có",
+  "editStudent": "Chỉnh sửa thông tin học sinh",
+  "addStudent": "Thêm học sinh mới",
+  "studentName": "Tên học sinh",
+  "studentNameRequired": "Tên học sinh bắt buộc nhập",
+  "studentNamePlaceholder": "Tên học sinh",
+  "gender": "Giới tính",
+  "genderRequired": "Giới tính bắt buộc chọn",
+  "genderChoose": "Chọn giới tính",
+  "statusRequired": "Trạng thái bắt buộc chọn",
+  "statusChoose": "Chọn trạng thái",
+  "classChoose": "Chọn lớp",
+  "removeAcademic": "Xóa dữ liệu - niên khóa",
+  "address": "Địa chỉ",
+  "save": "Lưu",
+  "dob": "Ngày sinh"
 }

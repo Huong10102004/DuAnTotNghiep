@@ -78,5 +78,20 @@
   "confirmRemoveTeacher": "Are you sure you want to remove this teacher?",
   "no": "No",
   "contact": "Contact",
-  "yes": "Yes"
+  "yes": "Yes",
+  "editStudent": "Edit Student Information",
+  "addStudent": "Add New Student",
+  "studentName": "Student Name",
+  "studentNameRequired": "Student name is required",
+  "studentNamePlaceholder": "Enter student name",
+  "gender": "Gender",
+  "genderRequired": "Gender is required",
+  "genderChoose": "Select gender",
+  "statusRequired": "Status is required",
+  "statusChoose": "Select status",
+  "classChoose": "Select class",
+  "removeAcademic": "Delete Data - Academic Year",
+  "address": "Address",
+  "save": "Save",
+  "dob": "Date of birth"
 }

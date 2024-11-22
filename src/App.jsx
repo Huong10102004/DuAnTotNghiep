@@ -3,9 +3,7 @@ import "./App.css";
 import Sidebar from "./layouts/layout_staff/Sidebar/Sidebar";
 import { useTranslation } from "react-i18next";
 import "./assets/i18n/i18n"; // Import cấu hình i18n
-// import Attendance from "./_MODULES/Staff/Attendance/Components/attendance";
 import Attendance from "./_MODULES/Staff/Attendance/Components/attendance";
-// import { Routes } from "react-router-dom";
 import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
 import HistoryAttendance from "/src/_MODULES/Staff/History_attendance/Components/history_attendance";
 import HistoryDetailClassAttendance from "./_MODULES/Staff/History_attendance/Components/history-detail-class-attendance";
@@ -18,15 +16,21 @@ import Parent from "./_MODULES/Staff/Parent/Components/Parent";
 import ParentDetail from "./_MODULES/Staff/Parent/Components/Parent-detail";
 import Login from "./_MODULES/Auth/login";
 import Listyear from "./_MODULES/Staff/ListSubject/Components/listyear";
-import DatePickerComponent from "./_Shared/Components/Date-picker/Date-picker";
 import ListTeacher from "./_MODULES/Staff/ListSubject/Components/list_teachers";
 import Attendancebyclass from "./_MODULES/Staff/Attendance/Components/attendancebyclass";
 import ClassStaff from "./_MODULES/Staff/Class-staff/Components/Class-staff";
+import TestFirebase from './Firebase/Test-firebase'
+import { useEffect } from "react";
+import { generateToken, messaging } from "./Noticaitions/firebase";
+import { onMessage } from "firebase/messaging";
 
 export default function App() {
   const { t, i18n } = useTranslation();
   const isLoginPage = location.pathname === "/login";
-
+  useEffect(() => {
+    generateToken();
+    onMessage(messaging)
+  }, [])
    // Layout dùng cho các trang có sidebar, header, footer
    const LayoutWithSidebar = () => (
     <>
@@ -79,6 +83,7 @@ export default function App() {
 
           {/*  */}
           <Route path="/staff/year" element={<Listyear />} />
+          <Route path="/test" element={<TestFirebase />} />
           
         </Route>
         )}

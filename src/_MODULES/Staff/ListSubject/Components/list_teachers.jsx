@@ -37,7 +37,7 @@ const ListTeacher = () => {
 
   const menuItems = [
     { key: "edit", label: t("edit"), icon: icon_edit },
-    { key: "delete", label: t("remove"), icon: icon_delete },
+    { key: "delete", label: t("delete"), icon: icon_delete },
     {
       key: "assign_teacher",
       label: t("assignTeacher"),

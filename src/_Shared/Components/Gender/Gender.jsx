@@ -1,11 +1,10 @@
 import React from 'react';
 import { GENDER_ENUM } from '../../Enum/gender.enum';
 
-const genderDirective = ({ status }) => {
+const genderDirective = (status) => {
   // Định nghĩa màu sắc theo status
   let statusLabel = "";
   const getStatusColor = (status) => {
-    console.log(status);
     switch (status) {
       case GENDER_ENUM.NAM:
         statusLabel = GENDER_ENUM.NAM_LABEL

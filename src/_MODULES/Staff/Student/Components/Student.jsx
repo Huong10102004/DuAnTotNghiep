@@ -3,7 +3,6 @@ import PaginationAntd from "../../../../_Shared/Components/Pagination/Pagination
 import export_file from "../../../../assets/images/svg/export_file.svg"
 import icon_plus from "../../../../assets/images/svg/icon_plus.svg"
 import icon_edit from "../../../../assets/images/svg/icon_edit.svg"
-import icon_delete from "../../../../assets/images/svg/icon_delete.svg"
 import icon_eye from "../../../../assets/images/svg/icon_eye.svg"
 import icon_assign_student from "../../../../assets/images/svg/icon_assign_teacher.svg"
 import ModalReuse from "../../../../_Shared/Components/Modal-reuse/Modal-reuse";
@@ -16,6 +15,10 @@ import { ApiService } from "../../../../Services/ApiService";
 import Loading from "../../../../_Shared/Components/Loading/Loading";
 import genderDirective from "../../../../_Shared/Components/Gender/Gender";
 import studentStatusDirective from "../../../../_Shared/Directive/Student-status-directive";
+import { GENDER_ENUM } from "../../../../_Shared/Enum/gender.enum";
+import NotificationCustom from "../../../../_Shared/Components/Notification-custom/Notification-custom";
+import { STATUS_STUDENT_STUDY_ENUM } from "../../../../_Shared/Enum/status-student-study.enum";
+import { formatTimestamp } from "../../../../_Shared/Pipe/Format-timestamp";
 
 const Student = () => {
   // dịch đa ngôn ngữ
@@ -29,7 +32,7 @@ const Student = () => {
   const [currentData, setCurrentData] = useState(null); // dữ liệu truyền vào edit
   const [isModalVisible, setIsModalVisible] = useState(false); // mở modal confirm xóa
   // Sử dụng react-hook-form
-  const { register, handleSubmit, formState: { errors }, watch, trigger,reset } = useForm({mode: "onChange"});
+  const { register, handleSubmit, formState: { errors }, watch, trigger,reset , setValue} = useForm({mode: "onChange"});
   const [items, setItems] = useState([]);
   const [listClasses, setListClasses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,9 +54,9 @@ const Student = () => {
         if(responseData){
           setData(responseData.data);
         }
-        setTotalItems(responseData.data.total)
       } catch (error) {
         setLoading(true);
+        console.log(error);
         setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
       } finally {
         setLoading(false);
@@ -68,18 +71,12 @@ const Student = () => {
     setModalIsOpen(true); 
     if (editMode && data) {
       setCurrentData(data);
-      reset({
-        studentName: data.studentName,
-        studentCode: data.studentCode,
-        studentClass: data.studentClass,
-        email: data.email,
-        phone: data.phone,
-        gender: data.gender,
-        schoolYear: data.schoolYear,
-        status: data.status,
-        parent: data.parent,
-        address: data.address
-      });
+      setValue("fullname", data?.fullname || ''); 
+      setValue("gender", data?.gender || ''); 
+      setValue("userDob", formatTimestamp(data?.userDob, 'yyyy-MM-dd') || ''); 
+      setValue("address", data?.address || ''); 
+      setValue("status", data?.status || '');
+      setValue("class_id", data?.class_id || '');
     }else{
       reset();
     }
@@ -99,29 +96,45 @@ const Student = () => {
     setModalIsOpenAssignParent(false);
   }
   
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     if (isEditMode) {
+      setLoading(true);
+      try {
+        // Gọi API thêm dữ liệu
+        const response = ApiService(`manager/student/update/${currentData?.id}`,'post', data);
+
+        // Nếu thành công
+        if (response) {
+          await getItems();
+          closeModal();
+          setNotification({ type: 'success', message: 'Cập nhật học sinh thành công',title: 'Thành công' });
+        }
+      } catch (error) {
+        console.log(error);
+        setNotification({ type: 'error', message: 'Cập nhật học sinh thất bại',title: 'Lỗi xảy ra' });
+      } finally {
+        setLoading(false);
+      }
     } else {
         setLoading(true);
+
         try {
-          let formData = {
-            ...data,
-            gender: 1
+          // Gọi API thêm dữ liệu
+          const response = ApiService('manager/student/store','post', data);
+
+          // Nếu thành công
+          if (response) {
+            await getItems();
+            closeModal();
+            setNotification({ type: 'success', message: 'Thêm học sinh thành công',title: 'Thành công' });
           }
-          const response = ApiService('manager/student/store','post', formData);
-    
-          if (response.success) {
-            onSuccess();
-          } else {
-            setError("Đã có lỗi xảy ra.");
-          }
-        } catch (err) {
-          setError(err.message);
+        } catch (error) {
+          console.log(error);
+          setNotification({ type: 'error', message: 'Thêm học sinh thất bại',title: 'Lỗi xảy ra' });
         } finally {
           setLoading(false);
         }
     }
-    closeModal();
   };
 
   // Hàm click thao tác 
@@ -148,7 +161,8 @@ const Student = () => {
   const getItems = async () => {
     setLoading(true);
     try {
-      const data = await ApiService('manager/student');  
+      const data = await ApiService('manager/student'); 
+      console.log(data);
       setItems(Array.isArray(data.data) ? data.data : []);
     } catch (err) {
       setError(err.message);
@@ -208,6 +222,25 @@ const Student = () => {
         <p>Lớp: 6a1 - K18.3</p>
     </div>
   }
+
+  useEffect(() => {
+    if (notification.message) {
+      const timer = setTimeout(() => {
+        setNotification({ type: '', message: '', title: '' });
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
+
+  // useEffect(() => {
+  //   setValue("fullname", currentData?.fullname || ''); 
+  //   setValue("gender", currentData?.gender || ''); 
+  //   setValue("userDob", formatTimestamp(currentData?.userDob, 'yyyy-MM-dd') || ''); 
+  //   setValue("address", currentData?.address || ''); 
+  //   setValue("status", currentData?.status || '');
+  //   setValue("class_id", currentData?.class_id || '');
+  // }, [currentData])
   return (
     <div>
       <Loading isLoading={loading} />
@@ -272,39 +305,42 @@ const Student = () => {
       </div>
 
       {/* modal  */}
-      <ModalReuse isOpen={modalIsOpen} onClose={closeModal} title={isEditMode ? "Chỉnh sửa thông tin học sinh" : "Thêm học sinh mới"} width="80%">
+      <ModalReuse isOpen={modalIsOpen} onClose={closeModal} title={isEditMode ? t('editStudent') : t('addStudent')} width="80%">
       <form onSubmit={handleSubmit(onSubmit)}>
           <div className="row">
             {/* Tên học sinh */}
             <div className="col-12 col-md-6 mb-3">
-              <label>Tên học sinh:</label>
-              <input type="text" className={`form-control ${errors.fullname ? 'is-invalid' : ''}`} {...register("fullname", { required: "Tên học sinh là bắt buộc" })} placeholder="Tên học sinh..." />
+              <label>{t('studentName')}<span class="text-color-red-bold">*</span></label>
+              <input type="text" className={`form-control ${errors.fullname ? 'is-invalid' : ''}`} {...register("fullname", { required: t('studentNameRequired') })} placeholder={t('studentNamePlaceholder')} />
               {errors.fullname && <div className="invalid-feedback">{errors.fullname.message}</div>}
             </div>
 
-            {/* Số điện thoại */}
-            {/* <div className="col-12 col-md-6 mb-3">
-              <label>Số điện thoại:</label>
-              <input type="text" className={`form-control ${errors.phone ? 'is-invalid' : ''}`} {...register("phone")} placeholder="Số điện thoại..." />
-              {errors.phone && <div className="invalid-feedback">{errors.phone.message}</div>}
-            </div> */}
+            <div className="col-12 col-md-6 mb-3">
+              <label>{t('gender')}<span class="text-color-red-bold">*</span></label>
+              <select className={`form-control ${errors.gender ? 'is-invalid' : ''}`} {...register("gender", { required: t('genderRequired') })}>
+                <option value="">{t('genderChoose')}</option>
+                <option value={GENDER_ENUM.NAM}>{GENDER_ENUM.NAM_LABEL}</option>
+                <option value={GENDER_ENUM.WOMAN}>{GENDER_ENUM.WOMAN_LABEL}</option>
+              </select>
+              {errors.gender && <div className="invalid-feedback">{errors.gender.message}</div>}
+            </div>
 
             {/* Trạng thái */}
             <div className="col-12 col-md-6 mb-3">
-              <label>Trạng thái:</label>
-              <select className={`form-control ${errors.status ? 'is-invalid' : ''}`} {...register("status", { required: "Trạng thái là bắt buộc" })}>
-                <option value="">Chọn trạng thái</option>
-                <option value="0">Đang học</option>
-                <option value="1">Nghỉ học</option>
+              <label>{t('status')}<span class="text-color-red-bold">*</span></label>
+              <select className={`form-control ${errors.status ? 'is-invalid' : ''}`} {...register("status", { required: t('statusRequired') })}>
+                <option value="">{t('statusChoose')}</option>
+                <option value={STATUS_STUDENT_STUDY_ENUM.LEAVE_SCHOOL}>{STATUS_STUDENT_STUDY_ENUM.LEAVE_SCHOOL_LABEL}</option>
+                <option value={STATUS_STUDENT_STUDY_ENUM.STUDYING}>{STATUS_STUDENT_STUDY_ENUM.STUDYING_LABEL}</option>
               </select>
               {errors.status && <div className="invalid-feedback">{errors.status.message}</div>}
             </div>
 
             {/* Lớp học */}
             <div className="col-12 col-md-6 mb-3">
-              <label>Lớp học:</label>
+              <label>{t('class')}:</label>
               <select className={`form-control ${errors.class_id ? 'is-invalid' : ''}`} {...register("class_id")}>
-                <option value="">Chọn lớp</option>
+                <option value="">{t('classChoose')}</option>
                 {listClasses.map((item,index) => (
                   <option key={index} value={item.id}>{item.name}</option>
                 ))}
@@ -313,20 +349,20 @@ const Student = () => {
 
             {/* Ngày sinh */}
             <div className="col-12 col-md-6 mb-3">
-              <label>Ngày sinh:</label>
+              <label>{t('dob')}:</label>
               <input type="date" className={`form-control ${errors.dob ? 'is-invalid' : ''}`} {...register("dob")}/>
             </div>
 
             {/* Địa chỉ */}
             <div className="col-12 col-md-6 mb-3">
-              <label>Địa chỉ:</label>
-              <input className={`form-control ${errors.address ? 'is-invalid' : ''}`} {...register("address")} placeholder="Địa chỉ học sinh..." />
+              <label>{t('address')}:</label>
+              <input className={`form-control ${errors.address ? 'is-invalid' : ''}`} {...register("address")} placeholder={t('address')} />
             </div>
           </div>
 
           <div className="text-center mt-3">
-            <button onClick={closeModal} className="btn bg-color-white-smoke me-3 w-100px">Đóng</button>
-            <button type="submit" className="btn btn-primary w-100px">Lưu</button>
+            <button onClick={closeModal} className="btn bg-color-white-smoke me-3 w-100px">{t('close')}</button>
+            <button type="submit" className="btn btn-primary w-100px">{t('save')}</button>
           </div>
         </form>
       </ModalReuse>
@@ -485,6 +521,7 @@ const Student = () => {
           
         </form>
       </ModalReuse>
+      {notification.message && <NotificationCustom type={notification.type} message={notification.message} title={notification.title} />}
     </div>
   );
 };
