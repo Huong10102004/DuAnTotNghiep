@@ -98,3 +98,32 @@
   .btn-icon-css{
     width: 26px !important;
   }
+
+  /* Style cho các nút radio */
+.radio-group {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .radio-group input[type="radio"] {
+    display: none;
+  }
+  
+  .radio-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    cursor: pointer;
+    background-color: white;
+    transition: all 0.2s ease;
+  }
+  
+  .radio-group input[type="radio"]:checked + .radio-label {
+    border-color: blue;
+    background-color: blue;
+    color: white;
+  }

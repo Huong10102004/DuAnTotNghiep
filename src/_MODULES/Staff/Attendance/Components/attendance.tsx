@@ -14,7 +14,7 @@ const Attendance: React.FC = () => {
   const [selectedGrades, setSelectedGrades] = useState<string[]>([]);
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
-  const [listData, setListData] = useState([]);
+  const [listData, setListData]: any = useState([]);
   const onChange = (dates) => {
     const [start, end] = dates;
     setStartDate(start);
@@ -229,7 +229,7 @@ const Attendance: React.FC = () => {
                     <td className="border border-gray-300 p-2 text-left">
                       <div>{item.className}</div>
                       <div>{item.grade}</div>
-                      <div>Số lượng học sinh: {item.studentAttendanced}</div>
+                      <div>Số lượng học sinh: {item.totalStudent}</div>
                     </td>
                     <td className="border border-gray-300 p-2">
                       Thứ 2, Ngày 9/9/2024

@@ -2,8 +2,7 @@
 import axios from 'axios';
 
 // URL gốc của API
-// const API_BASE_URL = 'http://127.0.0.1:8000/api/';
-const API_BASE_URL = 'https://3db3-2405-4802-43f-6360-e4b0-761a-76e3-616a.ngrok-free.app/api/';
+const API_BASE_URL = 'http://127.0.0.1:8000/api/';
 
 const token = localStorage.getItem('token'); // Lấy token từ localStorage
 // Hàm call API chung

@@ -14,7 +14,7 @@ const Login = () => {
 
     try {
       setLoading(true);  // Bắt đầu tải dữ liệu
-      const response = await axios.post('https://3db3-2405-4802-43f-6360-e4b0-761a-76e3-616a.ngrok-free.app/api/auth/login', {
+      const response = await axios.post('http://127.0.0.1:8000/api/auth/login', {
         username,
         password,
       },
