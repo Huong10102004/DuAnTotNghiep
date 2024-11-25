@@ -4,12 +4,14 @@ import NotificationCustom from "../../../../_Shared/Components/Notification-cust
 import { ACCESS_TYPE_ENUM } from "../../../../_Shared/Enum/access-type.enum";
 import Loading from "../../../../_Shared/Components/Loading/Loading";
 import { ApiService } from "../../../../Services/ApiService";
+import { formatTimestamp } from "../../../../_Shared/Pipe/Format-timestamp";
+import { useTranslation } from "react-i18next";
+import { GENDER_ENUM } from "../../../../_Shared/Enum/gender.enum";
 
 const Update_teacher = ({ isOpen, onClose, teacher, reloadApi }) => {
+  const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(null);
   const [notification, setNotification] = useState({ type: '', message: '' });
-  const [dataClassNoMainTeacher, setDataClassNoMainTeacher] = useState([]);
-  const [userId, setUserId] = useState(''); // Controlled input cho tên năm học
   const {
     register,
     handleSubmit,
@@ -25,20 +27,15 @@ const Update_teacher = ({ isOpen, onClose, teacher, reloadApi }) => {
       userStatus: Number(data.userStatus)
     };
     try {
-      // Gọi API thêm dữ liệu
-      const response = await ApiService(`manager/user/edit/${teacher?.userId}`, 'post', formData);
+      const response = await ApiService(`manager/user/edit/${teacher?.userId}123123`, 'post', formData);
 
-      // Nếu thành công
       if (response) {
         await reloadApi();
-        setNotification({ type: 'success', message: 'Chỉnh sửa công nhân viên chức thành công',title: 'Thành công' });
         onClose();
       } 
     } catch (error) {
-      console.log(error);
-      setNotification({ type: 'error', message: 'Chỉnh sửa công nhân viên chức không thành công',title: 'Lỗi xảy ra' });
-    } finally {
       setLoading(false);
+      setNotification({ type: 'error', message: t('teacherUpdate.error'),title: t('error') });
     }
   };
 
@@ -48,28 +45,27 @@ const Update_teacher = ({ isOpen, onClose, teacher, reloadApi }) => {
         setNotification({ type: '', message: '', title: '' }); // Ẩn thông báo sau 3 giây
       }, 3000);
 
-      return () => clearTimeout(timer); // Xóa bộ hẹn giờ khi component bị unmount hoặc message thay đổi
+      return () => clearTimeout(timer); 
     }
-  }, [notification]);  // Mỗi khi statusCode thay đổi, đoạn này sẽ chạy
+  }, [notification]);  
 
-  const getClassNoMainTeacher = async () => {
-    setLoading(true);
-    try {
-      const schoolYearId = localStorage.getItem('schoolYearCurrent')
-      const responseData = await ApiService(`manager/user/chooseClassToMainTearch?schoolYearId=${schoolYearId}`, 'GET');
-      console.log(responseData);
-      setDataClassNoMainTeacher(Array.isArray(responseData.data) ? responseData.data : []);
-    } catch (error) {
-      setLoading(true);
-      setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
-    } finally {
-      setLoading(false);
-    }
-  }
+  // const getClassNoMainTeacher = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const schoolYearId = localStorage.getItem('schoolYearCurrent')
+  //     const responseData = await ApiService(`manager/user/chooseClassToMainTearch?schoolYearId=${schoolYearId}`, 'GET');
+  //     setDataClassNoMainTeacher(Array.isArray(responseData.data) ? responseData.data : []);
+  //   } catch (error) {
+  //     setLoading(true);
+  //     setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
 
-  useEffect(() => {
-    getClassNoMainTeacher();
-  },[])
+  // useEffect(() => {
+  //   getClassNoMainTeacher();
+  // },[])
 
   useEffect(() => {
     setValue("userName", teacher.userName || ''); 
@@ -79,10 +75,9 @@ const Update_teacher = ({ isOpen, onClose, teacher, reloadApi }) => {
     setValue("classId", teacher.classId || ''); 
     setValue("userAccessType", teacher.userAccessType || ''); 
     setValue("userStatus", teacher.userStatus || ''); 
-    setValue("userDob", teacher.userDob || ''); 
+    setValue("userDob", formatTimestamp(teacher.userDob, 'yyyy-MM-dd') || ''); 
     setValue("address", teacher.address || ''); 
-    setValue("gender", teacher.gender || ''); 
-    setUserId(teacher.userId)
+    setValue("gender", teacher.gender || '');
   }, [teacher])
 
   if (!isOpen) return null;
@@ -91,7 +86,7 @@ const Update_teacher = ({ isOpen, onClose, teacher, reloadApi }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-75">
       <Loading isLoading={loading} />
       <div className="relative w-[70%] rounded-lg bg-white p-6 shadow-lg">
-        <h2 className="mb-2 text-center text-xl font-bold">sửa nhân viên</h2>
+        <h2 className="mb-2 text-center text-xl font-bold">{t('teacherUpdate.editTeacher')}</h2>
         <hr className="mb-4" />
         <button
           className="absolute right-4 top-4 text-gray-600 hover:text-red-600"
@@ -104,16 +99,16 @@ const Update_teacher = ({ isOpen, onClose, teacher, reloadApi }) => {
             {/* Tên nhân viên */}
             <div className="mb-4 flex">
               <label className="mb-1 mr-2 mt-1 block w-1/5 font-medium text-gray-700">
-                Tên nhân viên
+              {t('teacherUpdate.teacherName')}
               </label>
               <div className="flex w-4/5 flex-col">
                 <input
                   type="text"
                   {...register("userName", {
-                    required: "Tên của nhân viên bắt buộc nhập",
+                    required: t('teacherUpdate.teacherNameRequired'),
                   })}
                   className="w-full rounded border p-2"
-                  placeholder="Nhập tên nhân viên"
+                  placeholder={t('teacherUpdate.teacherNamePlaceholder')}
                 />
                 {errors.userName && (
                   <span className="mt-1 text-sm font-bold text-red-500">
@@ -126,16 +121,17 @@ const Update_teacher = ({ isOpen, onClose, teacher, reloadApi }) => {
              {/* username */}
              <div className="mb-4 flex">
               <label className="mb-1 mr-2 mt-1 block w-1/5 font-medium text-gray-700">
-                Username
+              {t('teacherUpdate.userName')}
               </label>
               <div className="flex w-4/5 flex-col">
                 <input
                   type="text"
                   {...register("userUserName", {
-                    required: "Username bắt buộc nhập",
+                    required: t('teacherUpdate.userNameRequired'),
                   })}
                   className="w-full rounded border p-2"
-                  placeholder="Nhập userName"
+                  placeholder={t('teacherUpdate.userNamePlaceholder')}
+                  disabled
                 />
                 {errors.userUserName && (
                   <span className="mt-1 text-sm font-bold text-red-500">
@@ -148,21 +144,21 @@ const Update_teacher = ({ isOpen, onClose, teacher, reloadApi }) => {
             {/* Email */}
             <div className="mb-4 flex">
               <label className="mb-1 mr-2 mt-1 block w-1/5 font-medium text-gray-700">
-                Email
+              Email
               </label>
               <div className="flex w-4/5 flex-col">
                 <input
                   type="text"
                   {...register("userEmail", {
-                    required: "Email của nhân viên bắt buộc nhập",
+                    required: t('teacherUpdate.emailRequired'),
                     pattern: {
                       value:
                         /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
-                      message: "Email không hợp lệ",
+                      message: t('teacherUpdate.emailInValid'),
                     },
                   })}
                   className="w-full rounded border p-2"
-                  placeholder="Nhập email"
+                  placeholder={t('teacherUpdate.emailPlaceholder')}
                 />
                 {errors.userEmail && (
                   <span className="mt-1 text-sm font-bold text-red-500">
@@ -175,16 +171,16 @@ const Update_teacher = ({ isOpen, onClose, teacher, reloadApi }) => {
             {/* Số điện thoại */}
             <div className="mb-4 flex">
               <label className="mb-1 mr-2 mt-1 block w-1/5 font-medium text-gray-700">
-                Số điện thoại
+                {t('teacherUpdate.phone')}
               </label>
               <div className="flex w-4/5 flex-col">
                 <input
                   type="text"
                   {...register("userPhone", {
-                    required: "Số điện thoại của nhân viên bắt buộc nhập",
+                    required: t('teacherUpdate.phoneRequired'),
                   })}
                   className="w-full rounded border p-2"
-                  placeholder="Nhập số điện thoại"
+                  placeholder={t('teacherUpdate.phonePlaceholder')}
                 />
                 {errors.userPhone && (
                   <span className="mt-1 text-sm font-bold text-red-500">
@@ -197,16 +193,16 @@ const Update_teacher = ({ isOpen, onClose, teacher, reloadApi }) => {
             {/* Chức vụ */}
             <div className="mb-4 flex">
               <label className="mb-1 mr-2 mt-1 block w-1/5 font-medium text-gray-700">
-                Chức vụ
+                {t('teacherUpdate.teacherRole')}
               </label>
               <div className="flex w-4/5 flex-col">
                 <select
                   {...register("userAccessType", {
-                    required: "Chức vụ của nhân viên bắt buộc nhập",
+                    required: t('teacherUpdate.teacherRoleRequired'),
                   })}
                   className="w-full rounded border p-2"
                 >
-                  <option value="">Chọn chức vụ</option>
+                  <option value="">{t('teacherUpdate.teacherRoleChoose')}</option>
                   <option value={ACCESS_TYPE_ENUM.MANAGER}>{ACCESS_TYPE_ENUM.MANAGER_LABEL}</option>
                   <option value={ACCESS_TYPE_ENUM.TEACHER}>{ACCESS_TYPE_ENUM.TEACHER_LABEL}</option>
                   <option value={ACCESS_TYPE_ENUM.GUARDIAN}>{ACCESS_TYPE_ENUM.GUARDIAN_LABEL}</option>
@@ -220,7 +216,7 @@ const Update_teacher = ({ isOpen, onClose, teacher, reloadApi }) => {
             </div>
 
             {/* Chủ nhiệm */}
-            <div className="mb-4 flex">
+            {/* <div className="mb-4 flex">
               <label className="mb-1 mr-2 mt-1 block w-1/5 font-medium text-gray-700">
                 Chủ nhiệm
               </label>
@@ -229,6 +225,8 @@ const Update_teacher = ({ isOpen, onClose, teacher, reloadApi }) => {
                   name="classId"
                   id="lop"
                   className="w-full rounded border p-2"
+                  value={teacher?.userMainClassId}
+                  {...register("userAccessType")}
                 >
                   <option value="" className="border-b-4 border-black">
                     Chọn lớp chủ nhiệm
@@ -239,19 +237,19 @@ const Update_teacher = ({ isOpen, onClose, teacher, reloadApi }) => {
                 </select>
 
               </div>
-            </div>
+            </div> */}
 
             {/* Địa chỉ */}
             <div className="mb-4 flex">
               <label className="mb-1 mr-2 mt-1 block w-1/5 font-medium text-gray-700">
-                Địa chỉ
+                {t('teacherUpdate.teacherAddress')}
               </label>
               <div className="flex w-4/5 flex-col">
                 <input
                   type="text"
                   {...register("address")}
                   className="w-full rounded border p-2"
-                  placeholder="Nhập địa chỉ"
+                  placeholder={t('teacherUpdate.teacherAddressPlaceholder')}
                 />
               </div>
             </div>
@@ -259,13 +257,12 @@ const Update_teacher = ({ isOpen, onClose, teacher, reloadApi }) => {
             {/* Ngày sinh */}
             <div className="mb-4 flex">
               <label className="mb-1 mr-2 mt-1 block w-1/5 font-medium text-gray-700">
-                Ngày sinh
+                {t('teacherUpdate.teacherDob')}
               </label>
               <div className="flex w-4/5 flex-col">
                 <input
                   type="date"
-                  {...register("userDob", {
-                  })}
+                  {...register("userDob")}
                   className="w-full rounded border p-2"
                 />
               </div>
@@ -274,16 +271,16 @@ const Update_teacher = ({ isOpen, onClose, teacher, reloadApi }) => {
               {/* gender */}
               <div className="mb-4 flex">
               <label className="mb-1 mr-2 mt-1 block w-1/5 font-medium text-gray-700">
-                Giới tính
+              {t('teacherUpdate.teacherGender')}
               </label>
               <div className="flex w-4/5 flex-col">
                 <select
                   className={`form-control ${errors.gender ? 'is-invalid' : ''}`}
-                  {...register("gender", { required: "Giới tính bắt buộc chọn" })}
+                  {...register("gender")}
                 >
-                  <option value="">Chọn giới tính</option>
-                  <option value="1">Nam</option>
-                  <option value="2">Nữ</option>
+                  <option value="">{t('teacherUpdate.teacherGenderChoose')}</option>
+                  <option value={GENDER_ENUM.NAM}>{GENDER_ENUM.NAM_LABEL}</option>
+                  <option value={GENDER_ENUM.WOMAN}>{GENDER_ENUM.WOMAN_LABEL}</option>
                 </select>
                 {errors.gender && (
                   <span className="mt-1 text-sm font-bold text-red-500">
@@ -297,7 +294,7 @@ const Update_teacher = ({ isOpen, onClose, teacher, reloadApi }) => {
 
             <div className="mb-4 flex items-center">
               <label className="mb-1 mr-2 mt-1 block w-1/5 font-medium text-gray-700">
-                Hoạt động
+                {t('active')}
               </label>
               <input
                 type="checkbox"
@@ -314,14 +311,14 @@ const Update_teacher = ({ isOpen, onClose, teacher, reloadApi }) => {
               className="rounded bg-gray-300 px-4 py-2 font-semibold text-gray-700 hover:bg-gray-400"
               onClick={onClose}
             >
-              Đóng
+              {t('close')}
             </button>
 
             <button
               type="submit"
               className="rounded bg-blue-500 px-4 py-2 font-semibold text-white hover:bg-blue-600"
             >
-              Thêm
+              {t('update')}
             </button>
           </div>
         </form>

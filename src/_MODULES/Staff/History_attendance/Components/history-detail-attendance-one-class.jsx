@@ -3,33 +3,43 @@ import PaginationAntd from "../../../../_Shared/Components/Pagination/Pagination
 import { getListClassToAttendance } from "../../../../Services/Attendance/attendance";
 import { Link } from "react-router-dom";
 import ButtonAttendanceStatus from "../../../../_Shared/Components/Button/Button-attendance-status";
+import { ApiService } from "../../../../Services/ApiService";
+import Loading from "../../../../_Shared/Components/Loading/Loading";
 
 const HistoryDetailAttendanceOneClass = () => {
-    // const [items, setItems] = useState([]);
-    // const [loading, setLoading] = useState(true);
-    // const [error, setError] = useState(null);
+    const [listData, setListData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // useEffect(() => {
-    //     const getItems = async () => {
-    //     try {
-    //         const data = await getListClassToAttendance(); 
-    //         console.log(data);
-    //         setItems(data);
-    //     } catch (err) {
-    //         setError(err.message);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    //     };
-
-    //     getItems();
-    // }, []);
-
-    // if (loading) return <div>Loading...</div>;
-    // if (error) return <div>{error}</div>;
+    useEffect(() => {
+        getItems();
+    },[])
+    
+    const getItems = async () => {
+        setLoading(true);
+        try {
+            let dataRequest = {
+            school_year_id: localStorage.getItem('schoolYearCurrent') ?? '',
+            page: 1,
+            size: 10,
+            search: ''
+            }
+            const responseData = await ApiService(`manager/rollcallhistory/showclassdetail/2?date=1731601295`, 'GET');
+            if(responseData){
+            setListData(responseData?.data)
+            }
+            console.log(responseData?.data);
+        } catch (error) {
+            setLoading(true);
+            setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
+        } finally {
+            setLoading(false);
+        }
+    };
   return (
     <div>
       {/* <header className="h-[100px] w-full"></header> */}
+      <Loading isLoading={loading} />
       <div className="pt-6rem bg-white h-100vh px-4">
             <h1 className="fs-16">Lịch sử điểm danh lớp 6a1 ngày 14/09/2024</h1>
             <p className="mt-2">Task/subtitle/subtitle</p>

@@ -1,8 +1,52 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { ApiService } from "../../../../Services/ApiService";
+import Loading from "../../../../_Shared/Components/Loading/Loading";
+import { useForm } from "react-hook-form";
 
 const Attendancebyclass = () => {
+  const [loading, setLoading] = useState(false);
+  const [notification, setNotification] = useState({ type: '', message: '', title: '' });
+  const [listData, setListData]: any = useState([]);
+  const { register, handleSubmit, watch } = useForm();
+  
+  useEffect(() => {
+    getItems();
+  },[])
+
+  const onSubmit = (data) => {
+    console.log("Dữ liệu đã chọn:", data);
+    alert(JSON.stringify(data, null, 2));
+  };
+
+  let onCheck = 0;
+  const handleChange = (event) => {
+    console.log(event.target.value);
+    ++onCheck;
+  };
+
+  const getItems = async () => {
+    setLoading(true);
+    try {
+      let dataRequest: any = {
+          classId: 2,
+          date: 123456789,
+          keyWord: ""
+      }
+      const responseData = await ApiService(`manager/rollcall/attendaced/class`, 'POST', dataRequest);
+      if(responseData){
+        setListData(responseData?.data?.rollCall);
+      }
+      console.log(responseData?.data?.rollCall);
+    } catch (error) {
+      setLoading(true);
+      setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="flex flex-row">
+      <Loading isLoading={loading} />
       <div className="w-[100%]">
         {/* <div className="mb-[40px] h-[110px] w-full bg-[#0078FF]">
       <ul className="flex h-full w-full items-center justify-around">
@@ -62,6 +106,7 @@ const Attendancebyclass = () => {
             </div>
           </div>
           <div className="mt-2 overflow-x-auto">
+          <form onSubmit={handleSubmit(onSubmit)}>
             <table className="min-w-full border-collapse border border-gray-300">
               <thead>
                 <tr className="bg-blue-500 text-white">
@@ -81,174 +126,59 @@ const Attendancebyclass = () => {
               </thead>
               <tbody>
                 {/* Row 1 */}
-                <tr className="bg-white text-center">
-                  <td className="border border-gray-300 p-2">1</td>
-                  <td className="border border-gray-300 p-2">
-                    <div>Phan Hường</div>
-                  </td>
-                  <td className="border border-gray-300 p-2">9/9/2024</td>
-                  <td className="border border-gray-300 p-2">
-                    <input
-                      type="text"
-                      placeholder="Ghi chú học sinh ..."
-                      className="border border-black text-[#989797]"
-                    />
-                  </td>
-                  <td className="border p-2">
-                    <span className="inline-block h-4 w-4 rounded-full bg-blue-500"></span>
-                  </td>
-                  <td className="border p-2">
-                    <span className="!important inline-block h-4 w-4 rounded-full border !border-green-500"></span>
-                  </td>
-                  <td className="border p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border !border-red-600"></span>
-                  </td>
-                  <td className="border p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border !border-yellow-500"></span>
-                  </td>
-                </tr>
-
-                {/* Row 2 */}
-                <tr className="bg-white text-center">
-                  <td className="border border-gray-300 p-2">1</td>
-                  <td className="border border-gray-300 p-2">
-                    <div>Phan Hường</div>
-                  </td>
-                  <td className="border border-gray-300 p-2">9/9/2024</td>
-                  <td className="border border-gray-300 p-2">
-                    <input
-                      type="text"
-                      placeholder="Ghi chú học sinh ..."
-                      className="border border-black text-[#989797]"
-                    />
-                  </td>
-                  <td className="border p-2">
-                    <span className="inline-block h-4 w-4 rounded-full bg-blue-500"></span>
-                  </td>
-                  <td className="border p-2">
-                    <span className="!important inline-block h-4 w-4 rounded-full border !border-green-500"></span>
-                  </td>
-                  <td className="border p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border !border-red-600"></span>
-                  </td>
-                  <td className="border p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border !border-yellow-500"></span>
-                  </td>
-                </tr>
-
-                {/* Row 3 */}
-                <tr className="bg-white text-center">
-                  <td className="border border-gray-300 p-2">1</td>
-                  <td className="border border-gray-300 p-2">
-                    <div>Phan Hường</div>
-                  </td>
-                  <td className="border border-gray-300 p-2">9/9/2024</td>
-                  <td className="border border-gray-300 p-2">
-                    <input
-                      type="text"
-                      placeholder="Ghi chú học sinh ..."
-                      className="border border-black text-[#989797]"
-                    />
-                  </td>
-                  <td className="border p-2">
-                    <span className="inline-block h-4 w-4 rounded-full bg-blue-500"></span>
-                  </td>
-                  <td className="border p-2">
-                    <span className="!important inline-block h-4 w-4 rounded-full border !border-green-500"></span>
-                  </td>
-                  <td className="border p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border !border-red-600"></span>
-                  </td>
-                  <td className="border p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border !border-yellow-500"></span>
-                  </td>
-                </tr>
-
-                {/* Row 4 */}
-                <tr className="bg-white text-center">
-                  <td className="border border-gray-300 p-2">1</td>
-                  <td className="border border-gray-300 p-2">
-                    <div>Phan Hường</div>
-                  </td>
-                  <td className="border border-gray-300 p-2">9/9/2024</td>
-                  <td className="border border-gray-300 p-2">
-                    <input
-                      type="text"
-                      placeholder="Ghi chú học sinh ..."
-                      className="border border-black text-[#989797]"
-                    />
-                  </td>
-                  <td className="border p-2">
-                    <span className="inline-block h-4 w-4 rounded-full bg-blue-500"></span>
-                  </td>
-                  <td className="border p-2">
-                    <span className="!important inline-block h-4 w-4 rounded-full border !border-green-500"></span>
-                  </td>
-                  <td className="border p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border !border-red-600"></span>
-                  </td>
-                  <td className="border p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border !border-yellow-500"></span>
-                  </td>
-                </tr>
-
-                {/* Row 5 */}
-                <tr className="bg-white text-center">
-                  <td className="border border-gray-300 p-2">1</td>
-                  <td className="border border-gray-300 p-2">
-                    <div>Phan Hường</div>
-                  </td>
-                  <td className="border border-gray-300 p-2">9/9/2024</td>
-                  <td className="border border-gray-300 p-2">
-                    <input
-                      type="text"
-                      placeholder="Ghi chú học sinh ..."
-                      className="border border-black text-[#989797]"
-                    />
-                  </td>
-                  <td className="border p-2">
-                    <span className="inline-block h-4 w-4 rounded-full bg-blue-500"></span>
-                  </td>
-                  <td className="border p-2">
-                    <span className="!important inline-block h-4 w-4 rounded-full border !border-green-500"></span>
-                  </td>
-                  <td className="border p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border !border-red-600"></span>
-                  </td>
-                  <td className="border p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border !border-yellow-500"></span>
-                  </td>
-                </tr>
-
-                {/* Row 6 */}
-                <tr className="bg-white text-center">
-                  <td className="border border-gray-300 p-2">1</td>
-                  <td className="border border-gray-300 p-2">
-                    <div>Phan Hường</div>
-                  </td>
-                  <td className="border border-gray-300 p-2">9/9/2024</td>
-                  <td className="border border-gray-300 p-2">
-                    <input
-                      type="text"
-                      placeholder="Ghi chú học sinh ..."
-                      className="border border-black text-[#989797]"
-                    />
-                  </td>
-                  <td className="border p-2">
-                    <span className="inline-block h-4 w-4 rounded-full bg-blue-500"></span>
-                  </td>
-                  <td className="border p-2">
-                    <span className="!important inline-block h-4 w-4 rounded-full border !border-green-500"></span>
-                  </td>
-                  <td className="border p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border !border-red-600"></span>
-                  </td>
-                  <td className="border p-2">
-                    <span className="inline-block h-4 w-4 rounded-full border !border-yellow-500"></span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                  {listData.map((item: any, index: number) => (
+                    <tr className="bg-white text-center" key={index}>
+                      <td className="border border-gray-300 p-2">{index}</td>
+                      <td className="border border-gray-300 p-2">
+                        <div>{item.fullname}</div>
+                      </td>
+                      <td className="border border-gray-300 p-2">{item.dob}</td>
+                      <td className="border border-gray-300 p-2">
+                        <input
+                          type="text"
+                          placeholder="Ghi chú học sinh ..."
+                          className="border border-black text-[#989797] w-100"
+                        />
+                      </td>
+                      <td className="border p-2">
+                        <label>
+                        <input
+                          type="radio"
+                          value={"option1-"+index}
+                          name={"options"+index}
+                          onChange={handleChange}
+                        />
+                      </label>
+                      </td>
+                      <td className="border p-2">
+                        <input
+                          type="radio"
+                          value={"option2-"+index}
+                          name={"options"+index}
+                          onChange={handleChange}
+                        />
+                      </td>
+                      <td className="border p-2">
+                        <input
+                          type="radio"
+                          value={"option3-"+index}
+                          name={"options"+index}
+                          onChange={handleChange}
+                        />
+                      </td>
+                      <td className="border p-2">
+                        <input
+                          type="radio"
+                          value={"option4-"+index}
+                          name={"options"+index}
+                          onChange={handleChange}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </form>
             <div className="flex justify-end">
               <button className="mt-4 rounded-lg bg-green-500 p-2 px-4 text-white">
                 Lưu
@@ -257,29 +187,7 @@ const Attendancebyclass = () => {
 
             {/* Pagination */}
             <div className="mt-4 flex justify-end">
-              <div className="flex items-center space-x-1">
-                <button className="rounded bg-gray-300 p-2 hover:bg-gray-400">
-                  «
-                </button>
-                <button className="rounded bg-blue-500 p-2 text-white">
-                  1
-                </button>
-                <button className="rounded bg-gray-300 p-2 hover:bg-gray-400">
-                  2
-                </button>
-                <button className="rounded bg-gray-300 p-2 hover:bg-gray-400">
-                  3
-                </button>
-                <button className="rounded bg-gray-300 p-2 hover:bg-gray-400">
-                  4
-                </button>
-                <button className="rounded bg-gray-300 p-2 hover:bg-gray-400">
-                  5
-                </button>
-                <button className="rounded bg-gray-300 p-2 hover:bg-gray-400">
-                  »
-                </button>
-              </div>
+
             </div>
           </div>
         </div>

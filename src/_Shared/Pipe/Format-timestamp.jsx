@@ -1,4 +1,4 @@
-export function formatTimestamp(timestamp) {
+export function formatTimestamp(timestamp, type='dd-mm-yyyy') {
     // Tạo đối tượng Date từ timestamp
     const date = new Date(timestamp*1000);
   
@@ -8,5 +8,9 @@ export function formatTimestamp(timestamp) {
     const year = date.getFullYear();
   
     // Trả về chuỗi định dạng dd-mm-YYYY
+    if(type==="yyyy-MM-dd"){
+      return `${year}-${month}-${day}`;
+    }
+    
     return `${day}-${month}-${year}`;
   }
