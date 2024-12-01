@@ -23,6 +23,7 @@ import TestFirebase from './Firebase/Test-firebase'
 import { useEffect } from "react";
 import { generateToken, messaging } from "./Noticaitions/firebase";
 import { onMessage } from "firebase/messaging";
+import ListSubject from "./_MODULES/Staff/ListSubject/Components/list_subject";
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -83,6 +84,7 @@ export default function App() {
 
           {/*  */}
           <Route path="/staff/year" element={<Listyear />} />
+          <Route path="/staff/subject" element={<ListSubject />} />
           <Route path="/test" element={<TestFirebase />} />
           
         </Route>

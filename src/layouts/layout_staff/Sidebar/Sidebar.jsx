@@ -46,6 +46,7 @@ function Sidebar() {
           <Link to="/staff/year"><li className={`d-flex align-items-center ps-3 py-2 cursor-pointer ${isActive('/staff/year') ? 'active' : ''}`}><img src={home}/> <span className="ps-2">{t('Năm học')}</span></li></Link>
           <Link to="/staff/history_attendance"><li className={`d-flex align-items-center ps-3 py-2 cursor-pointer ${isActive('/staff/history_attendance') ? 'active' : ''}`}><img src={icon_attendance}/> <span className="ps-2">{t('historyAttendance')}</span></li></Link>
           <Link to="/staff/class"><li className={`d-flex align-items-center ps-3 py-2 cursor-pointer ${isActive('/staff/class') ? 'active' : ''}`}><img src={icon_attendance}/> <span className="ps-2">{t('class')}</span></li></Link>
+          <Link to="/staff/subject"><li className={`d-flex align-items-center ps-3 py-2 cursor-pointer ${isActive('/staff/subject') ? 'active' : ''}`}><img src={icon_attendance}/> <span className="ps-2">{t('subject')}</span></li></Link>
         </ul>
       </div>
 
