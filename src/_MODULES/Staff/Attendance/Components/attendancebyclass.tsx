@@ -15,13 +15,40 @@ const Attendancebyclass = () => {
 
   const onSubmit = (data) => {
     console.log("Dữ liệu đã chọn:", data);
-    alert(JSON.stringify(data, null, 2));
+    // alert(JSON.stringify(data, null, 2));
+    let dataForm: any  = {
+      classId: 2,
+      students: [
+        {
+          student_id: 2, 
+          status: 1,
+          note: ''
+        },
+        {
+          student_id: 3,
+          status: 1,
+          note: ''
+        },
+        {
+          student_id: 4, 
+          status: 1,
+          note: ''
+        }
+      ]
+    }
+
+    ApiService('manager/rollcall/update/attendanced/2','PUT', dataForm);
   };
 
-  let onCheck = 0;
   const handleChange = (event) => {
     console.log(event.target.value);
-    ++onCheck;
+    let handleString = event.target.value
+    let studentArray = [];
+    let studentIndex = handleString.charAt(handleString.length -1);
+    let optionSelect = handleString.charAt(handleString.length -3);
+
+    console.log(optionSelect);
+    console.log(studentIndex);
   };
 
   const getItems = async () => {
@@ -178,12 +205,12 @@ const Attendancebyclass = () => {
                   ))}
                 </tbody>
               </table>
+              <div className="flex justify-end">
+                <button type="submit" className="mt-4 rounded-lg bg-green-500 p-2 px-4 text-white">
+                  Lưu
+                </button>
+              </div>
             </form>
-            <div className="flex justify-end">
-              <button className="mt-4 rounded-lg bg-green-500 p-2 px-4 text-white">
-                Lưu
-              </button>
-            </div>
 
             {/* Pagination */}
             <div className="mt-4 flex justify-end">

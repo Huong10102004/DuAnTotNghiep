@@ -21,6 +21,7 @@ const Parent = () => {
   const navigate = useNavigate(); // Hook để điều hướng
   //modal 
   const [modalIsOpen, setModalIsOpen] = useState(false); // mở dal
+  const [modalIsOpenChangePassword, setModalIsOpenChangePassword] = useState(false); // mở dal
   const [modalIsOpenAssignParent, setModalIsOpenAssignParent] = useState(false); // mở dal
   const [isEditMode, setIsEditMode] = useState(false); // mở modal edit
   const [currentData, setCurrentData] = useState(null); // dữ liệu truyền vào edit
@@ -61,6 +62,14 @@ const Parent = () => {
     reset();
   };
 
+  const openModalChangePassword = () => {
+    setModalIsOpenChangePassword(true);
+  }
+
+  const closeModalChangePassword = () => {
+    setModalIsOpenChangePassword(false)
+  }
+
   const closeModalAssignparent = () => {
     setModalIsOpenAssignParent(false);
   }
@@ -86,6 +95,8 @@ const Parent = () => {
       navigate('/staff/parent/detail/'+data.id)
     }else if (key === "assign_to_parent"){
       openModalAssignParent();
+    }else if( key === "change_password"){
+      openModalChangePassword();
     }
   };
 
@@ -330,6 +341,55 @@ const Parent = () => {
             </div>
             </div>
 
+            <div className="text-center mt-3">
+            <button onClick={closeModal} className="btn bg-color-white-smoke me-3 w-100px">Đóng</button>
+            <button type="submit" className="btn btn-primary w-100px">Lưu</button>
+            </div>
+        </form>
+        </ModalReuse>
+
+        <ModalReuse isOpen={modalIsOpenChangePassword} onClose={closeModalChangePassword} title={isEditMode ? "Chỉnh sửa thông tin phụ huynh" : "Thêm phụ huynh"} width="80%">
+        <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="row">
+            {/* Tên phụ huynh */}
+            <div className="col-12 col-md-6 mb-3">
+                <label>Tên phụ huynh <span className="text-danger">*</span>:</label>
+                Nguyễn Duy Kiên
+            </div>
+
+            {/* Username */}
+            <div className="col-12 col-md-6 mb-3">
+                <label>Username <span className="text-danger">*</span>:</label>
+                Duy kien
+            </div>
+
+            {/* Mật khẩu */}
+            <div className="col-12 col-md-6 mb-3">
+                <label>Mật khẩu <span className="text-danger">*</span>:</label>
+                <input
+                type="password"
+                className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                {...register("password", { required: "Mật khẩu của phụ huynh bắt buộc nhập" })}
+                placeholder="Nhập mật khẩu của phụ huynh..."
+                />
+                {errors.password && <div className="invalid-feedback">{errors.password.message}</div>}
+            </div>
+
+            {/* Xác nhận mật khẩu */}
+            <div className="col-12 col-md-6 mb-3">
+                <label>Xác nhận <span className="text-danger">*</span>:</label>
+                <input
+                type="password"
+                className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
+                {...register("confirmPassword", {
+                    required: "Xác nhận mật khẩu của phụ huynh bắt buộc nhập",
+                    validate: value => value === watch("password") || "Mật khẩu xác nhận không khớp"
+                })}
+                placeholder="Nhập xác nhận mật khẩu của phụ huynh..."
+                />
+                {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword.message}</div>}
+            </div>
+            </div>
             <div className="text-center mt-3">
             <button onClick={closeModal} className="btn bg-color-white-smoke me-3 w-100px">Đóng</button>
             <button type="submit" className="btn btn-primary w-100px">Lưu</button>
