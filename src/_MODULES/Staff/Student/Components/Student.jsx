@@ -25,6 +25,7 @@ const Student = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate(); // Hook để điều hướng
   //modal 
+  
   const [data, setData] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false); // mở dal
   const [modalIsOpenAssignParent, setModalIsOpenAssignParent] = useState(false); // mở dal
