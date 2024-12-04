@@ -13,6 +13,7 @@ const Addyear = ({ isOpen, onClose, reloadApi }) => {
   const [startDate, setStartDate] = useState(null); // start Date
   const [endDate, setEndDate] = useState(null); // start Date
   const [notification, setNotification] = useState({ type: '', message: '' });
+  const [isOpenTheBao, setIsOpen] = useState(isOpen);
   const {
     register,
     handleSubmit,
@@ -83,9 +84,16 @@ const Addyear = ({ isOpen, onClose, reloadApi }) => {
         if (response) {
           await reloadApi();
           setNotification({ type: 'success', message: 'Thêm năm học mới thành công',title: 'Thành công' });
+
+          setTimeout(function(){
+            document.querySelector('.btn-clone-add-year').click();
+          }, 2000);
+
+          // setIsAddYearModalOpen(true);
           // setTimeout(() => {
           //   onClose();
           // }, SET_TIMEOUT_MESSAGE);
+
         } else {
           setErrorMessage('Đã có lỗi xảy ra.');
           setNotification({ type: 'error', message: 'Có lỗi xảy ra, vui lòng kiểm tra lại dữ liệu nhập vào',title: 'Lỗi' });
@@ -108,7 +116,10 @@ const Addyear = ({ isOpen, onClose, reloadApi }) => {
     setEndDate(dateString);
   };
 
-  if (!isOpen) return null;
+  if (!isOpenTheBao){
+    // setIsOpen(true);
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-75">
@@ -117,7 +128,7 @@ const Addyear = ({ isOpen, onClose, reloadApi }) => {
         <h2 className="mb-2 text-center text-xl font-bold">Thêm năm học</h2>
         <hr className="mb-4" />
         <button
-          className="absolute right-4 top-4 text-gray-600 hover:text-red-600"
+          className="absolute btn-clone-add-year right-4 top-4 text-gray-600 hover:text-red-600"
           onClick={onClose}
         >
           &times;
