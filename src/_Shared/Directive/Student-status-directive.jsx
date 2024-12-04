@@ -1,5 +1,5 @@
 import React from 'react';
-import { STATUS_STUDENT_STUDY_ENUM } from '../../Enum/status-student-study.enum';
+import { STATUS_STUDENT_STUDY_ENUM } from '../Enum/status-student-study.enum';
 
 const studentStatusDirective = ({ status }) => {
   let statusLabel = '';

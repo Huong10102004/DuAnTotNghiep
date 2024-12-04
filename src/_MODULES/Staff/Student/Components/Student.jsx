@@ -777,6 +777,7 @@ const [selectedStudentId, setSelectedStudentId] = useState(null);
           </div>
         </div>
       </ModalReuse>
+<<<<<<< HEAD
 
       {notification.message && (
         <NotificationCustom
@@ -785,6 +786,9 @@ const [selectedStudentId, setSelectedStudentId] = useState(null);
           title={notification.title}
         />
       )}
+=======
+      {notification.message && <NotificationCustom type={notification.type} message={notification.message} title={notification.title} />}
+>>>>>>> 351840b0d89de68b53f2ba0d607ec354c5835dbb
     </div>
   );
 };

@@ -3,6 +3,7 @@ import axios from 'axios';
 
 // URL gốc của API
 const API_BASE_URL = 'http://127.0.0.1:8000/api/';
+
 const token = localStorage.getItem('token'); // Lấy token từ localStorage
 // Hàm call API chung
 export const ApiService = async (endpoint, method = 'GET', data = null) => {
