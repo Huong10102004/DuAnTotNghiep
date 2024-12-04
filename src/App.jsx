@@ -17,16 +17,13 @@ import ParentDetail from "./_MODULES/Staff/Parent/Components/Parent-detail";
 import Login from "./_MODULES/Auth/login";
 import Listyear from "./_MODULES/Staff/ListSubject/Components/listyear";
 import ListTeacher from "./_MODULES/Staff/ListSubject/Components/list_teachers";
-<<<<<<< HEAD
 import StudentsAssignClass from "./_MODULES/Staff/Student/Components/Student-assign-class";
-=======
 import Attendancebyclass from "./_MODULES/Staff/Attendance/Components/attendancebyclass";
 import ClassStaff from "./_MODULES/Staff/Class-staff/Components/Class-staff";
 import TestFirebase from './Firebase/Test-firebase'
 import { useEffect } from "react";
 import { generateToken, messaging } from "./Noticaitions/firebase";
 import { onMessage } from "firebase/messaging";
->>>>>>> 351840b0d89de68b53f2ba0d607ec354c5835dbb
 
 export default function App() {
   const { t, i18n } = useTranslation();
