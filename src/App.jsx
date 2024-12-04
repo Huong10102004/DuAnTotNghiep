@@ -21,6 +21,7 @@ import Login from "./_MODULES/Auth/login";
 import Listyear from "./_MODULES/Staff/ListSubject/Components/listyear";
 import DatePickerComponent from "./_Shared/Components/Date-picker/Date-picker";
 import ListTeacher from "./_MODULES/Staff/ListSubject/Components/list_teachers";
+import StudentsAssignClass from "./_MODULES/Staff/Student/Components/Student-assign-class";
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -67,6 +68,7 @@ export default function App() {
           {/* students */}
           <Route path="/staff/student" element={<Student />} />
           <Route path="/staff/student/detail/:id" element={<StudentDetail />} />
+          <Route path="/staff/student/assign_class/:id" element={<StudentsAssignClass />} />
 
           {/* parents */}
           <Route path="/staff/parent" element={<Parent />} />

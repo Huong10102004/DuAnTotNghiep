@@ -1,61 +1,158 @@
-import React, { useState } from 'react';
-import icon_input from "../../../../assets/images/svg/icon_input.svg"
-import icon_user from "../../../../assets/images/svg/icon_user.svg"
-import icon_plus from "../../../../assets/images/svg/icon_plus.svg"
-import icon_unassign_parent from "../../../../assets/images/svg/icon_unassign_parent.svg"
-import icon_danger from "../../../../assets/images/svg/icon_danger.svg"
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import icon_input from "../../../../assets/images/svg/icon_input.svg";
+import icon_user from "../../../../assets/images/svg/icon_user.svg";
+import icon_plus from "../../../../assets/images/svg/icon_plus.svg";
+import icon_unassign_parent from "../../../../assets/images/svg/icon_unassign_parent.svg";
+import { Link } from "react-router-dom";
+import { formatTimestamp } from "../../../../_Shared/Pipe/Format-timestamp";
 import { useForm } from 'react-hook-form';
-import PaginationAntd from '../../../../_Shared/Components/Pagination/Pagination';
-import ModalReuse from '../../../../_Shared/Components/Modal-reuse/Modal-reuse';
+import ModalReuse from "../../../../_Shared/Components/Modal-reuse/Modal-reuse";
+import { ApiService } from "../../../../Services/ApiService";
+import { useParams } from 'react-router-dom'; // Import useParams
 import { useTranslation } from 'react-i18next';
+import genderDirective from "../../../../_Shared/Components/Gender/Gender";
+
 import { Button, Tooltip } from 'antd';
+import PaginationAntd from '../../../../_Shared/Components/Pagination/Pagination';
+import icon_danger from "../../../../assets/images/svg/icon_danger.svg"
 
 const StudentDetail = () => {
-    const { t, i18n } = useTranslation(); // dịch đa ngôn ngữ
+  const { id } = useParams(); // Lấy id từ URL
+  const [studentData, setStudentData] = useState(null);
+  
+  const [loading, setLoading] = useState(true);
+  const { t, i18n } = useTranslation(); // dịch đa ngôn ngữ
     const [modalIsOpen, setModalIsOpen] = useState(false); // mở dal
     const [modalIsOpenRemoveRelationship, setModalIsOpenRemoveRelationship] = useState(false); // mở dal
     const { register, handleSubmit, formState: { errors }, watch, trigger,reset } = useForm({mode: "onChange"});
-    const openModal = (data = null) => {
-        setModalIsOpen(true); 
-      };
+    const classCssTitleModal = 'text-danger'
 
-      const closeModal = () => {
-        setModalIsOpen(false); //set modal mở thêm, sửa về false
-        setModalIsOpenRemoveRelationship(false); //set modal mở thêm, sửa về false
-      };
-
-      const onSubmit = (data) => {
-        console.log("Dữ liệu:", data);
-        closeModal();
-      };
-
-      const openModalRemoveRelationShip = () => {
-        setModalIsOpenRemoveRelationship(true)
+  // Khai báo hàm fetchStudentData
+  const fetchStudentData = async () => {
+    try {
+      const response = await ApiService(`manager/student/show/${id}`, "GET");
+      if (response && response.data) {
+        setStudentData(response.data);
+        console.log(response.data);
+        
+        // Reset form fields with the fetched student data
+        reset({
+          fullname: response.data.fullname || "",
+          studentCode: response.data.studentCode || "",
+          class_id: response.data.class_id || "",
+          email: response.data.email || "",
+          phone: response.data.phone || "",
+          gender: response.data.gender || "",
+          schoolYear: response.data.schoolYear || "",
+          status: response.data.status || "",
+          parent: response.data.parent || "",
+          address: response.data.address || "",
+          dob: response.data.dob  || "",
+        });
       }
-      const footerModal = () => {
-        return <div className="text-center mt-3">
-                <button onClick={closeModal} className="btn bg-color-white-smoke me-3 w-100px">Đóng</button>
-                <button type="submit" className="btn btn-primary w-100px">Lưu</button>
-              </div>
-      }
+    } catch (error) {
+      console.error("Error fetching student data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      const footerModalRemoveRelationship = () => {
-        return <div className="text-center mt-3">
-                <button onClick={closeModal} className="btn bg-color-white-smoke me-3 w-150px py-1">Hủy</button>
-                <button type="submit" className="btn btn-danger w-150px py-1">Đồng ý</button>
-              </div>
-      }
+  // Dùng useEffect để gọi hàm fetchStudentData khi component được mount
+  useEffect(() => {
+    if (id) {
+      fetchStudentData(); // Gọi hàm fetchStudentData
+    }
+  }, [id, reset]); 
 
-      const title = () => {
-        return <div>
-            <p>Họ tên: Nguyễn Duy kiên</p>
-            <p>Sinh năm: 2004</p>
-            <p>Lớp: 6a1 - K18.3</p>
-        </div>
-      }
 
-      const classCssTitleModal = 'text-danger'
+  const openModal = (data = null) => {
+    setModalIsOpen(true); 
+  };
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setModalIsOpenRemoveRelationship(false);
+  };
+
+  const onSubmit = async (data) => {
+    console.log("Dữ liệu gửi:", data);
+    await handleRemoveRelationship(selectedStudentId);
+    closeModal();
+  };
+  const openModalRemoveRelationShip = () => {
+    setModalIsOpenRemoveRelationship(true);
+  };
+
+
+  const handleRemoveRelationship = async (studentId) => {
+    setLoading(true);
+  
+    try {
+      const response = await ApiService(
+        `manager/student/detach-parent/${studentId}`, // API gỡ mối quan hệ phụ huynh
+        "POST"
+      );
+  
+      if (response && response.status === 'success') {
+        toast.success("Gỡ mối quan hệ phụ huynh thành công!"); // Thông báo thành công
+        await getItems(); // Cập nhật danh sách học sinh
+      } else {
+        toast.error("Có lỗi khi gỡ mối quan hệ phụ huynh. Vui lòng thử lại.");
+      }
+    } catch (error) {
+      console.error("Lỗi khi gỡ mối quan hệ phụ huynh:", error);
+      toast.error("Có lỗi khi gỡ mối quan hệ phụ huynh. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
+
+
+
+
+
+
+
+
+
+
+  const footerModal = () => (
+    <div className="text-center mt-3">
+      <button onClick={closeModal} className="btn bg-color-white-smoke me-3 w-100px">
+        Đóng
+      </button>
+      <button type="submit" className="btn btn-primary w-100px">
+        Lưu
+      </button>
+    </div>
+  );
+
+  const footerModalRemoveRelationship = () => (
+    <div className="text-center mt-3">
+      <button onClick={closeModal} className="btn bg-color-white-smoke me-3 w-150px py-1">
+        Hủy
+      </button>
+      <button type="submit" className="btn btn-danger w-150px py-1">
+        Đồng ý
+      </button>
+    </div>
+  );
+
+  if (loading) {
+    return <div>Đang tải dữ liệu...</div>;
+  }
+
+  if (!studentData) {
+    return <div>Không tìm thấy thông tin học sinh.</div>;
+  }
+  const title = () => {
+    return <div>
+        <p>Họ tên: Nguyễn Duy kiên</p>
+        <p>Sinh năm: 2004</p>
+        <p>Lớp: 6a1 - K18.3</p>
+    </div>
+  }
   return (
     <div className="pt-5rem h-100vh px-4 bg-color-white h-100vh">
         <h1 className='mb-2 mt-4 fs-18'>Chi tiết học sinh</h1>
@@ -93,13 +190,13 @@ const StudentDetail = () => {
                             <span className='d-flex'><img src={icon_input} className='pe-2'/> Tên học sinh</span>
                         </div>
                         <div className="col-12 col-md-4">
-                            <input className='form-control' readOnly value="Nguyễn Duy Kiên"/>
+                            <input className='form-control' readOnly value={studentData.fullname}/>
                         </div>
                         <div className='col-12 col-md-2'>
                             <span className='d-flex'><img src={icon_input} className='pe-2'/> Mã học sinh</span>
                         </div>
                         <div className="col-12 col-md-4">
-                            <input className='form-control' readOnly/>
+                            <input className='form-control' readOnly value={studentData.student_code}/>
                         </div>
                     </div>
 
@@ -109,13 +206,13 @@ const StudentDetail = () => {
                             <span className='d-flex'><img src={icon_input} className='pe-2'/> Tên đăng nhập</span>
                         </div>
                         <div className="col-12 col-md-4">
-                            <input className='form-control' readOnly/>
+                            <input className='form-control' readOnly value={studentData.username}/>
                         </div>
                         <div className='col-12 col-md-2'>
                             <span className='d-flex'><img src={icon_input} className='pe-2'/> Ngày sinh</span>
                         </div>
                         <div className="col-12 col-md-4">
-                            <input className='form-control' readOnly/>
+                            <input  className='form-control' readOnly value={formatTimestamp(studentData.dob)}/>
                         </div>
                     </div>
 
@@ -125,43 +222,44 @@ const StudentDetail = () => {
                             <span className='d-flex'><img src={icon_input} className='pe-2'/> Niên khóa</span>
                         </div>
                         <div className="col-12 col-md-4">
-                            <input className='form-control' readOnly/>
+                            <input className='form-control' readOnly value={studentData.current_academic_year_name}/>
                         </div>
                         <div className='col-12 col-md-2'>
                             <span className='d-flex'><img src={icon_input} className='pe-2'/> Lớp học</span>
                         </div>
                         <div className="col-12 col-md-4">
-                            <input className='form-control' readOnly/>
+                            <input className='form-control' readOnly value={studentData.current_class_name}/>
                         </div>
                     </div>
                     {/* row 4 */}
                     <div className='row mt-2 align-items-center'>
-                        <div className='col-12 col-md-2'>
-                            <span className='d-flex'><img src={icon_input} className='pe-2'/> Phụ huynh</span>
-                        </div>
-                        <div className="col-12 col-md-4">
-                            <input className='form-control' readOnly/>
-                        </div>
-                        <div className='col-12 col-md-2'>
+                       
+                        {/* <div className='col-12 col-md-2'>
                             <span className='d-flex'><img src={icon_input} className='pe-2'/> Email</span>
                         </div>
                         <div className="col-12 col-md-4">
                             <input className='form-control' readOnly/>
-                        </div>
+                        </div> */}
                     </div>
                     {/* row 5 */}
                     <div className='row mt-2 align-items-center'>
-                        <div className='col-12 col-md-2'>
+                        {/* <div className='col-12 col-md-2'>
                             <span className='d-flex'><img src={icon_input} className='pe-2'/> SĐT</span>
                         </div>
                         <div className="col-12 col-md-4">
                             <input className='form-control' readOnly/>
+                        </div> */}
+                         <div className='col-12 col-md-2'>
+                            <span className='d-flex'><img src={icon_input} className='pe-2'/> Phụ huynh</span>
+                        </div>
+                        <div className="col-12 col-md-4">
+                            <input className='form-control' readOnly  value={studentData.parents && studentData.parents.length > 0 ? studentData.parents[0].fullname : ''}/>
                         </div>
                         <div className='col-12 col-md-2'>
                             <span className='d-flex'><img src={icon_input} className='pe-2'/> Trạng thái</span>
                         </div>
                         <div className="col-12 col-md-4">
-                            <input className='form-control' readOnly/>
+                            <input className='form-control' readOnly value={studentData.status}/>
                         </div>
                     </div>
 
@@ -171,7 +269,7 @@ const StudentDetail = () => {
                             <span className='d-flex'><img src={icon_input} className='pe-2'/> Địa chỉ</span>
                         </div>
                         <div className="col-12 col-md-10">
-                            <textarea className='form-control' readOnly/>
+                            <textarea className='form-control' readOnly value={studentData.address}/>
                         </div>
                     </div>
 
@@ -189,13 +287,13 @@ const StudentDetail = () => {
                             <span className='d-flex'><img src={icon_input} className='pe-2'/> Tên phụ huynh</span>
                         </div>
                         <div className="col-12 col-md-4">
-                            <input className='form-control' readOnly/>
+                            <input className='form-control' readOnly value={studentData.parents && studentData.parents.length > 0 ? studentData.parents[0].fullname : ''}/>
                         </div>
                         <div className='col-12 col-md-2'>
                             <span className='d-flex'><img src={icon_input} className='pe-2'/> Ngày sinh</span>
                         </div>
                         <div className="col-12 col-md-4">
-                            <input className='form-control' readOnly/>
+                            <input className='form-control' readOnly  value={studentData.parents && studentData.parents.length > 0 ? formatTimestamp(studentData.parents[0].dob) : ''} />
                         </div>
                     </div>
                     {/* row 2 - studentFamilyInformation */}
@@ -204,13 +302,13 @@ const StudentDetail = () => {
                             <span className='d-flex'><img src={icon_input} className='pe-2'/> Số điện thoại</span>
                         </div>
                         <div className="col-12 col-md-4">
-                            <input className='form-control' readOnly/>
+                            <input className='form-control' readOnly value={studentData.parents && studentData.parents.length > 0 ? studentData.parents[0].phone : ''}/>
                         </div>
                         <div className='col-12 col-md-2'>
                             <span className='d-flex'><img src={icon_input} className='pe-2'/> Email</span>
                         </div>
                         <div className="col-12 col-md-4">
-                            <input className='form-control' readOnly/>
+                            <input className='form-control' readOnly value={studentData.parents && studentData.parents.length > 0 ? studentData.parents[0].email : ''}/>
                         </div>
                     </div>
                     {/* row 3 - studentFamilyInformation */}
@@ -219,13 +317,15 @@ const StudentDetail = () => {
                             <span className='d-flex'><img src={icon_input} className='pe-2'/> Mã phụ huynh</span>
                         </div>
                         <div className="col-12 col-md-4">
-                            <input className='form-control' readOnly/>
+                            <input className='form-control' readOnly value={studentData.parents && studentData.parents.length > 0 ? studentData.parents[0].code : ''}/>
                         </div>
                         <div className='col-12 col-md-2'>
-                            <span className='d-flex'><img src={icon_input} className='pe-2'/> Giới tính</span>
+                            <span className='d-flex'><img src={icon_input} className='pe-2'/> Giới tính</span> 
                         </div>
                         <div className="col-12 col-md-4">
-                            <input className='form-control' readOnly/>
+                       
+                        <input className='form-control' readOnly value={studentData.parents && studentData.parents.length > 0 ? studentData.parents[0].gender : ''}/>
+                       
                         </div>
                     </div>
                 </div>
@@ -273,7 +373,7 @@ const StudentDetail = () => {
                   <td className="py-3">duykien</td>
                   <td className="py-3 text-center">
                     <Tooltip title={title} color={'text-color-blue'} key={'blue'} placement='bottomRight'>
-                        <Button>1 con</Button>
+                      <Button>1 con</Button>
                     </Tooltip>
                   </td>
                 </tr>
@@ -341,7 +441,7 @@ const StudentDetail = () => {
                     <Tooltip title={title} color={'text-color-blue'} key={'blue'} placement='bottomRight'>
                         <Button>1 con</Button>
                     </Tooltip>
-                  </td>
+</td>
                 </tr>
                 <tr className="border-bottom align-middle">
                   <td className="py-3">
@@ -374,7 +474,14 @@ const StudentDetail = () => {
         </form>
       </ModalReuse>
 
-      <ModalReuse isOpen={modalIsOpenRemoveRelationship} onClose={closeModal} title={"Gỡ phụ huynh học sinh"} width="50%" footerModal={footerModalRemoveRelationship()} titleCssCustom={classCssTitleModal}>
+      <ModalReuse
+        isOpen={modalIsOpenRemoveRelationship}
+        onClose={closeModal}
+        title={"Gỡ phụ huynh học sinh"}
+        width="50%"
+        footerModal={footerModalRemoveRelationship()} 
+        titleCssCustom={classCssTitleModal}
+      >
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="d-flex align-items-center text-danger justify-content-center">
             <img src={icon_danger} className='me-2'/> Thao tác có thể liên quan đến dữ liệu nhiều nơi. Bạn có chắc chắn muốn thực hiện thao tác?
@@ -384,6 +491,7 @@ const StudentDetail = () => {
       </ModalReuse>
     </div>
   );
+
 };
 
 export default StudentDetail;
