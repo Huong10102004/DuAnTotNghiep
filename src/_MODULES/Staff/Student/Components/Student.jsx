@@ -19,9 +19,9 @@ import { ApiService } from "../../../../Services/ApiService";
 import Loading from "../../../../_Shared/Components/Loading/Loading";
 import NotificationCustom from "../../../../_Shared/Components/Notification-custom/Notification-custom";
 import genderDirective from "../../../../_Shared/Components/Gender/Gender";
-import studentStatusDirective from "../../../../_Shared/Components/Status/Student-status-directive";
 import { STATUS_STUDENT_STUDY_ENUM } from "../../../../_Shared/Enum/status-student-study.enum";
 import { GENDER_ENUM } from "../../../../_Shared/Enum/gender.enum";
+import studentStatusDirective from "../../../../_Shared/Directive/Student-status-directive";
 const Student = () => {
   // dịch đa ngôn ngữ
   const { t, i18n } = useTranslation();
@@ -50,6 +50,9 @@ const Student = () => {
   const [parentsList, setParentsList] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [selectedParentId, setSelectedParentId] = useState()
+  const [pageIndex, setPageIndex] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [keyWord, setKeyWord] = useState('');
 // Bên ngoài component
 const [selectedStudentId, setSelectedStudentId] = useState(null); 
 
@@ -205,7 +208,7 @@ const [selectedStudentId, setSelectedStudentId] = useState(null);
   const getItems = async () => {
     setLoading(true);
     try {
-      const data = await ApiService("manager/student");
+      const data = await ApiService(`manager/student?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${keyWord}`);
       setData(Array.isArray(data.data) ? data.data : []);
     } catch (err) {
       setError(err.message);
@@ -231,7 +234,7 @@ const [selectedStudentId, setSelectedStudentId] = useState(null);
 
   useEffect(() => {
     getItems();
-  }, []);
+  }, [pageIndex, keyWord,pageSize]);
 
   useEffect(() => {
     getClasses();
@@ -307,7 +310,11 @@ const [selectedStudentId, setSelectedStudentId] = useState(null);
     closeModal();
   };
   
-  
+  const handleKeyWord = async (event) => {
+    if (event.key === 'Enter') {
+      setKeyWord(event.target.value)
+    }
+  }
 
   const footerModal = () => {
     return (
@@ -381,8 +388,9 @@ const [selectedStudentId, setSelectedStudentId] = useState(null);
           </p>
           <div className="d-flex">
             <input
-              placeholder={t("search")}
+              placeholder={t('search')}
               className={`bg-color-white-smoke border-radius-10px w-300px px-3 py-2`}
+              onKeyDown={handleKeyWord}
             />
             <button className="btn bg-color-blue text-color-white d-flex align-items-center mx-3">
               {t("exportFileExcel")} <img className="ps-2" src={export_file} />
@@ -777,7 +785,6 @@ const [selectedStudentId, setSelectedStudentId] = useState(null);
           </div>
         </div>
       </ModalReuse>
-<<<<<<< HEAD
 
       {notification.message && (
         <NotificationCustom
@@ -786,9 +793,6 @@ const [selectedStudentId, setSelectedStudentId] = useState(null);
           title={notification.title}
         />
       )}
-=======
-      {notification.message && <NotificationCustom type={notification.type} message={notification.message} title={notification.title} />}
->>>>>>> 351840b0d89de68b53f2ba0d607ec354c5835dbb
     </div>
   );
 };

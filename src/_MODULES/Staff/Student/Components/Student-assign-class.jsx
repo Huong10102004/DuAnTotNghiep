@@ -5,6 +5,7 @@ import icon_assign_student_table from "../../../../assets/images/svg/icon_assign
 import { Table, Checkbox, Input, Button, Select } from "antd"; // Ant Design
 import { createStyles } from "antd-style";
 import { ApiService } from "../../../../Services/ApiService";
+import { formatTimestamp } from "../../../../_Shared/Pipe/Format-timestamp";
 
 const { Search } = Input;
 const { Option } = Select;
@@ -46,7 +47,13 @@ const StudentsAssignClass = () => {
         );
       
         if (responseData && responseData.data) {
-          setUnassignedStudents(responseData.data); // Cập nhật state với dữ liệu học sinh
+          const studentData = responseData.data?.map((item) => {
+            return {
+              ...item,
+              dob: formatTimestamp(item.dob)
+            }
+          })
+          setUnassignedStudents(studentData); // Cập nhật state với dữ liệu học sinh
         }
       } catch (error) {
         setLoading(true);
@@ -114,10 +121,10 @@ const StudentsAssignClass = () => {
       ),
       width: 50,
     },
-    { title: "Họ và tên", dataIndex: "name", key: "fullName" },
-    { title: "Ngày sinh", dataIndex: "birthDate", key: "birthDate" },
-    { title: "Lớp", dataIndex: "class", key: "class" },
-    { title: "Khối", dataIndex: "grade", key: "grade" },
+    { title: "Họ và tên", dataIndex: "fullname", key: "fullname" },
+    { title: "Ngày sinh", dataIndex: "dob", key: "dob" },
+    { title: "Lớp", dataIndex: "class_name", key: "class_name" },
+    { title: "Khối", dataIndex: "class_id", key: "class_id" },
   ];
 
   // Cấu trúc cột cho bảng "Học sinh đã gán"
