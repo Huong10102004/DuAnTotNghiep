@@ -2,78 +2,74 @@ import React, { useEffect, useState } from "react";
 import { ApiService } from "../../../../Services/ApiService";
 import Loading from "../../../../_Shared/Components/Loading/Loading";
 import { useForm } from "react-hook-form";
+import { useParams } from 'react-router-dom';
 
 const Attendancebyclass = () => {
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState({ type: '', message: '', title: '' });
   const [listData, setListData]: any = useState([]);
   const { register, handleSubmit, watch } = useForm();
-  
+  const classId = useParams(); // Lấy classId từ URL
+
   useEffect(() => {
     getItems();
-  },[])
+  }, []);
 
-  const onSubmit = (data) => {
-    console.log("Dữ liệu đã chọn:", data);
-    alert(JSON.stringify(data, null, 2));
+  const onSubmit = async (data) => {
+    try {
+      console.log("Submit Data:", listData);
+
+      let dataRequest: any = {
+        classId: classId.id,
+        rollcallData: listData.map(item => ({
+          studentID: item.id,
+          status: item.status,
+          note: item.note,
+        }))
+      };
+
+      const responseData = await ApiService(`manager/rollcall/attendaced/student/${classId.id}`, 'POST', dataRequest);
+      if (responseData) {
+        setListData(responseData?.data?.rollCall);
+      }
+    } catch (error) {
+      setLoading(true);
+      setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống', title: 'Lỗi' });
+    }
   };
 
-  let onCheck = 0;
-  const handleChange = (event) => {
-    console.log(event.target.value);
-    ++onCheck;
+  const handleChange = (event, index) => {
+    const status = parseInt(event.target.value.split('-')[0].replace('option', '')); // Parse option to status value
+    const updatedData = [...listData];
+    updatedData[index] = { ...updatedData[index], status: status }; // Update the status for the student at the given index
+    setListData(updatedData); // Update the state
   };
 
   const getItems = async () => {
     setLoading(true);
     try {
       let dataRequest: any = {
-          classId: 2,
-          date: 123456789,
-          keyWord: ""
+        classId: classId.id,
+        date: 123456789,
+        keyWord: ""
       }
+
       const responseData = await ApiService(`manager/rollcall/attendaced/class`, 'POST', dataRequest);
-      if(responseData){
+      if (responseData) {
         setListData(responseData?.data?.rollCall);
       }
-      console.log(responseData?.data?.rollCall);
     } catch (error) {
       setLoading(true);
-      setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
+      setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống', title: 'Lỗi' });
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <div className="flex flex-row">
       <Loading isLoading={loading} />
       <div className="w-[100%]">
-        {/* <div className="mb-[40px] h-[110px] w-full bg-[#0078FF]">
-      <ul className="flex h-full w-full items-center justify-around">
-        {navs.map((nav, index) => (
-          <li
-            className="flex flex-col items-center justify-center p-[20px]"
-            key={nav}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="white"
-              className="size-10 pb-1"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5"
-              />
-            </svg>
-            <span className="text-white">{nav}</span>
-          </li>
-        ))}
-      </ul>
-    </div> */}
         <div className="ml-4">
           <h1 className="text-3xl font-bold text-[#4154F1]">Điểm danh</h1>
           <div>
@@ -106,89 +102,91 @@ const Attendancebyclass = () => {
             </div>
           </div>
           <div className="mt-2 overflow-x-auto">
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <table className="min-w-full border-collapse border border-gray-300">
-              <thead>
-                <tr className="bg-blue-500 text-white">
-                  <th className="border border-gray-300 p-2">STT</th>
-                  <th className="border border-gray-300 p-2">Họ và tên</th>
-                  <th className="border border-gray-300 p-2">Ngày ngày sinh</th>
-                  <th className="border border-gray-300 p-2">Ghi chú</th>
-                  <th className="border border-gray-300 p-2">Có mặt</th>
-                  <th className="border border-gray-300 p-2">Nghỉ có phép</th>
-                  <th className="border border-gray-300 p-2">
-                    Nghỉ không phép
-                  </th>
-                  <th className="border border-gray-300 p-2">
-                    Đến muộn có phép
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {/* Row 1 */}
-                  {listData.map((item: any, index: number) => (
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <table className="min-w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr className="bg-blue-500 text-white">
+                    <th className="border border-gray-300 p-2">STT</th>
+                    <th className="border border-gray-300 p-2">Họ và tên</th>
+                    <th className="border border-gray-300 p-2">Ngày sinh</th>
+                    <th className="border border-gray-300 p-2">Ghi chú</th>
+                    <th className="border border-gray-300 p-2">Có mặt</th>
+                    <th className="border border-gray-300 p-2">Nghỉ có phép</th>
+                    <th className="border border-gray-300 p-2">Nghỉ không phép</th>
+                    <th className="border border-gray-300 p-2">Đến muộn có phép</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {listData.map((item, index) => (
                     <tr className="bg-white text-center" key={index}>
-                      <td className="border border-gray-300 p-2">{index}</td>
-                      <td className="border border-gray-300 p-2">
-                        <div>{item.fullname}</div>
-                      </td>
+                      <td className="border border-gray-300 p-2">{index + 1}</td>
+                      <td className="border border-gray-300 p-2">{item.fullname}</td>
                       <td className="border border-gray-300 p-2">{item.dob}</td>
                       <td className="border border-gray-300 p-2">
                         <input
                           type="text"
                           placeholder="Ghi chú học sinh ..."
                           className="border border-black text-[#989797] w-100"
+                          value={item.note}
+                          onChange={(e) => {
+                            const updatedData = [...listData];
+                            updatedData[index].note = e.target.value;
+                            setListData(updatedData);
+                          }}
                         />
                       </td>
                       <td className="border p-2">
                         <label>
-                        <input
-                          type="radio"
-                          value={"option1-"+index}
-                          name={"options"+index}
-                          onChange={handleChange}
-                        />
-                      </label>
+                          <input
+                            type="radio"
+                            value="1"
+                            name={"options" + index}
+                            checked={item.status === 1}
+                            onChange={(e) => handleChange(e, index)}
+                          />
+                        </label>
                       </td>
                       <td className="border p-2">
                         <input
                           type="radio"
-                          value={"option2-"+index}
-                          name={"options"+index}
-                          onChange={handleChange}
-                        />
-                      </td>
-                      <td className="border p-2">
-                        <input
-                          type="radio"
-                          value={"option3-"+index}
-                          name={"options"+index}
-                          onChange={handleChange}
+                          value="2"
+                          name={"options" + index}
+                          checked={item.status === 2}
+                          onChange={(e) => handleChange(e, index)}
                         />
                       </td>
                       <td className="border p-2">
                         <input
                           type="radio"
-                          value={"option4-"+index}
-                          name={"options"+index}
-                          onChange={handleChange}
+                          value="3"
+                          name={"options" + index}
+                          checked={item.status === 3}
+                          onChange={(e) => handleChange(e, index)}
+                        />
+                      </td>
+                      <td className="border p-2">
+                        <input
+                          type="radio"
+                          value="4"
+                          name={"options" + index}
+                          checked={item.status === 4}
+                          onChange={(e) => handleChange(e, index)}
                         />
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="mt-4 rounded-lg bg-green-500 p-2 px-4 text-white"
+                >
+                  Lưu
+                </button>
+              </div>
             </form>
-            <div className="flex justify-end">
-              <button className="mt-4 rounded-lg bg-green-500 p-2 px-4 text-white">
-                Lưu
-              </button>
-            </div>
-
-            {/* Pagination */}
-            <div className="mt-4 flex justify-end">
-
-            </div>
           </div>
         </div>
       </div>
@@ -197,3 +195,223 @@ const Attendancebyclass = () => {
 };
 
 export default Attendancebyclass;
+
+// import React, { useEffect, useState } from "react";
+// import { ApiService } from "../../../../Services/ApiService";
+// import Loading from "../../../../_Shared/Components/Loading/Loading";
+// import { useForm } from "react-hook-form";
+// import { useParams } from 'react-router-dom';
+
+// const Attendancebyclass = () => {
+//   const [loading, setLoading] = useState(false);
+//   const [notification, setNotification] = useState({ type: '', message: '', title: '' });
+//   const [listData, setListData]: any = useState([]);
+//   const { register, handleSubmit, watch } = useForm();
+//   const  classId  = useParams(); // Lấy classId từ URL
+
+//   useEffect(() => {
+//     getItems();
+//   }, [])
+
+//   const onSubmit = async (data) => {
+//     try {
+//       let dataRequest: any = {
+//         classId: classId.id,
+//         // date: 123456789,
+//         // keyWord: ""
+//       }
+//       const responseData = await ApiService(`manager/rollcall/attendaced/class`, 'POST', dataRequest);
+//       if (responseData) {
+//         setListData(responseData?.data?.rollCall);
+//       }
+//       console.log(responseData?.data?.rollCall);
+//     } catch (error) {
+//       setLoading(true);
+//       setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống', title: 'Lỗi' });
+//     }
+//   };
+
+//   let onCheck = 0;
+//   const handleChange = (event) => {
+//     console.log("123123123", event.target.value);
+//     ++onCheck;
+//   };
+
+//   const getItems = async () => {
+//     setLoading(true);
+//     try {
+//       let dataRequest: any = {
+//         classId: classId.id,
+//         date: 123456789,
+//         keyWord: ""
+//       }
+//       const responseData = await ApiService(`manager/rollcall/attendaced/class`, 'POST', dataRequest);
+//       if (responseData) {
+//         setListData(responseData?.data?.rollCall);
+//       }
+//       console.log(responseData?.data?.rollCall);
+//     } catch (error) {
+//       setLoading(true);
+//       setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống', title: 'Lỗi' });
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+//   return (
+//     <div className="flex flex-row">
+//       <Loading isLoading={loading} />
+//       <div className="w-[100%]">
+//         {/* <div className="mb-[40px] h-[110px] w-full bg-[#0078FF]">
+//       <ul className="flex h-full w-full items-center justify-around">
+//         {navs.map((nav, index) => (
+//           <li
+//             className="flex flex-col items-center justify-center p-[20px]"
+//             key={nav}
+//           >
+//             <svg
+//               xmlns="http://www.w3.org/2000/svg"
+//               fill="none"
+//               viewBox="0 0 24 24"
+//               strokeWidth={1.5}
+//               stroke="white"
+//               className="size-10 pb-1"
+//             >
+//               <path
+//                 strokeLinecap="round"
+//                 strokeLinejoin="round"
+//                 d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5"
+//               />
+//             </svg>
+//             <span className="text-white">{nav}</span>
+//           </li>
+//         ))}
+//       </ul>
+//     </div> */}
+//         <div className="ml-4">
+//           <h1 className="text-3xl font-bold text-[#4154F1]">Điểm danh</h1>
+//           <div>
+//             <span className="text-[#989797]">Track / </span>
+//             <span className="text-[#989797]">Attendance / </span>
+//             <span>Attendance sheet</span>
+//           </div>
+//           <button className="mt-2 bg-[#01A4FF] p-2 px-4 text-white">
+//             Quay lại
+//           </button>
+//           <div className="flex space-x-52">
+//             <div className="mt-2 flex space-x-3">
+//               <p>
+//                 Số lượng học sinh :
+//                 <span className="font-bold text-[#01A4FF]"> 48 học sinh |</span>
+//               </p>
+//               <p>
+//                 Số học sinh vắng mặt :
+//                 <span className="font-bold text-[#EE1C1C]"> 0 học sinh |</span>
+//               </p>
+//               <p>
+//                 Số học sinh có mặt :{" "}
+//                 <span className="font-bold text-[#00CB58]"> 48 học sinh</span>
+//               </p>
+//             </div>
+//             <div className="mt-2 flex space-x-4">
+//               <button className="h-10 rounded-lg bg-[#F3F6F9] px-60 pl-4 text-left text-[#A0AEC0]">
+//                 Tìm Kiếm
+//               </button>
+//             </div>
+//           </div>
+//           <div className="mt-2 overflow-x-auto">
+//             {/* <form onSubmit={handleSubmit(onSubmit)}> */}
+//             <table className="min-w-full border-collapse border border-gray-300">
+//               <thead>
+//                 <tr className="bg-blue-500 text-white">
+//                   <th className="border border-gray-300 p-2">STT</th>
+//                   <th className="border border-gray-300 p-2">Họ và tên</th>
+//                   <th className="border border-gray-300 p-2">Ngày sinh</th>
+//                   <th className="border border-gray-300 p-2">Ghi chú</th>
+//                   <th className="border border-gray-300 p-2">Có mặt</th>
+//                   <th className="border border-gray-300 p-2">Nghỉ có phép</th>
+//                   <th className="border border-gray-300 p-2">
+//                     Nghỉ không phép
+//                   </th>
+//                   <th className="border border-gray-300 p-2">
+//                     Đến muộn có phép
+//                   </th>
+//                 </tr>
+//               </thead>
+//               <tbody>
+//                 {/* Row 1 */}
+//                 {listData.map((item: any, index: number) => (
+//                   <tr className="bg-white text-center" key={index}>
+//                     <td className="border border-gray-300 p-2">{index}</td>
+//                     <td className="border border-gray-300 p-2">
+//                       <div>{item.fullname}</div>
+//                     </td>
+//                     <td className="border border-gray-300 p-2">{item.dob}</td>
+//                     <td className="border border-gray-300 p-2">
+//                       <input
+//                         type="text"
+//                         placeholder="Ghi chú học sinh ..."
+//                         className="border border-black text-[#989797] w-100"
+//                       />
+//                     </td>
+//                     <td className="border p-2">
+//                       <label>
+//                         <input
+//                           type="radio"
+//                           value={"option1-" + index}
+//                           name={"options" + index}
+//                           onChange={handleChange}
+//                         />
+//                       </label>
+//                     </td>
+//                     <td className="border p-2">
+//                       <input
+//                         type="radio"
+//                         value={"option2-" + index}
+//                         name={"options" + index}
+//                         onChange={handleChange}
+//                       />
+//                     </td>
+//                     <td className="border p-2">
+//                       <input
+//                         type="radio"
+//                         value={"option3-" + index}
+//                         name={"options" + index}
+//                         onChange={handleChange}
+//                       />
+//                     </td>
+//                     <td className="border p-2">
+//                       <input
+//                         type="radio"
+//                         value={"option4-" + index}
+//                         name={"options" + index}
+//                         onChange={handleChange}
+//                       />
+//                     </td>
+//                   </tr>
+//                 ))}
+//               </tbody>
+//             </table>
+//             {/* </form> */}
+//             <form onSubmit={handleSubmit(onSubmit)}>
+//               <div className="flex justify-end">
+//                 <button
+//                   type="submit"
+//                   className="mt-4 rounded-lg bg-green-500 p-2 px-4 text-white"
+//                 >
+//                   Lưu
+//                 </button>
+//               </div>
+//             </form>
+
+//             {/* Pagination */}
+//             <div className="mt-4 flex justify-end">
+
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Attendancebyclass;

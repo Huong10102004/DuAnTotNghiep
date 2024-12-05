@@ -31,8 +31,8 @@ export default function App() {
     generateToken();
     onMessage(messaging)
   }, [])
-   // Layout dùng cho các trang có sidebar, header, footer
-   const LayoutWithSidebar = () => (
+  // Layout dùng cho các trang có sidebar, header, footer
+  const LayoutWithSidebar = () => (
     <>
       <div className="row ms-3 me-1 position-relative">
         <div className="col-12 p-0 position-absolute">
@@ -50,44 +50,46 @@ export default function App() {
     </>
   );
   return <>
-   <Router>
+    <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="*" element={<Login />} />
 
         {!isLoginPage && (
-        <Route element={<LayoutWithSidebar />}>
-          {/* attendance */}
-          <Route path="/staff/attendance" element={<Attendance />} />
-          <Route path="/staff/attendance/:id" element={<Attendancebyclass />} />
-          <Route path="/staff/history_attendance" element={<HistoryAttendance />} />
-          <Route path="/staff/history_attendance/detail/:id" element={<HistoryDetailClassAttendance />} />
-          <Route path="/staff/history_attendance/detail/attendance/:id" element={<HistoryDetailAttendanceOneClass />} />
+          <Route element={<LayoutWithSidebar />}>
+            {/* attendance */}
 
-          {/* school year */}
-          <Route path="/staff/school-year" element={<SchoolYear />} />
+            <Route path="/staff/attendance" element={<Attendance />} />
+            <Route path="/staff/attendance/:id" element={<Attendancebyclass />} />
+            <Route path="/staff/history_attendance" element={<HistoryAttendance />} />
+            <Route path="/staff/history_attendance/detail/:id" element={<HistoryDetailClassAttendance />} />
+            <Route path="/staff/history_attendance/detail/attendance/:id" element={<HistoryDetailAttendanceOneClass />} />
 
-          {/* class */}
-          <Route path="/staff/class" element={<ClassStaff />} />
-          <Route path="/staff/class/assign_student/:id" element={<ClassAssignStudent />} />
+            {/* school year */}
+            <Route path="/staff/school-year" element={<SchoolYear />} />
 
-          {/* students */}
-          <Route path="/staff/student" element={<Student />} />
-          <Route path="/staff/student/detail/:id" element={<StudentDetail />} />
+            {/* class */}
+            <Route path="/staff/class" element={<ClassStaff />} />
+            <Route path="/staff/class/assign_student/:id" element={<ClassAssignStudent />} />
 
-          {/* parents */}
-          <Route path="/staff/parent" element={<Parent />} />
-          <Route path="/staff/parent/detail/:id" element={<ParentDetail />} />
+            {/* students */}
+            <Route path="/staff/student" element={<Student />} />
+            <Route path="/staff/student/detail/:id" element={<StudentDetail />} />
 
-          {/* teachers */}
-          <Route path="/staff/teacher" element={<ListTeacher />} />
+            {/* parents */}
+            <Route path="/staff/parent" element={<Parent />} />
+            <Route path="/staff/parent/detail/:id" element={<ParentDetail />} />
 
-          {/*  */}
-          <Route path="/staff/year" element={<Listyear />} />
-          <Route path="/test" element={<TestFirebase />} />
-          
-        </Route>
+            {/* teachers */}
+            <Route path="/staff/teacher" element={<ListTeacher />} />
+
+            {/*  */}
+            <Route path="/staff/year" element={<Listyear />} />
+            <Route path="/test" element={<TestFirebase />} />
+
+          </Route>
         )}
       </Routes>
-   </Router>
+    </Router>
   </>;
 }

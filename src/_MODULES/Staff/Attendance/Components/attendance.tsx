@@ -6,7 +6,6 @@ import NotificationCustom from "../../../../_Shared/Components/Notification-cust
 import { ApiService } from "../../../../Services/ApiService";
 import { Link } from "react-router-dom";
 import statusAttendanceDirective from "../../../../_Shared/Directive/Status-attendance-directive";
-
 const Attendance: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState({ type: '', message: '', title: '' });
@@ -15,6 +14,8 @@ const Attendance: React.FC = () => {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [listData, setListData]: any = useState([]);
+  const [groupedGrades, setGroupedGrades] = useState<any[]>([]); 
+
   const onChange = (dates) => {
     const [start, end] = dates;
     setStartDate(start);
@@ -33,14 +34,7 @@ const Attendance: React.FC = () => {
     "6A8": false,
   });
 
-  const grades = [
-    { grade: "6", classes: ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8"] },
-    { grade: "7", classes: ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8"] },
-    { grade: "8", classes: ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8"] },
-    { grade: "9", classes: ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8"] },
-  ];
 
-  // Hàm thay đổi checkbox khối và lớp
   const handleGradeChange = (grade: string) => {
     setSelectedGrades((prevGrades) =>
       prevGrades.includes(grade)
@@ -49,7 +43,6 @@ const Attendance: React.FC = () => {
     );
   };
 
-  // Hàm thay đổi checkbox cho từng lớp trong bảng điểm danh
   const handleAttendanceChange = (className: string) => {
     setAttendanceData((prevData) => ({
       ...prevData,
@@ -57,7 +50,6 @@ const Attendance: React.FC = () => {
     }));
   };
 
-  // Hàm xử lý lọc dữ liệu khi nhấn "Tìm Kiếm"
   const handleSearch = () => {
     console.log("Ngày đã chọn:", selectedDays);
     console.log("Các khối lớp đã chọn:", selectedGrades);
@@ -66,7 +58,7 @@ const Attendance: React.FC = () => {
 
   useEffect(() => {
     getItems();
-  },[])
+  }, [])
 
   const getItems = async () => {
     setLoading(true);
@@ -78,18 +70,65 @@ const Attendance: React.FC = () => {
         search: ''
       }
       const responseData = await ApiService(`manager/rollcall`, 'GET');
-      if(responseData){
-        setListData(responseData?.data?.data);
+      if (responseData) {
+        setListData(responseData?.data?.data)
+        const data = responseData?.data?.data
+        const grouped = data.reduce((acc, item) => {
+          const grade = item.grade
+          const className = item.className;
+
+          let gradeGroup = acc.find(g => g.grade === grade);
+          if (!gradeGroup) {
+            gradeGroup = { grade, classes: [] };
+            acc.push(gradeGroup);
+          }
+
+          gradeGroup.classes.push(className);
+
+          return acc;
+        }, []);
+        setGroupedGrades(grouped)
+
       }
-      console.log(responseData?.data?.data);
+      console.log(responseData?.data?.data)
     } catch (error) {
       setLoading(true);
-      setNotification({ type: 'error', message: 'Có lỗi liên quan đến hệ thống',title: 'Lỗi' });
+      setNotification({ type: 'error', message: 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.', title: 'Lỗi' });
     } finally {
       setLoading(false);
     }
   };
-
+  const [isOpen, setIsOpen] = useState(false);
+  const handleSubmit = async () => {
+    console.log("123333333", selectedGrades)
+    const classIds = listData
+      .filter(item => selectedGrades.includes(item.className))  
+      .map(item => item.classId);
+    setLoading(true);
+    console.log("11111111", classIds)
+    let dataRequest: any = {
+      date: localStorage.getItem('schoolYearCurrent') ?? '',
+      search: '',
+      classids: classIds
+    }
+    try {
+      const responseData = await ApiService('manager/rollcall', 'GET', dataRequest);
+      if (responseData) {
+        setListData(responseData?.data?.data);
+        console.log("Dữ liệu từ API:", responseData?.data?.data);
+      }
+    } catch (error) {
+      setNotification({
+        type: 'error',
+        message: 'Có lỗi xảy ra khi gọi API.',
+        title: 'Lỗi',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  // Hàm để toggle trạng thái dropdown
+  const toggleDropdown = () => setIsOpen(prev => !prev);
   return (
     <div>
       <Loading isLoading={loading} />
@@ -132,45 +171,50 @@ const Attendance: React.FC = () => {
 
               {/* Lọc theo khối lớp */}
               <div className="group relative">
-                <button className="w-full max-w-10 rounded-lg bg-[#F3F6F9] px-1 py-2 text-center text-[#A0AEC0]">
+                <button
+                  className="w-full max-w-10 rounded-lg bg-[#F3F6F9] px-1 py-2 text-center text-[#A0AEC0]"
+                  onClick={toggleDropdown}  // Xử lý khi click
+                >
                   Lọc
                 </button>
-                <div className="absolute left-0 top-full z-10 mt-1 hidden w-96 rounded border border-gray-300 bg-white shadow-lg group-hover:block">
-                  <h2 className="p-2 text-xl font-bold">Lọc theo khối lớp</h2>
-                  <div className="text-sm">
-                    {grades.map((grade) => (
-                      <div
-                        key={grade.grade}
-                        className="border border-gray-300 p-1"
-                      >
-                        <h2 className="mb-1 text-base font-semibold">
-                          {grade.grade}
-                        </h2>
-                        <div className="grid grid-cols-1 gap-[2px] sm:grid-cols-2 md:grid-cols-3">
-                          {grade.classes.map((className) => (
-                            <div
-                              key={`${grade.grade}-${className}`}
-                              className="text-center"
-                            >
-                              <label>
-                                <input
-                                  type="checkbox"
-                                  checked={attendanceData[className] || false}
-                                  onChange={() =>
-                                    handleAttendanceChange(className)
-                                  }
-                                />
-                                <span className="ml-1">{className}</span>
-                              </label>
-                            </div>
-                          ))}
+                {/* Hiển thị dropdown khi isOpen là true */}
+                {isOpen && (
+                  <div className="absolute left-0 top-full z-10 mt-1 w-96 rounded border border-gray-300 bg-white shadow-lg">
+                    <h2 className="p-2 text-xl font-bold">Lọc theo khối lớp</h2>
+                    <div className="text-sm">
+                      {groupedGrades.map((grade) => (
+                        <div
+                          key={grade.grade}
+                          className="border border-gray-300 p-1"
+                        >
+                          <h2 className="mb-1 text-base font-semibold">
+                            {grade.grade}
+                          </h2>
+                          <div className="grid grid-cols-1 gap-[2px] sm:grid-cols-2 md:grid-cols-3">
+                            {grade.classes.map((className) => (
+                              <div
+                                key={`${grade.grade}-${className}`}
+                                className="text-center"
+                              >
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedGrades.includes(className)}  // Kiểm tra xem className có trong selectedGrades không
+                                    onChange={() => handleGradeChange(className)}  // Gọi handleGradeChange khi checkbox thay đổi                                  
+                                  // checked={attendanceData[className] || false}
+                                  // onChange={() => handleAttendanceChange(className)}
+                                  />
+                                  <span className="ml-1">{className}</span>
+                                </label>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
-
               <div className="relative col-span-3">
                 <input
                   type="search"
@@ -180,8 +224,9 @@ const Attendance: React.FC = () => {
                   required
                 />
                 <button
-                  type="submit"
+                  type="button"
                   className="absolute end-0 top-0 h-full rounded-e-lg border border-blue-700 bg-blue-700 p-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  onClick={handleSubmit}  // Gọi API khi nhấn nút
                 >
                   <svg
                     className="h-4 w-4"
@@ -202,29 +247,29 @@ const Attendance: React.FC = () => {
               </div>
             </div>
           </div>
-           {/* Bảng điểm danh */}
-           <div className="mt-5 overflow-x-auto">
-              <table className="min-w-full border-collapse border border-gray-300">
-                <thead>
-                    <tr className="bg-blue-500 text-white">
-                      <th className="border border-gray-300 p-2">STT</th>
-                      <th className="border border-gray-300 p-2">
-                        Thông tin lớp
-                      </th>
-                      <th className="border border-gray-300 p-2">
-                        Ngày điểm danh
-                      </th>
-                      <th className="border border-gray-300 p-2">
-                        Giáo viên chủ nhiệm
-                      </th>
-                      <th className="border border-gray-300 p-2">Trạng thái</th>
-                      <th className="border border-gray-300 p-2">Có mặt</th>
-                      <th className="border border-gray-300 p-2">Điểm danh</th>
-                    </tr>
-                </thead>
-                <tbody>
-                  {listData.map((item,index) => (
-                    <tr className="bg-white text-center" key={index}>
+          {/* Bảng điểm danh */}
+          <div className="mt-5 overflow-x-auto">
+            <table className="min-w-full border-collapse border border-gray-300">
+              <thead>
+                <tr className="bg-blue-500 text-white">
+                  <th className="border border-gray-300 p-2">STT</th>
+                  <th className="border border-gray-300 p-2">
+                    Thông tin lớp
+                  </th>
+                  <th className="border border-gray-300 p-2">
+                    Ngày điểm danh
+                  </th>
+                  <th className="border border-gray-300 p-2">
+                    Giáo viên chủ nhiệm
+                  </th>
+                  <th className="border border-gray-300 p-2">Trạng thái</th>
+                  <th className="border border-gray-300 p-2">Có mặt</th>
+                  <th className="border border-gray-300 p-2">Điểm danh</th>
+                </tr>
+              </thead>
+              <tbody>
+                {listData.map((item, index) => (
+                  <tr className="bg-white text-center" key={index}>
                     <td className="border border-gray-300 p-2">{index}</td>
                     <td className="border border-gray-300 p-2 text-left">
                       <div>{item.className}</div>
@@ -244,27 +289,27 @@ const Attendance: React.FC = () => {
                         {statusAttendanceDirective(item.status)}
                       </span>
                       <br />
-                      Bởi: {item.attendanceBy} <br/>
+                      Bởi: {item.attendanceBy} <br />
                       Lúc: {item.attendanceAt}
                     </td>
                     <td className="border border-gray-300 p-2">{item.studentAttendanced} / {item.totalStudent}</td>
                     <td className="border border-gray-300 p-2">
-                    <Link to={"/staff/attendance/" + item.classId}>
-                      <button className="rounded bg-green-500 px-3 py-1 text-white">
-                        Điểm danh
-                      </button>
+                      <Link to={"/staff/attendance/" + item.classId}>
+                        <button className="rounded bg-green-500 px-3 py-1 text-white">
+                          Điểm danh
+                        </button>
                       </Link>
                     </td>
                   </tr>
-                  ))}
-                </tbody>
-              </table>
+                ))}
+              </tbody>
+            </table>
 
-              {/* Pagination */}
-              <div className="d-flex justify-content-end mt-4">
-                {/* <Pagination></Pagination> */}
-              </div>
+            {/* Pagination */}
+            <div className="d-flex justify-content-end mt-4">
+              {/* <Pagination></Pagination> */}
             </div>
+          </div>
         </div>
       </div>
       {notification.message && <NotificationCustom type={notification.type} message={notification.message} title={notification.title} />}
