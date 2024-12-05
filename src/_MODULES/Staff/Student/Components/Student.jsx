@@ -208,7 +208,9 @@ const [selectedStudentId, setSelectedStudentId] = useState(null);
   const getItems = async () => {
     setLoading(true);
     try {
-      const data = await ApiService(`manager/student?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${keyWord}`);
+      console.log("Keyword", keyWord);
+      const data = await ApiService(`manager/student?pageIndex=${pageIndex}&pageSize=${pageSize}&keyWord=${keyWord}`);
+      console.log("data", data);
       setData(Array.isArray(data.data) ? data.data : []);
     } catch (err) {
       setError(err.message);
@@ -234,7 +236,7 @@ const [selectedStudentId, setSelectedStudentId] = useState(null);
 
   useEffect(() => {
     getItems();
-  }, [pageIndex, keyWord,pageSize]);
+  }, [pageIndex, keyWord, pageSize]);
 
   useEffect(() => {
     getClasses();

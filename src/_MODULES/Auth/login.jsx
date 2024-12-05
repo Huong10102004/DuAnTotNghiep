@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import background_image from '../../assets/images/jpg/background_image.jpg'
 import Loading from '../../_Shared/Components/Loading/Loading';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+  const navigate = useNavigate(); // Hook để điều hướng
   const [loading, setLoading] = useState(false);
   const [username, setusername] = useState('');
   const [password, setPassword] = useState('');
@@ -32,7 +34,7 @@ const Login = () => {
       localStorage.setItem('schoolYear', JSON.stringify(response.data.data.schoolYear));
       localStorage.setItem('dataLogin', JSON.stringify(response.data.data));
       localStorage.setItem('schoolYearCurrent', JSON.stringify(response.data.data.schoolYear[0].id));
-
+      navigate("/staff/student")
       // Điều hướng người dùng đến trang khác sau khi đăng nhập thành công
       // window.location.href = '/staff/class'; // chuyển hướng đến trang chủ hoặc bất kỳ trang nào
     } catch (err) {

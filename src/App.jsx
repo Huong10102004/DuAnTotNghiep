@@ -24,6 +24,7 @@ import TestFirebase from './Firebase/Test-firebase'
 import { useEffect } from "react";
 import { generateToken, messaging } from "./Noticaitions/firebase";
 import { onMessage } from "firebase/messaging";
+import PrivateRoute from "./_MODULES/Auth/PrivateRoute";
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -34,7 +35,7 @@ export default function App() {
   }, [])
    // Layout dùng cho các trang có sidebar, header, footer
    const LayoutWithSidebar = () => (
-    <>
+    <PrivateRoute>
       <div className="row ms-3 me-1 position-relative">
         <div className="col-12 p-0 position-absolute">
           <Header />
@@ -48,14 +49,13 @@ export default function App() {
           </div>
         </div>
       </div>
-    </>
+    </PrivateRoute>
   );
   return <>
    <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
 
-        {!isLoginPage && (
         <Route element={<LayoutWithSidebar />}>
           {/* attendance */}
           <Route path="/staff/attendance" element={<Attendance />} />
@@ -88,7 +88,6 @@ export default function App() {
           <Route path="/test" element={<TestFirebase />} />
           
         </Route>
-        )}
       </Routes>
    </Router>
   </>;
