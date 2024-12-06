@@ -14,7 +14,7 @@ const Attendance: React.FC = () => {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [listData, setListData]: any = useState([]);
-  const [groupedGrades, setGroupedGrades] = useState<any[]>([]); 
+  const [groupedGrades, setGroupedGrades] = useState<any[]>([]);
 
   const onChange = (dates) => {
     const [start, end] = dates;
@@ -102,7 +102,7 @@ const Attendance: React.FC = () => {
   const handleSubmit = async () => {
     console.log("123333333", selectedGrades)
     const classIds = listData
-      .filter(item => selectedGrades.includes(item.className))  
+      .filter(item => selectedGrades.includes(item.className))
       .map(item => item.classId);
     setLoading(true);
     console.log("11111111", classIds)
@@ -294,12 +294,13 @@ const Attendance: React.FC = () => {
                     </td>
                     <td className="border border-gray-300 p-2">{item.studentAttendanced} / {item.totalStudent}</td>
                     <td className="border border-gray-300 p-2">
-                      <Link to={"/staff/attendance/" + item.classId}>
+                      <Link to={`/staff/attendance/${item.classId}?action=${item.status === 1 ? 'update' : 'insert'}`}>
                         <button className="rounded bg-green-500 px-3 py-1 text-white">
-                          Điểm danh
+                          {item.status === 1 ? "Cập nhật điểm danh" : "Điểm danh"}
                         </button>
                       </Link>
                     </td>
+
                   </tr>
                 ))}
               </tbody>
