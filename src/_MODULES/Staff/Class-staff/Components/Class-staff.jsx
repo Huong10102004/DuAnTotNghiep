@@ -163,7 +163,7 @@ const ClassStaff = () => {
        const formData = {
          ...data,
          academic_id: Number(data.academic_id),
-         teacher_id: Number(data.teacher_id),
+         teacher_id: Number(data.teacher_id) ? Number(data.teacher_id) : null,
          school_year_id: Number(data.school_year_id),
          status: Number(data.status),
          grade_id: Number(data.grade_id),
@@ -194,7 +194,7 @@ const ClassStaff = () => {
         const formData = {
           ...data,
           academic_id: Number(data.academic_id),
-          teacher_id: Number(data.teacher_id),
+          teacher_id: Number(data.teacher_id) ? Number(data.teacher_id) : null,
           school_year_id: Number(data.school_year_id),
           status: Number(data.status),
           grade_id: Number(data.grade_id),

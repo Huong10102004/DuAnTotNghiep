@@ -303,13 +303,19 @@ const [selectedStudentId, setSelectedStudentId] = useState(null);
       );
     
       await getItems();
+      setNotification({ type: "success", message: "Gán phụ huynh thành công", title: "Thành công" });
       console.log("Kết quả:", response);
     } catch (error) {
+      setNotification({
+        type: "error",
+        message: "Có lỗi xảy ra, vui lòng kiểm tra lại",
+        title: "Lỗi",
+      });
       console.error("Lỗi khi gán phụ huynh:", error);
     } finally {
       setLoading(false);
     }
-    closeModal();
+    closeModalAssignparent();
   };
   
   const handleKeyWord = async (event) => {
