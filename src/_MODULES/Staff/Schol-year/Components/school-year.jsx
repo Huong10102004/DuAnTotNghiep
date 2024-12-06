@@ -15,6 +15,11 @@ import DatePickerComponent from "../../../../_Shared/Components/Date-picker/Date
 import NotificationCustom from "../../../../_Shared/Components/Notification-custom/Notification-custom";
 import { formatTimestamp } from "../../../../_Shared/Pipe/Format-timestamp";
 import { STATUS_SCHOOL_YEAR_ENUM } from "../../../../_Shared/Enum/status-school-year.enum";
+import { Pagination } from 'antd';
+import axios from 'axios';
+
+
+
 
 const SchoolYear = () => {
   const [items, setItems] = useState([]);
@@ -29,8 +34,46 @@ const SchoolYear = () => {
   const [notification, setNotification] = useState({ type: '', message: '' });
   const [selectedRecord, setSelectedRecord] = React.useState(null);
   // Sử dụng react-hook-form
-  const { register, handleSubmit, formState: { errors },reset } = useForm({mode: "onChange"});
 
+  const [formDataTB, setFormDataTB] = useState({ name: '', status: '', start_year: '', end_year: '' });
+  const [errorsTB, setErrorsTB] = useState({}); // Lưu lỗi từ server
+
+  const handleInputChangeTB = (e) => {
+    setFormDataTB({
+        ...formDataTB,
+        [e.target.name]: e.target.value
+    });
+};
+
+
+const handleSubmitTB = async (e) => {
+  e.preventDefault();
+
+  const token = localStorage.getItem('token');
+  try {
+      await axios.post('http://127.0.0.1:8000/api/manager/academicyear/add', formDataTB, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Gửi token trong header
+        }
+      });
+      document.querySelector('.btn_close_tb').click();
+      await getItems();
+      setNotification({ type: 'success', message: 'Chỉnh sửa niên khóa thành công',title: 'Thành công' });
+      setErrorsTB({});
+  } catch (error) {
+    console.log(error);
+      if (error.response && error.response.data.errors) {
+        setErrorsTB(error.response.data.errors); // Lưu lỗi vào state
+      }
+  }
+};
+
+
+
+  const [total, setTotal] = useState(0);
+  const { register, handleSubmit, formState: { errors },reset } = useForm({mode: "onChange"});
+  const [keyword, setKeyword] = useState('');
     
   const openModal = (editMode = false, data = null) => {
     setIsEditMode(editMode);
@@ -73,6 +116,7 @@ const SchoolYear = () => {
           status: Number(data.status)
         };
         const response = await ApiService(`manager/academicyear/update/${currentData.id}`,'PUT', formData);  // Gọi API lấy danh sách
+        console.log(response);
         if (response) {
           await getItems();
           setNotification({ type: 'success', message: 'Chỉnh sửa niên khóa thành công',title: 'Thành công' });
@@ -112,11 +156,12 @@ const SchoolYear = () => {
     closeModal();
   };
 
-  const getItems = async () => {
+  const getItems = async (keyWord = '', indexPage = 1) => {
     setLoading(true);
     try {
-      const response = await ApiService("manager/academicyear");
+      const response = await ApiService(`manager/academicyear?keyword=${keyWord}&pageIndex=${indexPage}`);
       setItems(response.data.data || []);
+      setTotal(response.data.total)
     } catch (error) {
       setNotification({ type: 'error', message: 'Lỗi liên quan hệ thống. Vui lòng liên hệ QTV',title: 'Lỗi xảy ra' });
     } finally {
@@ -202,8 +247,87 @@ const SchoolYear = () => {
     setSelectedRecord(record);
     setIsModalOpen(true);
   };
+
+  const searchData = (e) => {
+    e.preventDefault()
+    getItems(keyword);
+  }
+
+  const onChangePagination = (page, pageSize) => {
+    // console.log(`Page: ${page}, PageSize: ${pageSize}`);
+    getItems(keyword, page)
+  };
+
+
   return (
     <div>
+
+
+      <div className="modal fade" id="addAC" tabIndex="-1" aria-labelledby="addACLabel" aria-hidden="true">
+        <div className="modal-dialog modal-lg">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title text-center fs-5" id="addACLabel">Thêm niên khóa</h1>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div className="modal-body">
+              <form onSubmit={handleSubmitTB} className="row" method="post">
+              <div className="col-6">
+                <div className="mb-3">
+                  <label className="mb-2">Tên niên khóa</label>
+                  <input name="name" value={formDataTB.name} onChange={handleInputChangeTB} type="text" className="form-control"/>
+                  <span className="text-danger"></span>
+                    {/* Hiển thị lỗi cho trường name */}
+                    {errorsTB.name && <p style={{ color: 'red' }}>{errorsTB.name[0]}</p>}
+                </div>
+              </div>
+
+              <div className="col-6">
+                <div className="mb-3">
+                  <label className="mb-2">Trang thái</label>
+                  <select name="status" value={formDataTB.status} onChange={handleInputChangeTB} className="form-control">
+                  <option value={STATUS_SCHOOL_YEAR_ENUM.NOT_STARTED_YET}>{STATUS_SCHOOL_YEAR_ENUM.NOT_STARTED_YET_LABEL}</option>
+                <option value={STATUS_SCHOOL_YEAR_ENUM.ONGOING}>{STATUS_SCHOOL_YEAR_ENUM.ONGOING_LABEL}</option>
+                <option value={STATUS_SCHOOL_YEAR_ENUM.FINISHED}>{STATUS_SCHOOL_YEAR_ENUM.FINISHED_LABEl}</option>
+                  </select>
+                  <span className="text-danger"></span>
+                    {/* Hiển thị lỗi cho trường name */}
+                    {errorsTB.status && <p style={{ color: 'red' }}>{errorsTB.status[0]}</p>}
+                </div>
+              </div>
+
+              <div className="col-6">
+                <div className="mb-3">
+                  <label className="mb-2">Năm bắt đầu</label>
+                  <input name="start_year" value={formDataTB.start_year} onChange={handleInputChangeTB} type="datetime-local" className="form-control"/>
+                  <span className="text-danger"></span>
+                    {/* Hiển thị lỗi cho trường name */}
+                    {errorsTB.start_year && <p style={{ color: 'red' }}>{errorsTB.start_year[0]}</p>}
+                </div>
+              </div>
+
+              <div className="col-6">
+                <div className="mb-3">
+                  <label className="mb-2">Năm kết thúc</label>
+                  <input name="end_year" value={formDataTB.end_year} onChange={handleInputChangeTB} type="datetime-local" className="form-control"/>
+                  <span className="text-danger"></span>
+                    {/* Hiển thị lỗi cho trường name */}
+                    {errorsTB.end_year && <p style={{ color: 'red' }}>{errorsTB.end_year[0]}</p>}
+                </div>
+              </div>
+
+              <div className="text-center">
+                <button type="button" data-bs-dismiss="modal" aria-label="Close" className="btn btn-secondary btn_close_tb">Đóng</button>
+                <button type="submit" className="btn btn-primary ms-2">Lưu</button>
+              </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
       <Loading isLoading={loading} />
       {/* <header className="h-[100px] w-full"></header> */}
       <div className="pt-6rem bg-white h-100vh px-4">
@@ -213,9 +337,12 @@ const SchoolYear = () => {
             <div className="d-flex justify-content-between align-items-end mt-2">
               <p>{t('countSchoolYear')}: <span className="text-danger">{items.length} {t('schoolYear')}</span></p>
                 <div className="d-flex">
-                    <input placeholder={t('search')} className={`bg-color-white-smoke px-3 py-2 border-radius-10px w-300px`}/>
+                    <form action="" method="post" onSubmit={searchData}>
+                      <input onChange={(e) => setKeyword(e.target.value)} placeholder={t('search')} className={`bg-color-white-smoke px-3 py-2 border-radius-10px w-300px`}/>
+                    </form>
                     <button className="btn bg-color-blue text-color-white mx-3 d-flex align-items-center">{t('exportFileExcel')} <img className="ps-2" src={export_file}/></button>
-                    <button className="btn bg-color-green-bold text-color-white d-flex align-items-center" onClick={() => openModal(false)}>{t('create')} <img className="ps-2" src={icon_plus}/></button>
+                    {/* <button className="btn bg-color-green-bold text-color-white d-flex align-items-center" onClick={() => openModal(false)}>{t('create')} <img className="ps-2" src={icon_plus}/></button> */}
+                    <button type="button" data-bs-toggle="modal" data-bs-target="#addAC" className="btn btn-success">Thêm mới</button>
                 </div>
             </div>
 
@@ -257,9 +384,13 @@ const SchoolYear = () => {
                 </table>
             </div>
             <div className="d-flex justify-content-end">
-                <PaginationAntd></PaginationAntd>
+                {/* <PaginationAntd></PaginationAntd> */}
+                <Pagination defaultCurrent={1} pageSize={15} total={total} onChange={onChangePagination} />
             </div>
       </div>
+
+      
+
 
       {/* modal  */}
       <ModalReuse isOpen={modalIsOpen} onClose={closeModal} title={isEditMode ? "Chỉnh sửa niên khóa" : "Thêm niên khóa"} width="80%">
@@ -284,22 +415,22 @@ const SchoolYear = () => {
             </div>
 
             {/* Ngày bắt đầu */}
-            <div className="col-12 col-md-6 mb-3">
+            {isEditMode && <div className="col-12 col-md-6 mb-3">
               <label>Ngày bắt đầu:</label>
               <div className="flex w-5/5 flex-col">
                 <DatePickerComponent onDateChange={handleStartDateChange} selectedDate={startDate} placeholder={'Chọn ngày bắt đầu năm học'} />
               </div>
-            </div>
+            </div>}
 
             {/* Ngày kết thúc */}
-            <div className="col-12 col-md-6 mb-3">
+            {isEditMode && <div className="col-12 col-md-6 mb-3">
               <label>Ngày kết thúc:</label>
               <div className="w-100">
               <div className="flex w-5/5 flex-col">
                 <DatePickerComponent onDateChange={handleEndDateChange} selectedDate={endDate} placeholder={'Chọn ngày kết thúc năm học'} />
               </div>
               </div>
-            </div>
+            </div>}
           </div>
 
           <hr className="mt-20"/>

@@ -1,26 +1,36 @@
 import React from 'react';
 import { GENDER_ENUM } from '../../Enum/gender.enum';
 
-const genderDirective = (status) => {
-  // Định nghĩa màu sắc theo status
-  let statusLabel = "";
-  const getStatusColor = (status) => {
-    switch (status) {
+const genderDirective = ({ gender }) => {
+  let genderLabel = "";
+  const getGenderColor = (gender) => {
+    const genderNumber = parseInt(gender, 10); 
+    // console.log("Gender received:", genderNumber, typeof genderNumber); 
+
+    switch (genderNumber) {
       case GENDER_ENUM.NAM:
-        statusLabel = GENDER_ENUM.NAM_LABEL
-        return '#235DF4';
+        genderLabel = GENDER_ENUM.NAM_LABEL;
+        return '#235DF4'; 
       case GENDER_ENUM.WOMAN:
-        statusLabel = GENDER_ENUM.WOMAN_LABEL
-        return '#F42355';
+        genderLabel = GENDER_ENUM.WOMAN_LABEL;
+        return '#F42355'; 
       default:
-        statusLabel = GENDER_ENUM.NAM_LABEL
+        genderLabel = GENDER_ENUM.NAM_LABEL; 
         return '#235DF4';
     }
   };
 
   return (
-    <button style={{ backgroundColor: getStatusColor(status), padding: '2px 0', border: 'none', borderRadius: '10px', color: 'white' }} className='w-100'>
-      {statusLabel}
+    <button
+      style={{
+        backgroundColor: getGenderColor(gender),
+        padding: '2px 0',
+        border: 'none',
+        borderRadius: '10px',
+        color: 'white',
+      }}
+      className='w-100'>
+      {genderLabel}
     </button>
   );
 };
