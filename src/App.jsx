@@ -17,14 +17,14 @@ import ParentDetail from "./_MODULES/Staff/Parent/Components/Parent-detail";
 import Login from "./_MODULES/Auth/login";
 import Listyear from "./_MODULES/Staff/ListSubject/Components/listyear";
 import ListTeacher from "./_MODULES/Staff/ListSubject/Components/list_teachers";
+import StudentsAssignClass from "./_MODULES/Staff/Student/Components/Student-assign-class";
 import Attendancebyclass from "./_MODULES/Staff/Attendance/Components/attendancebyclass";
 import ClassStaff from "./_MODULES/Staff/Class-staff/Components/Class-staff";
 import TestFirebase from './Firebase/Test-firebase'
 import { useEffect } from "react";
 import { generateToken, messaging } from "./Noticaitions/firebase";
 import { onMessage } from "firebase/messaging";
-import GanSubjectChoClass from "./_MODULES/Staff/ListSubject/Components/gan_subject_cho_class";
-import ListSubject from "./_MODULES/Staff/ListSubject/Components/list_subject";
+import PrivateRoute from "./_MODULES/Auth/PrivateRoute";
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -35,7 +35,7 @@ export default function App() {
   }, [])
    // Layout dùng cho các trang có sidebar, header, footer
    const LayoutWithSidebar = () => (
-    <>
+    <PrivateRoute>
       <div className="row ms-3 me-1 position-relative">
         <div className="col-12 p-0 position-absolute">
           <Header />
@@ -49,14 +49,13 @@ export default function App() {
           </div>
         </div>
       </div>
-    </>
+    </PrivateRoute>
   );
   return <>
    <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
 
-        {!isLoginPage && (
         <Route element={<LayoutWithSidebar />}>
           {/* attendance */}
           <Route path="/staff/attendance" element={<Attendance />} />
@@ -75,6 +74,7 @@ export default function App() {
           {/* students */}
           <Route path="/staff/student" element={<Student />} />
           <Route path="/staff/student/detail/:id" element={<StudentDetail />} />
+          <Route path="/staff/student/assign_class/:id" element={<StudentsAssignClass />} />
 
           {/* parents */}
           <Route path="/staff/parent" element={<Parent />} />
@@ -85,12 +85,9 @@ export default function App() {
 
           {/*  */}
           <Route path="/staff/year" element={<Listyear />} />
-          <Route path="/staff/subject" element={<ListSubject />} />
-          <Route path="/staff/gan-subject-cho-class" element={<GanSubjectChoClass />} />
           <Route path="/test" element={<TestFirebase />} />
           
         </Route>
-        )}
       </Routes>
    </Router>
   </>;
