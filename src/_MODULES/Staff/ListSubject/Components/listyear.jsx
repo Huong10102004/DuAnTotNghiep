@@ -15,6 +15,11 @@ import StatusYearSchoolDirective from "../../../../_Shared/Directive/status-year
 import { Modal } from "antd";
 import NotificationCustom from "../../../../_Shared/Components/Notification-custom/Notification-custom";
 import { SET_TIMEOUT_HIDDEN_MODAL, SET_TIMEOUT_MESSAGE } from "../../../../_Shared/Constant/constant";
+import { data } from "autoprefixer";
+import { Pagination } from 'antd';
+
+
+
 const Listyear = () => {
   const [keyWord, setKeyWord] = useState('');  // Biến lưu từ khóa tìm kiếm
   const [items, setItems] = useState([]);
@@ -25,6 +30,9 @@ const Listyear = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false); // mở modal confirm xóa
   const [notification, setNotification] = useState({ type: '', message: '' });
+  const [total, setTotal] = useState(0);
+  const [pageSizePag, setPageSizePag] = useState(1);
+  const [pageTotalPag, setPageTotalPag] = useState(Math.floor(total/15));
 
   const menuItems = [
     { key: "edit", label: "Chỉnh sửa", icon: icon_edit },
@@ -74,13 +82,26 @@ const Listyear = () => {
   };
 
   // Hàm lấy danh sách dữ liệu
-  const getItems = async (keyWord = '') => {
+  const getItems = async (keyWord = '', pageIndex = 1) => {
     setLoading(true);  // Bắt đầu tải dữ liệu
     setError(null);    // Reset error
     try {
-      const data = await ApiService(`manager/schoolyear?keyWord=${keyWord}`);  // Gọi API lấy danh sách
-      console.log("Dữ liệu trả về từ API: ", data);  // Kiểm tra dữ liệu trả về
-      setItems(Array.isArray(data.data) ? data.data : []);  // Cập nhật danh sách
+      let url = `manager/schoolyear?keyword=${keyWord}&pageIndex=${pageIndex}`;
+      // console.log('url', url);
+      const data = await ApiService(url);  // Gọi API lấy danh sách
+      // console.log("Dữ liệu trả về từ API: ", data);  // Kiểm tra dữ liệu trả về
+      // setItems(Array.isArray(data.data) ? data.data : []);  // Cập nhật danh sách
+      let re = data.data ?? []
+
+      if(typeof re === "object"){
+        setItems([...Object.values(re)])
+      } else {
+        setItems(re)
+      }
+      
+      console.log('pageIndex', pageIndex);
+      console.log('items', items);
+      setTotal(data.total)
     } catch (err) {
       setError(err.message);
     } finally {
@@ -119,15 +140,30 @@ const Listyear = () => {
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      getItems(keyWord);  // Gọi API ngay khi nhấn Enter
-    }
+
+    e.preventDefault();
+
+    console.log("keyWord", keyWord);
+    getItems(keyWord);  // Gọi API ngay khi nhấn Enter
+
+
+    // if (e.key === 'Enter') {
+    //   console.log("keyWord", keyWord);
+    //   getItems(keyWord);  // Gọi API ngay khi nhấn Enter
+    // }
+
   };
+
 
   const handleCallBackApi = () => {
     getItems();
   }
-  
+
+  const onChangePagination = (page, pageSize) => {
+    // console.log(`Page: ${page}, PageSize: ${pageSize}`);
+    getItems(keyWord, page)
+  };
+
   return (
     <div>
       {/* Lớp phủ loading với hiệu ứng spinner */}
@@ -139,17 +175,18 @@ const Listyear = () => {
 
         <div className="d-flex align-items-end mt-2 justify-content-between">
           <p>
-            Số niên khóa: <span className="text-red-600">10 năm học</span>
+            Số năm học: <span className="text-red-600">{total} năm học</span>
           </p>
 
           <div className="flex w-3/4 justify-end gap-1">
-            <input
-              placeholder="Tìm kiếm...."
-              className={`bg-color-white-smoke border-radius-10px w-300px px-3 py-2`}
-              value={keyWord}
-              onChange={handleSearchChange}
-              onKeyDown={handleKeyDown}
-            />
+            <form action="" onSubmit={handleKeyDown}  method="post">
+              <input
+                placeholder="Tìm kiếm...."
+                className={`bg-color-white-smoke border-radius-10px w-300px px-3 py-2`}
+                value={keyWord}
+                onChange={handleSearchChange}
+              />
+            </form>
             <button className="h-10 w-24 rounded bg-blue-500 text-sm text-white">
               Xuất file Excel
             </button>
@@ -178,7 +215,7 @@ const Listyear = () => {
               </tr>
             </thead>
             <tbody>
-              {items && Array.isArray(items) && items.length > 0 ? (
+              { items.length > 0 ? (
                 items.map((item, index) => (
                   <tr className="align-middle" key={item.id || index}>
                     <td className="text-center">{index + 1}</td>
@@ -221,7 +258,8 @@ const Listyear = () => {
           </table>
         </div>
         <div className="d-flex justify-content-end">
-          <PaginationAntd></PaginationAntd>
+          {/* <PaginationAntd onPageChange={1} total={10}></PaginationAntd> */}
+          <Pagination defaultCurrent={1} pageSize={15} total={total} onChange={onChangePagination} />
         </div>
       </div>
 

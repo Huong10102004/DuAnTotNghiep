@@ -170,7 +170,7 @@ const Updateyear = ({ isOpen, onClose, data, reloadApi }) => {
                   })}
                   className="w-full rounded border p-2"
                   value={schoolYearStatus}
-                  onChange={(e) => setStatus(e.target.value)}
+                  onChange={(e) => setSchoolYearStatus(e.target.value)}
                 >
                  <option value={Number(STATUS_SCHOOL_YEAR.NOT_STARTED_YET)}>{STATUS_SCHOOL_YEAR.NOT_STARTED_YET_LABEL}</option>
                   <option value={Number(STATUS_SCHOOL_YEAR.ONGOING)}>{STATUS_SCHOOL_YEAR.ONGOING_LABEL}</option>
