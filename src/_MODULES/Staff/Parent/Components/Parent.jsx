@@ -86,6 +86,7 @@ const Parent = () => {
 
   // Hàm click thao tác
   const handleMenuClick = (key, data) => {
+    setCurrentData(data);
     if (key === "edit") {
       openModal(true, data); // Pass the data for editing
     } else if (key === "delete") {
@@ -148,7 +149,7 @@ const Parent = () => {
   };
 
   const closeModalChangePassword = (e) => {
-    e?.preventDefault()
+    e?.preventDefault();
     setModalIsOpenChangePassword(false);
   };
 
@@ -269,10 +270,10 @@ const Parent = () => {
       <ModalReuse
         isOpen={modalIsOpenChangePassword}
         onClose={closeModalChangePassword}
-        title="Đổi mật khẩu"
+        title={"Đổi mật khẩu"}
         width="80%"
       >
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={(e) => onChangePassword(e)}>
           <div className="row">
             {/* Mật khẩu */}
             <div className="col-12 col-md-6 mb-3">
@@ -288,9 +289,7 @@ const Parent = () => {
                 placeholder="Nhập mật khẩu của phụ huynh..."
               />
               {errors.password && (
-                <div className="invalid-feedback">
-                  {errors.password.message}
-                </div>
+                <div className="invalid-feedback">{errors.password.message}</div>
               )}
             </div>
 
@@ -305,8 +304,7 @@ const Parent = () => {
                 {...register("confirmPassword", {
                   required: "Xác nhận mật khẩu của phụ huynh bắt buộc nhập",
                   validate: (value) =>
-                    value === watch("password") ||
-                    "Mật khẩu xác nhận không khớp",
+                    value === watch("password") || "Mật khẩu xác nhận không khớp",
                 })}
                 placeholder="Nhập xác nhận mật khẩu của phụ huynh..."
               />

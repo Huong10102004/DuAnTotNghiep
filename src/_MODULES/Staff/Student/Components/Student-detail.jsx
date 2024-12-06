@@ -182,7 +182,7 @@ const StudentDetail = () => {
                 </div>
             </div>
             <div className="col-10">
-                <div className='border h-70vh px-4 pt-6'>
+                <div className='border h-70vh px-4 pt-6 overflow-auto pb-5'>
                     <h3 className='fs-18'>Thông tin học sinh</h3>
                     {/* row 1 */}
                     <div className='row mt-3 align-items-center'>
