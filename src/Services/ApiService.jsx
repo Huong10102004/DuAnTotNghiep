@@ -26,3 +26,7 @@ export const ApiService = async (endpoint, method = 'GET', data = null) => {
     throw error;
   }
 };
+
+export {
+  API_BASE_URL
+}
